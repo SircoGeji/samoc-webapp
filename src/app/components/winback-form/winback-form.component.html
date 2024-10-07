@@ -1,0 +1,687 @@
+<ng-container [formGroup]="winbackForm">
+  <!-- PLAN -->
+  <div
+    class="form-component-container-form-container-form-field-medium form-component-container-form-container-form-field"
+  >
+    <mat-form-field>
+      <mat-label>PLAN</mat-label>
+      <mat-select required formControlName="plan">
+        <mat-option *ngFor="let plan of plans" [value]="plan.planCode">
+          {{ plan.planCode }} - {{ plan['planDetails'] }}
+        </mat-option>
+      </mat-select>
+      <mat-error *ngIf="winbackForm.get('plan').hasError('required')"
+        >Please select a plan</mat-error
+      >
+    </mat-form-field>
+  </div>
+
+  <!-- OFFER CODE TYPE & TOTAL UNIQUE CODES -->
+  <div class="form-component-container-form-container-subform">
+    <!-- OFFER CODE TYPE -->
+    <div
+      class="form-component-container-form-container-form-field-medium form-component-container-form-container-form-field"
+    >
+      <mat-form-field>
+        <mat-label>OFFER CODE TYPE</mat-label>
+        <mat-select formControlName="offerCodeType" required>
+          <mat-option
+            *ngFor="let offerCodeType of offerCodeTypes"
+            [value]="offerCodeType.value"
+          >
+            {{ offerCodeType.viewValue }}
+          </mat-option>
+        </mat-select>
+        <mat-error *ngIf="winbackForm.get('offerCodeType').hasError('required')"
+          >Please select an offer code type
+        </mat-error>
+      </mat-form-field>
+    </div>
+
+    <!-- TOTAL UNIQUE CODES -->
+    <div
+      *ngIf="checkControlValue('offerCodeType', 'bulk')"
+      class="form-component-container-form-container-form-field-subfield margin-left-3-perc form-component-container-form-container-form-field"
+    >
+      <mat-form-field appearance="fill" class="example-full-width">
+        <mat-label>TOTAL UNIQUE CODES</mat-label>
+        <input
+          type="number"
+          min="1"
+          step="1"
+          matInput
+          required
+          autocomplete="off"
+          (keypress)="keyPressNumbersIntOnly($event)"
+          formControlName="totalUniqueCodes"
+        />
+        <span
+          class="offer-form-tooltip-button"
+          matTooltip="Max redemption is unlimited"
+          matTooltipPosition="above"
+          >&nbsp;</span
+        >
+        <mat-error
+          *ngIf="winbackForm.get('totalUniqueCodes').hasError('required')"
+          >Please enter a value for total unique codes
+        </mat-error>
+        <mat-error
+          *ngIf="
+            winbackForm.get('totalUniqueCodes').hasError('min') ||
+            winbackForm.get('totalUniqueCodes').hasError('max')
+          "
+          >Please enter an integer from 1 to 99999
+        </mat-error>
+      </mat-form-field>
+    </div>
+  </div>
+
+  <!-- DISCOUNT TYPE & PROMO PRICE (USD) & DISCOUNT DURATION & DURATION VALUE & DISCOUNT UNIT -->
+  <div
+    class="form-component-container-form-container-subform"
+    style="margin-bottom: 95px"
+  >
+    <!-- DISCOUNT TYPE -->
+    <div
+      class="form-component-container-form-container-form-field-small form-component-container-form-container-form-field"
+    >
+      <mat-form-field>
+        <mat-label>DISCOUNT TYPE</mat-label>
+        <mat-select required formControlName="discountType">
+          <mat-option *ngFor="let offer of offers" [value]="offer.value">
+            {{ offer.viewValue }}
+          </mat-option>
+        </mat-select>
+        <mat-error *ngIf="winbackForm.get('discountType').hasError('required')"
+          >Please select a discount type
+        </mat-error>
+      </mat-form-field>
+    </div>
+
+    <!-- PROMO PRICE (USD) -->
+    <div
+      *ngIf="checkControlValue('discountType', discountTypeEnum.FIXED)"
+      class="form-component-container-form-container-form-field-subfield margin-left-3-perc form-component-container-form-container-form-field"
+    >
+      <mat-form-field appearance="fill" class="example-full-width">
+        <mat-label>PROMO PRICE (USD)</mat-label>
+        <input
+          type="number"
+          min="0"
+          step="0.01"
+          matInput
+          required
+          autocomplete="off"
+          (keypress)="keyPressNumbersWithDecimal($event)"
+          formControlName="discountAmount"
+        />
+        <span
+          class="offer-form-tooltip-button"
+          matTooltip="Selected plan price is $ {{ planPrice }} USD"
+          matTooltipPosition="above"
+          >&nbsp;</span
+        >
+        <mat-error
+          *ngIf="winbackForm.get('discountAmount').hasError('required')"
+          >Please enter the promo price
+        </mat-error>
+
+        <mat-error
+          *ngIf="winbackForm.get('discountAmount').hasError('pattern')"
+        >
+          Price should be greater or equal to 0 with maximum 2 decimals
+        </mat-error>
+
+        <mat-error
+          *ngIf="
+            winbackForm
+              .get('discountAmount')
+              .hasError('validatePromoPriceError')
+          "
+        >
+          Please enter a promo price smaller than or equal to the plan price
+        </mat-error>
+      </mat-form-field>
+    </div>
+
+    <!-- DISCOUNT DURATION -->
+    <div
+      *ngIf="
+        checkControlValue('discountType', discountTypeEnum.TRIAL) ||
+        checkControlValue('discountType', discountTypeEnum.FIXED)
+      "
+      class="form-component-container-form-container-form-field-subfield margin-left-3-perc form-component-container-form-container-form-field"
+    >
+      <mat-form-field>
+        <mat-label>DISCOUNT DURATION</mat-label>
+        <mat-select required formControlName="discountDurationType">
+          <mat-option *ngFor="let type of durationTypes" [value]="type.value">
+            {{ type.viewValue }}
+          </mat-option>
+        </mat-select>
+        <mat-error
+          *ngIf="winbackForm.get('discountDurationType').hasError('required')"
+          >Please select a discount duration
+        </mat-error>
+      </mat-form-field>
+    </div>
+
+    <!-- DURATION VALUE -->
+    <div
+      *ngIf="checkControlValue('discountDurationType', 'customize')"
+      class="form-component-container-form-container-form-field-subfield margin-left-3-perc form-component-container-form-container-form-field"
+    >
+      <mat-form-field appearance="fill" class="example-full-width">
+        <mat-label>DURATION VALUE</mat-label>
+        <input
+          type="number"
+          min="1"
+          step="1"
+          matInput
+          required
+          autocomplete="off"
+          formControlName="discountDurationValue"
+          (keypress)="keyPressNumbersIntOnly($event)"
+        />
+        <mat-error
+          *ngIf="winbackForm.get('discountDurationValue').hasError('required')"
+          >Please enter a duration value
+        </mat-error>
+
+        <mat-error
+          *ngIf="
+            winbackForm.get('discountDurationValue').hasError('min') ||
+            winbackForm.get('discountDurationValue').hasError('max')
+          "
+          >{{ durationValueError }}
+        </mat-error>
+
+        <mat-error
+          *ngIf="
+            winbackForm.get('discountDurationValue').hasError('durationError')
+          "
+          >{{
+            winbackForm.get('discountDurationValue').getError('durationError')
+          }}
+        </mat-error>
+      </mat-form-field>
+    </div>
+
+    <!-- DISCOUNT UNIT -->
+    <div
+      *ngIf="checkControlValue('discountDurationType', 'customize')"
+      class="form-component-container-form-container-form-field-subfield margin-left-3-perc form-component-container-form-container-form-field"
+    >
+      <mat-form-field>
+        <mat-label>DISCOUNT UNIT</mat-label>
+        <mat-select required formControlName="discountDurationUnit">
+          <mat-option *ngFor="let unit of durationUnits" [value]="unit.value">
+            {{ unit.viewValue }}
+          </mat-option>
+        </mat-select>
+        <mat-error
+          *ngIf="winbackForm.get('discountDurationUnit').hasError('required')"
+          >Please select a discount unit
+        </mat-error>
+      </mat-form-field>
+    </div>
+  </div>
+
+  <!-- ================================================================= -->
+
+  <!-- OFFER NAME -->
+  <div
+    class="form-component-container-form-container-form-field-medium form-component-container-form-container-form-field"
+  >
+    <mat-form-field appearance="fill" class="example-full-width">
+      <mat-label>OFFER NAME</mat-label>
+      <input
+        matInput
+        required
+        maxlength="{{ nameLength }}"
+        autocomplete="off"
+        formControlName="offerName"
+        (focus)="offerNameCounter.hidden = false"
+        (blur)="offerNameCounter.hidden = true"
+        (paste)="removeNewlines($event, winbackForm.controls.offerName)"
+      />
+
+      <mat-hint #offerNameCounter class="char-counter" align="end" hidden>
+        {{ winbackForm.get('offerName').value.length }} / {{ nameLength }}
+      </mat-hint>
+
+      <mat-error *ngIf="winbackForm.get('offerName').hasError('required')"
+        >Please enter an offer name
+      </mat-error>
+
+      <mat-error *ngIf="winbackForm.get('offerName').hasError('pattern')"
+        >{{ generalTextFieldPatternErrMsg }}
+      </mat-error>
+    </mat-form-field>
+  </div>
+
+  <!-- OFFER HEADER -->
+  <div
+    class="form-component-container-form-container-form-field-large form-component-container-form-container-form-field"
+  >
+    <mat-form-field appearance="fill" class="example-full-width">
+      <mat-label>OFFER HEADER</mat-label>
+      <input
+        matInput
+        required
+        maxlength="{{ headerLength }}"
+        autocomplete="off"
+        formControlName="offerHeader"
+        (focus)="offerHeaderCounter.hidden = false"
+        (blur)="offerHeaderCounter.hidden = true"
+        (paste)="removeNewlines($event, winbackForm.controls.offerHeader)"
+      />
+
+      <mat-hint class="mat-hint-validation-success" align="start"
+        >Use &lt;br&gt; to insert single line breaks in text</mat-hint
+      >
+      <mat-hint #offerHeaderCounter class="char-counter" align="end" hidden>
+        {{ winbackForm.get('offerHeader').value.length }} / {{ headerLength }}
+      </mat-hint>
+
+      <mat-error *ngIf="winbackForm.get('offerHeader').hasError('required')"
+        >Please enter an offer header
+      </mat-error>
+
+      <mat-error *ngIf="winbackForm.get('offerHeader').hasError('pattern')"
+        >{{ generalTextFieldPatternErrMsg }}
+      </mat-error>
+
+      <span
+        class="material-icons info-container"
+        (click)="openInfoModal('offerHeader', $event)"
+      >
+        info
+      </span>
+    </mat-form-field>
+  </div>
+
+  <!-- OFFER BODY TEXT -->
+  <div
+    class="form-component-container-form-container-form-field-text form-component-container-form-container-form-field"
+  >
+    <mat-form-field appearance="fill" class="example-full-width">
+      <mat-label>OFFER BODY TEXT</mat-label>
+      <textarea
+        matInput
+        required
+        maxlength="{{ bodyTxtLength }}"
+        cdkTextareaAutosize
+        cdkAutosizeMinRows="1"
+        cdkAutosizeMaxRows="2"
+        #autosize="cdkTextareaAutosize"
+        formControlName="offerBodyText"
+        (focus)="offerBodyCounter.hidden = false"
+        (blur)="offerBodyCounter.hidden = true"
+        (paste)="removeNewlines($event, winbackForm.controls.offerBodyText)"
+      ></textarea>
+
+      <mat-hint #offerBodyCounter class="char-counter" align="end" hidden>
+        {{ winbackForm.get('offerBodyText').value.length }} /
+        {{ bodyTxtLength }}
+      </mat-hint>
+
+      <mat-error *ngIf="winbackForm.get('offerBodyText').hasError('required')"
+        >Please enter an offer body text
+      </mat-error>
+
+      <mat-error *ngIf="winbackForm.get('offerBodyText').hasError('pattern')"
+        >{{ generalTextFieldPatternErrMsg }}
+      </mat-error>
+
+      <span
+        class="material-icons info-container"
+        (click)="openInfoModal('offerBodyText', $event)"
+      >
+        info
+      </span>
+    </mat-form-field>
+  </div>
+
+  <!-- OFFER BOLDED TEXT -->
+  <div
+    class="form-component-container-form-container-form-field-large form-component-container-form-container-form-field"
+  >
+    <mat-form-field appearance="fill" class="example-full-width">
+      <mat-label>OFFER BOLDED TEXT</mat-label>
+      <input
+        matInput
+        maxlength="{{ boldedTxtLength }}"
+        autocomplete="off"
+        formControlName="offerBoldedText"
+        (focus)="offerBoldedCounter.hidden = false"
+        (blur)="offerBoldedCounter.hidden = true"
+        (paste)="removeNewlines($event, winbackForm.controls.offerBoldedText)"
+      />
+
+      <mat-hint #offerBoldedCounter class="char-counter" align="end" hidden>
+        {{ winbackForm.get('offerBoldedText').value.length }} /
+        {{ boldedTxtLength }}
+      </mat-hint>
+
+      <mat-hint *ngIf="showBoldedText()" class="mat-hint-validation-success">{{
+        offerBoldedTextMsg
+      }}</mat-hint>
+
+      <mat-error *ngIf="winbackForm.get('offerBoldedText').hasError('pattern')"
+        >{{ generalTextFieldPatternErrMsg }}
+      </mat-error>
+
+      <span
+        class="material-icons info-container"
+        (click)="openInfoModal('offerBoldedText', $event)"
+      >
+        info
+      </span>
+    </mat-form-field>
+  </div>
+
+  <!-- OFFER APPLIED BANNER TEXT -->
+  <div
+    class="form-component-container-form-container-form-field-large form-component-container-form-container-form-field"
+  >
+    <mat-form-field appearance="fill" class="example-full-width">
+      <mat-label>OFFER APPLIED BANNER TEXT</mat-label>
+      <input
+        matInput
+        required
+        maxlength="{{ bannerTxtLength }}"
+        autocomplete="off"
+        formControlName="offerAppliedBannerText"
+        (focus)="offerBannerCounter.hidden = false"
+        (blur)="offerBannerCounter.hidden = true"
+        (paste)="
+          removeNewlines($event, winbackForm.controls.offerAppliedBannerText)
+        "
+      />
+
+      <mat-hint #offerBannerCounter class="char-counter" align="end" hidden>
+        {{ winbackForm.get('offerAppliedBannerText').value.length }} /
+        {{ bannerTxtLength }}
+      </mat-hint>
+
+      <mat-error
+        *ngIf="winbackForm.get('offerAppliedBannerText').hasError('required')"
+        >Please enter an offer applied banner text
+      </mat-error>
+
+      <mat-error
+        *ngIf="winbackForm.get('offerAppliedBannerText').hasError('pattern')"
+        >{{ generalTextFieldPatternErrMsg }}
+      </mat-error>
+
+      <span
+        class="material-icons info-container"
+        (click)="openInfoModal('offerAppliedBannerText', $event)"
+      >
+        info
+      </span>
+    </mat-form-field>
+  </div>
+
+  <!-- OFFER BACKGROUND IMAGE -->
+  <div
+    class="form-component-container-form-container-form-field-large form-component-container-form-container-form-field"
+  >
+    <mat-form-field appearance="fill" class="example-full-width">
+      <mat-label>OFFER BACKGROUND IMAGE</mat-label>
+      <input
+        matInput
+        required
+        maxlength="{{ bgImageUrlLength }}"
+        autocomplete="off"
+        formControlName="offerBgImageUrl"
+        (focus)="offerImageCounter.hidden = false"
+        (blur)="offerImageCounter.hidden = true"
+        (paste)="removeNewlines($event, winbackForm.controls.offerBgImageUrl)"
+      />
+
+      <mat-hint #offerImageCounter class="char-counter" align="end" hidden>
+        {{ winbackForm.get('offerBgImageUrl').value.length }} /
+        {{ bgImageUrlLength }}
+      </mat-hint>
+
+      <mat-hint
+        *ngIf="winbackForm.get('offerBgImageUrl').valid"
+        class="mat-hint-validation-success"
+        >Background image URL is valid.
+      </mat-hint>
+
+      <mat-error *ngIf="winbackForm.get('offerBgImageUrl').hasError('required')"
+        >Please enter a background image URL
+      </mat-error>
+
+      <mat-error
+        *ngIf="winbackForm.get('offerBgImageUrl').hasError('httpInvalid')"
+        >{{
+          winbackForm.get('offerBgImageUrl').getError('httpInvalid')
+        }}</mat-error
+      >
+
+      <mat-error
+        *ngIf="winbackForm.get('offerBgImageUrl').hasError('urlInvalid')"
+        >{{
+          winbackForm.get('offerBgImageUrl').getError('urlInvalid')
+        }}</mat-error
+      >
+
+      <mat-error
+        *ngIf="winbackForm.get('offerBgImageUrl').hasError('badDims')"
+        >{{ winbackForm.get('offerBgImageUrl').getError('badDims') }}</mat-error
+      >
+
+      <mat-error
+        *ngIf="winbackForm.get('offerBgImageUrl').hasError('badUrl')"
+        >{{ winbackForm.get('offerBgImageUrl').getError('badUrl') }}</mat-error
+      >
+    </mat-form-field>
+  </div>
+
+  <!-- DRAG & DROP -->
+  <div
+    class="form-component-container-form-container-form-field-large form-component-container-form-container-form-field"
+  >
+    <app-dnd
+      (dndCompleted)="setBgImgUrl($event)"
+      [imgSrc]="bgImgUrl"
+      [editableDnd]="true"
+    ></app-dnd>
+  </div>
+
+  <!-- LEGAL DISCLAIMER -->
+  <div
+    class="form-component-container-form-container-form-field-text form-component-container-form-container-form-field"
+  >
+    <mat-form-field appearance="fill" class="example-full-width">
+      <mat-label>LEGAL DISCLAIMER</mat-label>
+      <textarea
+        matInput
+        required
+        maxlength="{{ disclaimerLength }}"
+        cdkTextareaAutosize
+        cdkAutosizeMinRows="1"
+        cdkAutosizeMaxRows="2"
+        #autosize="cdkTextareaAutosize"
+        formControlName="legalDisclaimer"
+        (focus)="disclaimerlCounter.hidden = false"
+        (blur)="disclaimerlCounter.hidden = true"
+        (paste)="removeNewlines($event, winbackForm.controls.legalDisclaimer)"
+      ></textarea>
+
+      <mat-hint #disclaimerlCounter class="char-counter" align="end" hidden>
+        {{ winbackForm.get('legalDisclaimer').value.length }} /
+        {{ disclaimerLength }}
+      </mat-hint>
+
+      <mat-error *ngIf="winbackForm.get('legalDisclaimer').hasError('required')"
+        >Please enter a legal disclaimer
+      </mat-error>
+
+      <mat-error *ngIf="winbackForm.get('legalDisclaimer').hasError('pattern')"
+        >{{ generalTextFieldPatternErrMsg }}
+      </mat-error>
+
+      <span
+        class="material-icons info-container"
+        (click)="openInfoModal('legalDisclaimer', $event)"
+      >
+        info
+      </span>
+    </mat-form-field>
+  </div>
+
+  <!-- WELCOME EMAIL TEXT -->
+  <div
+    *ngIf="!checkControlValue('discountType', discountTypeEnum.TRIAL)"
+    class="form-component-container-form-container-form-field-text form-component-container-form-container-form-field"
+  >
+    <mat-form-field appearance="fill" class="example-full-width">
+      <mat-label>WELCOME EMAIL TEXT</mat-label>
+
+      <textarea
+        matInput
+        required
+        maxlength="{{ emailTxtLength }}"
+        cdkTextareaAutosize
+        cdkAutosizeMinRows="1"
+        cdkAutosizeMaxRows="2"
+        #autosize="cdkTextareaAutosize"
+        formControlName="welcomeText"
+        (focus)="emailCounter.hidden = false"
+        (blur)="emailCounter.hidden = true"
+        (paste)="removeNewlines($event, winbackForm.controls.welcomeText)"
+      ></textarea>
+
+      <mat-hint #emailCounter class="char-counter" align="end" hidden>
+        {{ winbackForm.get('welcomeText').value?.length }} /
+        {{ emailTxtLength }}
+      </mat-hint>
+
+      <mat-error *ngIf="winbackForm.get('welcomeText').hasError('required')"
+        >Please enter a welcome email text
+      </mat-error>
+
+      <mat-error *ngIf="winbackForm.get('welcomeText').hasError('pattern')"
+        >{{ generalTextFieldPatternErrMsg }}
+      </mat-error>
+    </mat-form-field>
+  </div>
+
+  <!-- >OFFER BUSINESS OWNER -->
+  <div
+    class="form-component-container-form-container-form-field-medium form-component-container-form-container-form-field"
+  >
+    <mat-form-field appearance="fill" class="example-full-width">
+      <mat-label>OFFER BUSINESS OWNER</mat-label>
+      <input
+        matInput
+        required
+        maxlength="{{ ownerLength }}"
+        autocomplete="off"
+        formControlName="offerBusinessOwner"
+        (focus)="offerOwnerCounter.hidden = false"
+        (blur)="offerOwnerCounter.hidden = true"
+        (paste)="
+          removeNewlines($event, winbackForm.controls.offerBusinessOwner)
+        "
+      />
+
+      <mat-hint #offerOwnerCounter class="char-counter" align="end" hidden>
+        {{ winbackForm.get('offerBusinessOwner').value.length }} /
+        {{ ownerLength }}
+      </mat-hint>
+
+      <mat-error
+        *ngIf="winbackForm.get('offerBusinessOwner').hasError('required')"
+        >Please enter an offer business owner
+      </mat-error>
+
+      <mat-error
+        *ngIf="winbackForm.get('offerBusinessOwner').hasError('pattern')"
+        >{{ generalTextFieldPatternErrMsg }}
+      </mat-error>
+    </mat-form-field>
+  </div>
+
+  <!-- END DATE & END TIME-->
+  <div
+    *ngIf="!winbackForm.get('noEndDate').value"
+    class="form-component-container-form-container-subform"
+  >
+    <div
+      class="form-component-container-form-container-form-field-small form-component-container-form-container-form-field"
+    >
+      <mat-form-field appearance="fill">
+        <mat-label>END DATE</mat-label>
+        <input
+          #endDateRef
+          [matDatepicker]="endDate"
+          class="pointer-cursor-cls"
+          matInput
+          autocomplete="off"
+          onkeydown="return false"
+          formControlName="endDate"
+        />
+        <i
+          *ngIf="endDateRef.value.length != 0"
+          (click)="winbackForm.get('endDate').reset()"
+          class="material-icons md-light md-inactive table-component-container-icon clear-enddate-icon show-pointer"
+          >close</i
+        >
+        <mat-datepicker-toggle
+          [for]="endDate"
+          matSuffix
+        ></mat-datepicker-toggle>
+        <mat-datepicker #endDate></mat-datepicker>
+
+        <mat-error
+          *ngIf="winbackForm.get('endDate').hasError('todayOrEarlierErr')"
+          >{{ winbackForm.get('endDate').getError('todayOrEarlierErr') }}
+        </mat-error>
+
+        <mat-error *ngIf="winbackForm.get('endDate').hasError('required')">
+          Please select an end date or remove end time
+        </mat-error>
+      </mat-form-field>
+    </div>
+
+    <div
+      class="form-component-container-form-container-form-field-time form-component-container-form-container-form-field"
+      matTooltip="Expire time is always 11:59pm MST."
+      matTooltipClass="custom-tooltip-endtime"
+      matTooltipPosition="above"
+    >
+      <mat-form-field appearance="fill" class="example-full-width">
+        <mat-label>END TIME</mat-label>
+        <input
+          [ngClass]="'disabled-field'"
+          [ngxTimepicker]="picker"
+          aria-label="disabled time picker"
+          class="pointer-cursor-cls"
+          matInput
+          placeholder="11:59 PM"
+          formControlName="endTime"
+        />
+
+        <ngx-material-timepicker #picker timepicker> </ngx-material-timepicker>
+      </mat-form-field>
+      <span> ({{ tzName }})</span>
+    </div>
+  </div>
+
+  <!-- No End Date -->
+  <div
+    class="form-component-container-form-container-form-field-small form-component-container-form-container-form-field"
+  >
+    <mat-checkbox
+      formControlName="noEndDate"
+      (click)="winbackForm.get('endDate').reset()"
+      >No End Date
+    </mat-checkbox>
+  </div>
+</ng-container>

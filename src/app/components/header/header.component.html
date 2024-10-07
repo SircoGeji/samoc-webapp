@@ -1,0 +1,816 @@
+<div class="header-component-container" fxLayout="row" fxLayout.lt-md="column">
+  <!-- LOGO -->
+  <div class="header-component-container-logo">
+    <img
+      class="header-component-container-logo-image"
+      src="../../assets/logo.png"
+    />
+    <span class="header-component-container-logo-rectangle"></span>
+    <a href="/">
+      <span class="header-component-container-logo-heading"> samoc </span>
+    </a>
+  </div>
+  <!-- NAVIGATION LINKS -->
+  <div class="header-component-container-navigation">
+    <nav
+      *ngIf="showTab"
+      class="header-component-container-tab"
+      mat-tab-nav-bar
+      disablePagination="true"
+    >
+      <a
+        #rla="routerLinkActive"
+        *ngFor="let link of navLinks"
+        [active]="rla.isActive"
+        [routerLink]="link.link"
+        mat-tab-link
+        routerLinkActive
+      >
+        {{ link.label }}
+      </a>
+    </nav>
+  </div>
+  <div class="header-component-container-right-side">
+    <!-- SERVER HEALTH -->
+    <div
+      [style.background-color]="healthStatus ? 'green' : 'red'"
+      class="header-component-container-health"
+      matTooltip="{{ serverInfo }}"
+      matTooltipClass="custom-tooltip"
+    ></div>
+    <!-- CONFIGURATION FULL -->
+    <div
+      *ngIf="showTaskbar"
+      class="header-component-container-taskbar-container"
+    >
+      <!-- APP PLATFORM -->
+      <button
+        [attr.disabled]="disable ? '' : null"
+        [matMenuTriggerFor]="storesMenu"
+        [ngClass]="
+          disable
+            ? 'header-component-container-taskbar-container-disabled'
+            : 'header-component-container-taskbar-container-taskbar'
+        "
+        class="button-container"
+        mat-button
+        matTooltip="Select App"
+      >
+        <span
+          [ngClass]="disable ? 'md-inactive' : ''"
+          class="material-icons md-light"
+          >public</span
+        >
+        <button
+          [ngClass]="
+            !disable
+              ? 'header-component-container-taskbar-container-taskbar-button'
+              : 'header-component-container-taskbar-container-disabled-button'
+          "
+        >
+          {{ store }}
+        </button>
+        <span
+          [ngClass]="disable ? 'md-inactive' : ''"
+          [style.visibility]="showIcon ? '' : 'hidden'"
+          class="material-icons md-light"
+          >arrow_drop_down</span
+        >
+      </button>
+      <!-- [ANDROID] ENV -->
+      <button
+        [attr.disabled]="disable ? '' : null"
+        [matMenuTriggerFor]="androidEnvMenu"
+        [ngClass]="
+          disable
+            ? 'header-component-container-taskbar-container-disabled'
+            : 'header-component-container-taskbar-container-taskbar'
+        "
+        class="button-container"
+        mat-button
+        matTooltip="Select Environment"
+        *ngIf="canShowAndroidEnv()"
+      >
+        <span
+          [ngClass]="disable ? 'md-inactive' : ''"
+          class="material-icons md-light"
+          >lock</span
+        >
+        <button
+          [ngClass]="
+            !disable
+              ? 'header-component-container-taskbar-container-taskbar-button'
+              : 'header-component-container-taskbar-container-disabled-button'
+          "
+        >
+          {{ androidEnv }}
+        </button>
+        <span
+          [ngClass]="disable ? 'md-inactive' : ''"
+          [style.visibility]="showIcon ? '' : 'hidden'"
+          class="material-icons md-light"
+          >arrow_drop_down</span
+        >
+      </button>
+      <!-- [ANDROID] STORE -->
+      <button
+        [attr.disabled]="disable ? '' : null"
+        [matMenuTriggerFor]="androidStoresMenu"
+        [ngClass]="
+          disable
+            ? 'header-component-container-taskbar-container-disabled'
+            : 'header-component-container-taskbar-container-taskbar'
+        "
+        class="button-container"
+        mat-button
+        matTooltip="Select Store"
+        *ngIf="canShowAndroidStore()"
+      >
+        <span
+          [ngClass]="disable ? 'md-inactive' : ''"
+          class="material-icons md-light"
+          >store</span
+        >
+        <button
+          [ngClass]="
+            !disable
+              ? 'header-component-container-taskbar-container-taskbar-button'
+              : 'header-component-container-taskbar-container-disabled-button'
+          "
+        >
+          {{ androidStore }}
+        </button>
+        <span
+          [ngClass]="disable ? 'md-inactive' : ''"
+          [style.visibility]="showIcon ? '' : 'hidden'"
+          class="material-icons md-light"
+          >arrow_drop_down
+        </span>
+      </button>
+      <!-- [ANDROID] PRODUCT -->
+      <button
+        [attr.disabled]="disable ? '' : null"
+        [matMenuTriggerFor]="androidProductsMenu"
+        [ngClass]="
+          disable
+            ? 'header-component-container-taskbar-container-disabled'
+            : 'header-component-container-taskbar-container-taskbar'
+        "
+        class="button-container"
+        mat-button
+        matTooltip="Select Product"
+        *ngIf="canShowAndroidProduct()"
+      >
+        <span
+          [ngClass]="disable ? 'md-inactive' : ''"
+          class="material-icons md-light"
+          >shop</span
+        >
+        <button
+          [ngClass]="
+            !disable
+              ? 'header-component-container-taskbar-container-taskbar-button'
+              : 'header-component-container-taskbar-container-disabled-button'
+          "
+        >
+          {{ androidProduct }}
+        </button>
+        <span
+          [ngClass]="disable ? 'md-inactive' : ''"
+          [style.visibility]="showIcon ? '' : 'hidden'"
+          class="material-icons md-light"
+          >arrow_drop_down
+        </span>
+      </button>
+      <!-- [ROKU] ENV -->
+      <button
+        [attr.disabled]="disable ? '' : null"
+        [matMenuTriggerFor]="rokuEnvMenu"
+        [ngClass]="
+          disable
+            ? 'header-component-container-taskbar-container-disabled'
+            : 'header-component-container-taskbar-container-taskbar'
+        "
+        class="button-container"
+        mat-button
+        matTooltip="Select Environment"
+        *ngIf="canShowRokuEnv()"
+      >
+        <span
+          [ngClass]="disable ? 'md-inactive' : ''"
+          class="material-icons md-light"
+          >lock</span
+        >
+        <button
+          [ngClass]="
+            !disable
+              ? 'header-component-container-taskbar-container-taskbar-button'
+              : 'header-component-container-taskbar-container-disabled-button'
+          "
+        >
+          {{ rokuEnv }}
+        </button>
+        <span
+          [ngClass]="disable ? 'md-inactive' : ''"
+          [style.visibility]="showIcon ? '' : 'hidden'"
+          class="material-icons md-light"
+          >arrow_drop_down</span
+        >
+      </button>
+      <!-- [ROKU] STORE -->
+      <button
+        [attr.disabled]="disable ? '' : null"
+        [matMenuTriggerFor]="rokuStoresMenu"
+        [ngClass]="
+          disable
+            ? 'header-component-container-taskbar-container-disabled'
+            : 'header-component-container-taskbar-container-taskbar'
+        "
+        class="button-container"
+        mat-button
+        matTooltip="Select Store"
+        *ngIf="canShowRokuStore()"
+      >
+        <span
+          [ngClass]="disable ? 'md-inactive' : ''"
+          class="material-icons md-light"
+          >store</span
+        >
+        <button
+          [ngClass]="
+            !disable
+              ? 'header-component-container-taskbar-container-taskbar-button'
+              : 'header-component-container-taskbar-container-disabled-button'
+          "
+        >
+          {{ rokuStore }}
+        </button>
+        <span
+          [ngClass]="disable ? 'md-inactive' : ''"
+          [style.visibility]="showIcon ? '' : 'hidden'"
+          class="material-icons md-light"
+          >arrow_drop_down
+        </span>
+      </button>
+      <!-- [ROKU] PRODUCT -->
+      <button
+        [attr.disabled]="disable ? '' : null"
+        [matMenuTriggerFor]="rokuProductsMenu"
+        [ngClass]="
+          disable
+            ? 'header-component-container-taskbar-container-disabled'
+            : 'header-component-container-taskbar-container-taskbar'
+        "
+        class="button-container"
+        mat-button
+        matTooltip="Select Product"
+        *ngIf="canShowRokuProduct()"
+      >
+        <span
+          [ngClass]="disable ? 'md-inactive' : ''"
+          class="material-icons md-light"
+          >shop</span
+        >
+        <button
+          [ngClass]="
+            !disable
+              ? 'header-component-container-taskbar-container-taskbar-button'
+              : 'header-component-container-taskbar-container-disabled-button'
+          "
+        >
+          {{ rokuProduct }}
+        </button>
+        <span
+          [ngClass]="disable ? 'md-inactive' : ''"
+          [style.visibility]="showIcon ? '' : 'hidden'"
+          class="material-icons md-light"
+          >arrow_drop_down
+        </span>
+      </button>
+      <!-- [WEB] BRANDS -->
+      <button
+        *ngIf="
+          showBrandsButton && !currentPlatformAndroid && !currentPlatformRoku
+        "
+        [attr.disabled]="disable ? '' : null"
+        [matMenuTriggerFor]="brandMenu"
+        [ngClass]="
+          disable
+            ? 'header-component-container-taskbar-container-disabled'
+            : 'header-component-container-taskbar-container-taskbar'
+        "
+        class="button-container"
+        mat-button
+      >
+        <span
+          [ngClass]="disable ? 'md-inactive' : ''"
+          class="material-icons md-light"
+          >grade</span
+        >
+        <button
+          [ngClass]="
+            !disable
+              ? 'header-component-container-taskbar-container-taskbar-button'
+              : 'header-component-container-taskbar-container-disabled-button'
+          "
+        >
+          {{ brand }}
+        </button>
+        <span
+          [ngClass]="disable ? 'md-inactive' : ''"
+          [style.visibility]="showIcon ? '' : 'hidden'"
+          class="material-icons md-light"
+          >arrow_drop_down
+        </span>
+      </button>
+      <!-- [WEB] REGIONS -->
+      <button
+        *ngIf="
+          showRegionsButton && !currentPlatformAndroid && !currentPlatformRoku
+        "
+        [attr.disabled]="disable ? '' : null"
+        [matMenuTriggerFor]="regionMenu"
+        [ngClass]="
+          disable
+            ? 'header-component-container-taskbar-container-disabled'
+            : 'header-component-container-taskbar-container-taskbar'
+        "
+        class="button-container"
+        mat-button
+      >
+        <span
+          [ngClass]="disable ? 'md-inactive' : ''"
+          class="material-icons md-light"
+        >
+          language
+        </span>
+        <button
+          [ngClass]="
+            !disable
+              ? 'header-component-container-taskbar-container-taskbar-button'
+              : 'header-component-container-taskbar-container-disabled-button'
+          "
+        >
+          {{ region }}
+        </button>
+        <span
+          [ngClass]="disable ? 'md-inactive' : ''"
+          [style.visibility]="showIcon ? '' : 'hidden'"
+          class="material-icons md-light"
+          >arrow_drop_down
+        </span>
+      </button>
+      <!-- SETTINGS -->
+      <div
+        class="button-container"
+        matTooltip="Application Settings"
+        matTooltipPosition="above"
+      >
+        <button
+          mat-icon-button
+          class="header-component-container-taskbar-container-taskbar-button"
+          [matMenuTriggerFor]="settingsMenu"
+        >
+          <mat-icon style="display: block">settings</mat-icon>
+        </button>
+      </div>
+      <!-- LOGOUT -->
+      <div class="header-component-container-taskbar-container-last">
+        <span class="material-icons material-icons md-light md-inactive"
+          >exit_to_app</span
+        >
+        <button
+          (click)="logout()"
+          class="header-component-container-taskbar-container-last-text"
+        >
+          LOGOUT
+        </button>
+      </div>
+    </div>
+    <!-- CONFIGURATION MENU -->
+    <div *ngIf="showTaskbar" class="header-component-container-menu-container">
+      <button mat-icon-button [matMenuTriggerFor]="configurationMenu">
+        <mat-icon>menu</mat-icon>
+      </button>
+      <mat-menu
+        #configurationMenu="matMenu"
+        class="header-componet-container-menu"
+      >
+        <!-- APP PLATFORM -->
+        <button
+          mat-menu-item
+          [disabled]="disable ? true : false"
+          [matMenuTriggerFor]="storesMenu"
+          [ngClass]="
+            disable
+              ? 'header-component-container-taskbar-container-menu-disabled'
+              : 'header-component-container-taskbar-container-taskbar'
+          "
+          class="button-container"
+          mat-button
+          matTooltip="Select App"
+        >
+          <span
+            [ngClass]="disable ? 'md-inactive' : ''"
+            class="mat-menu-selector-icon"
+          >
+            <mat-icon>public</mat-icon>
+          </span>
+          <button
+            [ngClass]="
+              !disable
+                ? 'header-component-container-taskbar-container-taskbar-button'
+                : 'header-component-container-taskbar-container-menu-disabled-button'
+            "
+          >
+            {{ store }}
+          </button>
+        </button>
+        <!-- ANDROID ENV SELECT -->
+        <button
+          mat-menu-item
+          [disabled]="disable ? true : false"
+          [matMenuTriggerFor]="androidEnvMenu"
+          [ngClass]="
+            disable
+              ? 'header-component-container-taskbar-container-menu-disabled'
+              : 'header-component-container-taskbar-container-taskbar'
+          "
+          class="button-container"
+          mat-button
+          matTooltip="Select Environment"
+          *ngIf="canShowAndroidEnv()"
+        >
+          <span
+            [ngClass]="disable ? 'md-inactive' : ''"
+            class="mat-menu-selector-icon"
+          >
+            <mat-icon>lock</mat-icon>
+          </span>
+          <button
+            [ngClass]="
+              !disable
+                ? 'header-component-container-taskbar-container-taskbar-button'
+                : 'header-component-container-taskbar-container-menu-disabled-button'
+            "
+          >
+            {{ androidEnv }}
+          </button>
+        </button>
+        <!-- [ANDROID] STORE -->
+        <button
+          mat-menu-item
+          [disabled]="disable ? true : false"
+          [matMenuTriggerFor]="androidStoresMenu"
+          [ngClass]="
+            disable
+              ? 'header-component-container-taskbar-container-menu-disabled'
+              : 'header-component-container-taskbar-container-taskbar'
+          "
+          class="button-container"
+          mat-button
+          matTooltip="Select Store"
+          *ngIf="canShowAndroidStore()"
+        >
+          <span
+            [ngClass]="disable ? 'md-inactive' : ''"
+            class="mat-menu-selector-icon"
+          >
+            <mat-icon>store</mat-icon>
+          </span>
+          <button
+            [ngClass]="
+              !disable
+                ? 'header-component-container-taskbar-container-taskbar-button'
+                : 'header-component-container-taskbar-container-menu-disabled-button'
+            "
+          >
+            {{ androidStore }}
+          </button>
+        </button>
+        <!-- [ANDROID] PRODUCT -->
+        <button
+          mat-menu-item
+          [disabled]="disable ? true : false"
+          [matMenuTriggerFor]="androidProductsMenu"
+          [ngClass]="
+            disable
+              ? 'header-component-container-taskbar-container-menu-disabled'
+              : 'header-component-container-taskbar-container-taskbar'
+          "
+          class="button-container"
+          mat-button
+          matTooltip="Select Product"
+          *ngIf="canShowAndroidProduct()"
+        >
+          <span
+            [ngClass]="disable ? 'md-inactive' : ''"
+            class="mat-menu-selector-icon"
+          >
+            <mat-icon>shop</mat-icon>
+          </span>
+          <button
+            [ngClass]="
+              !disable
+                ? 'header-component-container-taskbar-container-taskbar-button'
+                : 'header-component-container-taskbar-container-menu-disabled-button'
+            "
+          >
+            {{ androidProduct }}
+          </button>
+        </button>
+        <!-- ROKU ENV SELECT -->
+        <button
+          mat-menu-item
+          [disabled]="disable ? true : false"
+          [matMenuTriggerFor]="rokuEnvMenu"
+          [ngClass]="
+            disable
+              ? 'header-component-container-taskbar-container-menu-disabled'
+              : 'header-component-container-taskbar-container-taskbar'
+          "
+          class="button-container"
+          mat-button
+          matTooltip="Select Environment"
+          *ngIf="canShowRokuEnv()"
+        >
+          <span
+            [ngClass]="disable ? 'md-inactive' : ''"
+            class="mat-menu-selector-icon"
+          >
+            <mat-icon>lock</mat-icon>
+          </span>
+          <button
+            [ngClass]="
+              !disable
+                ? 'header-component-container-taskbar-container-taskbar-button'
+                : 'header-component-container-taskbar-container-menu-disabled-button'
+            "
+          >
+            {{ rokuEnv }}
+          </button>
+        </button>
+        <!-- [ROKU] STORE -->
+        <button
+          mat-menu-item
+          [disabled]="disable ? true : false"
+          [matMenuTriggerFor]="rokuStoresMenu"
+          [ngClass]="
+            disable
+              ? 'header-component-container-taskbar-container-menu-disabled'
+              : 'header-component-container-taskbar-container-taskbar'
+          "
+          class="button-container"
+          mat-button
+          matTooltip="Select Store"
+          *ngIf="canShowRokuStore()"
+        >
+          <span
+            [ngClass]="disable ? 'md-inactive' : ''"
+            class="mat-menu-selector-icon"
+          >
+            <mat-icon>store</mat-icon>
+          </span>
+          <button
+            [ngClass]="
+              !disable
+                ? 'header-component-container-taskbar-container-taskbar-button'
+                : 'header-component-container-taskbar-container-menu-disabled-button'
+            "
+          >
+            {{ rokuStore }}
+          </button>
+        </button>
+        <!-- [ROKU] PRODUCT -->
+        <button
+          mat-menu-item
+          [disabled]="disable ? true : false"
+          [matMenuTriggerFor]="rokuProductsMenu"
+          [ngClass]="
+            disable
+              ? 'header-component-container-taskbar-container-menu-disabled'
+              : 'header-component-container-taskbar-container-taskbar'
+          "
+          class="button-container"
+          mat-button
+          matTooltip="Select Product"
+          *ngIf="canShowRokuProduct()"
+        >
+          <span
+            [ngClass]="disable ? 'md-inactive' : ''"
+            class="mat-menu-selector-icon"
+          >
+            <mat-icon>shop</mat-icon>
+          </span>
+          <button
+            [ngClass]="
+              !disable
+                ? 'header-component-container-taskbar-container-taskbar-button'
+                : 'header-component-container-taskbar-container-menu-disabled-button'
+            "
+          >
+            {{ rokuProduct }}
+          </button>
+        </button>
+        <!-- [WEB] BRANDS -->
+        <button
+          mat-menu-item
+          *ngIf="
+            showBrandsButton && !currentPlatformAndroid && !currentPlatformRoku
+          "
+          [disabled]="disable ? true : false"
+          [matMenuTriggerFor]="brandMenu"
+          [ngClass]="
+            disable
+              ? 'header-component-container-taskbar-container-menu-disabled'
+              : 'header-component-container-taskbar-container-taskbar'
+          "
+          class="button-container"
+          mat-button
+        >
+          <span
+            [ngClass]="disable ? 'md-inactive' : ''"
+            class="mat-menu-selector-icon"
+          >
+            <mat-icon>grade</mat-icon>
+          </span>
+          <button
+            [ngClass]="
+              !disable
+                ? 'header-component-container-taskbar-container-taskbar-button'
+                : 'header-component-container-taskbar-container-menu-disabled-button'
+            "
+          >
+            {{ brand }}
+          </button>
+        </button>
+        <!-- [WEB] REGIONS -->
+        <button
+          mat-menu-item
+          *ngIf="
+            showRegionsButton && !currentPlatformAndroid && !currentPlatformRoku
+          "
+          [disabled]="disable ? true : false"
+          [matMenuTriggerFor]="regionMenu"
+          [ngClass]="
+            disable
+              ? 'header-component-container-taskbar-container-menu-disabled'
+              : 'header-component-container-taskbar-container-taskbar'
+          "
+          class="button-container"
+          mat-button
+        >
+          <span
+            [ngClass]="disable ? 'md-inactive' : ''"
+            class="mat-menu-selector-icon"
+          >
+            <mat-icon>language</mat-icon>
+          </span>
+          <button
+            [ngClass]="
+              !disable
+                ? 'header-component-container-taskbar-container-taskbar-button'
+                : 'header-component-container-taskbar-container-menu-disabled-button'
+            "
+          >
+            {{ region }}
+          </button>
+        </button>
+        <!-- SETTINGS -->
+        <button
+          mat-menu-item
+          [matMenuTriggerFor]="settingsMenu"
+          class="button-container header-component-container-taskbar-container-taskbar"
+          mat-button
+        >
+          <span
+            [ngClass]="disable ? 'md-inactive' : ''"
+            class="mat-menu-selector-icon"
+          >
+            <mat-icon>settings</mat-icon>
+          </span>
+          <button
+            class="header-component-container-taskbar-container-taskbar-button"
+          >
+            SETTINGS
+          </button>
+        </button>
+        <!-- LOGOUT -->
+        <button
+          mat-menu-item
+          (click)="logout()"
+          class="button-container header-component-container-taskbar-container-taskbar"
+          mat-button
+        >
+          <span
+            [ngClass]="disable ? 'md-inactive' : ''"
+            class="mat-menu-selector-icon"
+          >
+            <mat-icon>exit_to_app</mat-icon>
+          </span>
+          <button
+            class="header-component-container-taskbar-container-taskbar-button"
+          >
+            LOGOUT
+          </button>
+        </button>
+      </mat-menu>
+    </div>
+  </div>
+  <!-- APP STORES (PLATFORMS) MENU -->
+  <mat-menu #storesMenu="matMenu" xPosition="before">
+    <button
+      (click)="changeStore(store)"
+      *ngFor="let store of stores"
+      mat-menu-item
+    >
+      {{ store.title }}
+    </button>
+  </mat-menu>
+  <!-- [ANDROID] ENV MENU -->
+  <mat-menu #androidEnvMenu="matMenu" xPosition="before">
+    <button
+      (click)="changeAndroidEnv(env)"
+      *ngFor="let env of androidEnvs"
+      mat-menu-item
+    >
+      {{ env.name.toUpperCase() }}
+    </button>
+  </mat-menu>
+  <!-- [ANDROID] STORES MENU -->
+  <mat-menu #androidStoresMenu="matMenu" xPosition="before">
+    <button
+      (click)="changeAndroidStore(store)"
+      *ngFor="let store of androidStores"
+      mat-menu-item
+    >
+      {{ store.name }}
+    </button>
+  </mat-menu>
+  <!-- [ANDROID] PRODUCTS MENU -->
+  <mat-menu #androidProductsMenu="matMenu" xPosition="before">
+    <button
+      (click)="changeAndroidProduct(product)"
+      *ngFor="let product of androidProducts"
+      mat-menu-item
+    >
+      {{ product.name }}
+    </button>
+  </mat-menu>
+  <!-- [ROKU] ENV MENU -->
+  <mat-menu #rokuEnvMenu="matMenu" xPosition="before">
+    <button
+      (click)="changeRokuEnv(env)"
+      *ngFor="let env of rokuEnvs"
+      mat-menu-item
+    >
+      {{ env.name.toUpperCase() }}
+    </button>
+  </mat-menu>
+  <!-- [ROKU] STORES MENU -->
+  <mat-menu #rokuStoresMenu="matMenu" xPosition="before">
+    <button
+      (click)="changeRokuStore(store)"
+      *ngFor="let store of rokuStores"
+      mat-menu-item
+    >
+      {{ store.name }}
+    </button>
+  </mat-menu>
+  <!-- [ROKU] PRODUCTS MENU -->
+  <mat-menu #rokuProductsMenu="matMenu" xPosition="before">
+    <button
+      (click)="changeRokuProduct(product)"
+      *ngFor="let product of rokuProducts"
+      mat-menu-item
+    >
+      {{ product.name }}
+    </button>
+  </mat-menu>
+  <!-- [WEB] BRANDS MENU -->
+  <mat-menu #brandMenu="matMenu" xPosition="before">
+    <button
+      (click)="changeBrand(brand)"
+      *ngFor="let brand of brands"
+      mat-menu-item
+    >
+      {{ brand.title }}
+    </button>
+  </mat-menu>
+  <!-- [WEB] REGIONS MENU -->
+  <mat-menu #regionMenu="matMenu" xPosition="before">
+    <button
+      (click)="changeRegion(region)"
+      *ngFor="let region of regions"
+      mat-menu-item
+    >
+      {{ region.title }}
+    </button>
+  </mat-menu>
+  <!-- SETTINGS MENU -->
+  <mat-menu #settingsMenu="matMenu">
+    <button mat-menu-item (click)="settingsAction('SLACK')">
+      <span>SLACK NOTIFICATIONS</span>
+    </button>
+  </mat-menu>
+</div>

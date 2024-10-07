@@ -1,0 +1,29 @@
+{
+    "countries": {
+      "US": {
+        "languages": {
+          "en-US": {
+            "currency": "$",
+            "price": "8.00",
+            "planTitle": "Three Months",
+            "subscriptionTerm": "Mo",
+            "marketingDescription": "Billed Quarterly",
+            "savingsDescription": "SAVE 11%",
+            "longDescription": "Save 11% on your subscription! Your three month subscription will be just $23.99, billed once every three months. You can cancel any time through the App Store.",
+            "subscriptionDetails": "twlght 3 Month Subscription",
+            "termDuration": 90,
+            "positiveButton": "English positiveButton value",
+            "negativeButton": "English   negativeButton  ",
+            "disclaimer": "English disclaimer value"
+          }
+        },
+        "status": "saved"
+      }
+    },
+    "name": "Cypress SKU name",
+    "createdBy": "mmartirosyan",
+    "parentSkuId": "Cypress parentSkuId",
+    "storeSkuId": "Cypress storeSkuId",
+    "linkId": "Cypress Link ID"
+  }
+  

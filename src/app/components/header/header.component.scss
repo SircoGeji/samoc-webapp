@@ -1,0 +1,262 @@
+@import '../../../base/_variables.scss';
+@import '../../../base/_mixin.scss';
+
+.header-component-container {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  height: 72px;
+  padding: 0 40px 0 40px;
+  background: linear-gradient(to bottom, #555, #181818);
+  border-bottom: 1px solid $label-grey;
+  @media (max-width: $screen-md) {
+    height: auto;
+  }
+
+  &-logo {
+    display: flex;
+    align-items: center;
+    justify-content: left;
+    &-image {
+      width: 145px;
+    }
+    &-rectangle {
+      width: 2px;
+      height: 36px;
+      margin: 0 10px;
+      color: $label-grey;
+      background-color: $label-grey;
+    }
+    &-heading {
+      color: $input-background-grey;
+      letter-spacing: 1.2px;
+    }
+  }
+
+  &-tab {
+    margin: 0 auto;
+  }
+
+  &-right-side {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+  }
+
+  &-health {
+    display: block;
+    width: 10px;
+    height: 10px;
+    background-color: green;
+    border-radius: 50%;
+    margin-right: 10px;
+  }
+
+  &-taskbar-container {
+    display: flex;
+    align-items: center;
+
+    &-disabled {
+      position: relative;
+      display: flex;
+      align-items: center;
+      margin-left: 20px;
+      cursor: not-allowed;
+
+      &-button {
+        @include button(transparent, $label-grey);
+
+        width: auto;
+        font-size: 15px;
+        cursor: not-allowed;
+
+        &[aria-expanded='true'] {
+          color: $app-grey;
+        }
+      }
+
+      &:hover {
+        > span.material-icons {
+          color: rgba(255, 255, 255, 0.3);
+          cursor: not-allowed;
+        }
+      }
+    }
+
+    &-menu-disabled {
+      position: relative;
+      display: flex;
+      align-items: center;
+      cursor: not-allowed;
+
+      &-button {
+        @include button(transparent, $label-grey);
+
+        width: auto;
+        font-size: 15px;
+        cursor: not-allowed;
+
+        &[aria-expanded='true'] {
+          color: $app-grey;
+        }
+      }
+
+      &:hover {
+        > span.material-icons {
+          color: rgba(255, 255, 255, 0.3);
+          cursor: not-allowed;
+        }
+      }
+    }
+
+    &-taskbar {
+      position: relative;
+      display: flex;
+      align-items: center;
+
+      &-text {
+        order: 2;
+      }
+
+      .material-icons {
+        position: relative;
+        bottom: 1px;
+        color: rgba(255, 255, 255, 0.3);
+      }
+
+      &:hover {
+        .material-icons {
+          color: rgba(255, 255, 255, 1);
+        }
+      }
+
+      &-button {
+        @include button(transparent, $label-grey);
+
+        width: auto;
+        font-size: 15px;
+
+        &[aria-expanded='true'] {
+          color: $app-grey;
+        }
+      }
+
+      &:hover > &-button {
+        color: $app-grey;
+      }
+    }
+
+    &-last {
+      display: flex;
+      align-items: center;
+      margin-left: 15px;
+
+      &-text {
+        @include button(transparent, $label-grey);
+
+        width: auto;
+        font-size: 15px;
+      }
+
+      &:hover > .material-icons {
+        color: rgba(255, 255, 255, 1);
+        cursor: pointer;
+      }
+
+      &:hover > &-text {
+        color: $app-grey;
+      }
+    }
+  }
+
+  &-menu-container {
+    color: #fff;
+    background: transparent;
+    cursor: pointer;
+    button {
+      color: inherit;
+      background: inherit;
+      cursor: pointer;
+      border-radius: 8px;
+    }
+  }
+
+  &-menu {
+  }
+
+  .mat-tab-label,
+  .mat-tab-link {
+    min-width: 0 !important;
+    max-width: 120px;
+    height: 3em;
+    margin-right: 40px;
+    padding: 0 0 8px;
+    color: $app-grey;
+    font-weight: 400;
+    font-size: 15px;
+    border-bottom: 1px solid transparent;
+    opacity: 1;
+    white-space: initial;
+  }
+
+  .mat-tab-label-active {
+    border-bottom: 1px solid white;
+  }
+
+  .button-container {
+    background-color: transparent;
+    border: none;
+    outline: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .mat-slide-toggle {
+    label {
+      padding: 0;
+    }
+  }
+
+  .header-component-container-taskbar-container-disabled {
+    cursor: default;
+  }
+
+  /* if browser window is big (min-width) */
+  @media only screen and (min-width: 1621px) {
+    /* hide burger menu */
+    .header-component-container-menu-container {
+      display: none;
+    }
+    /* show all config-buttons */
+    .header-component-container-taskbar-container {
+      display: flex;
+    }
+  }
+  /* if browser window is small (max-width) */
+  @media only screen and (max-width: 1620px) {
+    /* show everything in burger menu */
+    .header-component-container-menu-container {
+      display: block;
+    }
+    /* hide all config-buttons */
+    .header-component-container-taskbar-container {
+      display: none;
+    }
+  }
+}
+
+.material-icons {
+  margin: auto 0;
+}
+.mat-menu-item-submenu-trigger::after {
+  color: #fff;
+}
+.mat-menu-selector-icon {
+  width: 24px;
+  height: 24px;
+  .mat-icon {
+    margin-right: 0 !important;
+  }
+}

@@ -1,0 +1,278 @@
+@import '../../../../../base/_variables.scss';
+@import '../../../../../base/_mixin.scss';
+
+@include custom-scrollbar();
+
+$grey: rgb(120,120,120);
+
+.roku-app-copy-styles-container {
+  * {
+    box-sizing: border-box;
+  }
+  
+  @include cell-container();
+  @include region-button();
+  @include mat-container();
+  .region-button {
+    display: flex;
+    justify-content: space-around;
+    width: 60px;
+    .button-checkbox {
+      cursor: pointer;
+      width: 15px;
+      max-width: none;
+    }
+  }
+
+  .roku-app-copy-form-header {
+    position: relative;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    margin: 40px 20px 0 20px;
+  }
+
+  .upper-table-header {
+    display: flex;
+    justify-content: left;
+    flex-direction: column;
+
+    .roku-app-copy-mat-container {
+      position: relative;
+      width: 330px;
+      margin-top: 20px;
+      margin-right: 20px;
+      cursor: pointer;
+    }
+
+    .roku-app-copy-mat-container-region {
+      position: relative;
+      display: inline-block;
+      width: 120px;
+      margin-top: 0px;
+      margin-bottom: 10px;
+      margin-right: 20px;
+      cursor: pointer;
+
+      .roku-app-copy-form-boolean-container {
+        display: flex;
+        flex-direction: column;
+        label {
+          padding: 10px 0;
+        }
+        .mat-checkbox-frame {
+          border-color: grey;
+        }
+      }
+    }
+
+    .middle-width-field {
+      width: 260px;
+    }
+  }
+
+  .back-arrow {
+    position: relative;
+    left: 15px;
+  }
+
+  .roku-app-copy-publish-button {
+    position: absolute;
+    top: 60px;
+    right: 0;
+  }
+
+  .roku-app-copy-save-button {
+    position: absolute;
+    right: 0;
+  }
+
+  .roku-app-copy-clear-button {
+    position: absolute;
+    right: 180px;
+  }
+
+  .roku-app-copy-form-body-container {
+    overflow: auto;
+    position: relative;
+    top: 30px;
+    height: calc(100vh - 178px);
+
+    .boolean-type-container {
+      height: inherit;
+      input {
+        cursor: pointer;
+        height: inherit;
+        margin: 0;
+        max-width: none;
+      }
+    }
+  }
+
+  .roku-app-copy-switch-tab-buttons-container {
+    position: absolute;
+    left: 350px;
+    display: inline-flex;
+    flex-direction: row;
+    font-size: 22px;
+    font-weight: bold;
+  }
+
+  .roku-app-copy-pipe {
+    margin: 0 25px;
+    position: relative;
+    top: -5px;
+    font-weight: bold;
+    font-size: 27px;
+  }
+
+  .selected-tab-button {
+    text-decoration: underline;
+    text-decoration-thickness: 4px;
+  }
+
+  .arrow-drop-down {
+    position: absolute;
+    top: 5px;
+    right: 8px;
+  }
+
+  .button-disabled {
+    cursor: not-allowed;
+  }
+
+  .roku-app-copy-form-container {
+    position: relative;
+    display: inline-flex;
+    flex-direction: row;
+    top: 20px;
+    left: 45px;
+
+    .full-width-textarea {
+      textarea.mat-input-element {
+        overflow-y: visible;
+        width: 100%;
+        height: 100%;
+      }
+    }
+  }
+
+  .roku-app-copy-region-buttons-container{
+    display: inline-flex;
+    flex-flow: column wrap;
+    align-content: flex-end;
+    height: calc(100vh - 300px);
+  }
+
+  .roku-app-copy-table-container {
+    display: inline-flex;
+    flex-direction: row;
+    overflow-y: auto;
+    height: calc(100vh - 336px);
+    margin-bottom: 500px;
+  }
+
+  .field-container {
+    padding-left: 10px;
+    width: 250px;
+    height: 48px;
+    border-bottom: solid $grey 1px;
+    border-right: solid black 1px;
+    border-left: solid $grey 1px;
+    background-color: rgb(32,32,32);
+    line-height: 3.5;
+  }
+
+  .margin-top-container {
+    margin-top: 48px;
+  }
+
+  .roku-datepicker-toggle {
+    color: #fff;
+    position: absolute;
+    top: -30px;
+    right: 5px;
+  }
+
+  .cell-container {
+    padding-left: 10px;
+    width: 280px;
+    height: 48px;
+    border-bottom: solid $grey 1px;
+    border-right: solid $grey 1px;
+    background-color: rgb(48,48,48);
+    line-height: 3.5;
+    cursor: text;
+  }
+
+  .table-header {
+    display: flex;
+    flex-direction: row;
+    position: absolute;
+    align-items: center;
+    padding-left: 20px;
+    border-top: solid $grey 1px;
+    border-bottom: solid black 1px;
+    margin-top: -1px;
+  }
+
+  .copy-icon {
+    position: absolute;
+    right: 30px;
+    top: 14px;
+    cursor: pointer;
+  }
+
+  .paste-icon {
+    position: absolute;
+    right: 5px;
+    top: 14px;
+    cursor: pointer;
+  }
+
+  .roku-app-copy-form-input {
+    all: initial;
+    width: calc(100% - 8px);
+    height: 100%;
+    border: 0;
+    outline: none;
+    cursor: inherit;
+    line-height: inherit;
+    font-family: MuseoSans-300, Arial, Helvetica, sans-serif;
+    color: white;
+  }
+
+  .roku-app-copy-mat-container {
+    position: absolute;
+    left: 91px;
+    max-width: 330px;
+    cursor: pointer;
+  }
+
+  .roku-app-copy-image-container {
+    position: relative;
+    margin-left: 20px;
+    margin-bottom: 20px;
+    margin-right: 10px;
+    .roku-app-copy-image {
+      width: 100%;
+    }
+    .loading-image {
+      opacity: 0.5;
+    }
+  }
+  .img-spinner {
+    position: absolute;
+    top: 200px;
+  }
+
+  .default-image {
+    color: grey;
+  }
+
+  .ft-image-container {
+    width: calc(100vw - 600px);
+    min-width: 600px;
+    max-width: 800px;
+  }
+}

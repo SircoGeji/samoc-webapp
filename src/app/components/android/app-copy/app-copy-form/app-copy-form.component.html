@@ -1,0 +1,621 @@
+<app-header></app-header>
+
+<app-spinner></app-spinner>
+
+<div class="android-app-copy-styles-container" *ngIf="isFormVisible">
+  <form [formGroup]="formGroup">
+    <header class="android-app-copy-form-header">
+      <span
+        (click)="navigateBack()"
+        class="backbtn back-arrow material-icons md-light md-36"
+      >
+        keyboard_arrow_left
+      </span>
+      <div class="mat-container android-app-copy-mat-container">
+        <mat-form-field appearance="fill">
+          <mat-label>App Copy Name*</mat-label>
+          <input
+            matInput
+            type="text"
+            placeholder="Add text"
+            autocomplete="off"
+            formControlName="appCopyName"
+          />
+        </mat-form-field>
+        <div
+          class="error-container"
+          *ngIf="formGroup.controls.appCopyName.invalid"
+        >
+          {{ getAppCopyNameErrorMessage() }}
+        </div>
+      </div>
+      <div class="android-app-copy-switch-tab-buttons-container">
+        <div
+          (click)="selectedTab.setValue(0)"
+          style="cursor: pointer"
+          [ngClass]="{ 'selected-tab-button': selectedTab.value === 0 }"
+        >
+          MOBILE COPY
+        </div>
+        <div class="android-app-copy-pipe">|</div>
+        <div
+          (click)="selectedTab.setValue(1)"
+          style="cursor: pointer"
+          [ngClass]="{ 'selected-tab-button': selectedTab.value === 1 }"
+        >
+          10ft COPY
+        </div>
+      </div>
+      <button
+        [matMenuTriggerFor]="saveMenu"
+        class="android-app-copy-save-button button-secondary"
+        [ngClass]="{ 'button-disabled': isSaveButtonDisabled() }"
+        [disabled]="isSaveButtonDisabled()"
+      >
+        {{ pageQuery === 'view' ? 'UPDATE' : 'SAVE' }}
+        <mat-icon class="arrow-drop-down">arrow_drop_down</mat-icon>
+      </button>
+      <mat-menu #saveMenu="matMenu">
+        <button
+          [ngClass]="{ 'button-disabled': isSaveAllButtonDisabled() }"
+          [disabled]="isSaveAllButtonDisabled()"
+          mat-menu-item
+          (click)="saveAll()"
+        >
+          {{ pageQuery === 'view' ? 'UPDATE ALL' : 'SAVE ALL' }}
+        </button>
+        <button
+          mat-menu-item
+          *ngIf="pageQuery === 'view'"
+          (click)="updateRegion()"
+          [ngClass]="{ 'button-disabled': isUpdateRegionButtonDisabled() }"
+          [disabled]="isUpdateRegionButtonDisabled()"
+        >
+          UPDATE SELECTED REGION
+        </button>
+      </mat-menu>
+      <button
+        [matMenuTriggerFor]="clearMenu"
+        class="android-app-copy-clear-button button-primary"
+        [ngClass]="{ 'button-disabled': isClearALLButtonDisabled() }"
+        [disabled]="isClearALLButtonDisabled()"
+      >
+        CLEAR
+        <mat-icon class="arrow-drop-down">arrow_drop_down</mat-icon>
+      </button>
+      <mat-menu #clearMenu="matMenu">
+        <button mat-menu-item (click)="clearAll()">CLEAR ALL</button>
+        <button
+          mat-menu-item
+          (click)="clearRegion()"
+          [ngClass]="{ 'button-disabled': isClearRegionButtonDisabled() }"
+          [disabled]="isClearRegionButtonDisabled()"
+        >
+          CLEAR SELECTED REGION
+        </button>
+      </mat-menu>
+    </header>
+    <div class="android-app-copy-form-body-container">
+      <div class="android-app-copy-form-container">
+        <div
+          *ngIf="selectedTab.value === 0"
+          class="android-app-copy-region-buttons-container"
+        >
+          <button
+            class="region-button"
+            *ngFor="let region of regionsLanguagesBinding; let i = index"
+            (click)="regionButtonClick(i)"
+            [ngClass]="getClassArray(region, i)"
+          >
+            {{ region.code }}
+          </button>
+        </div>
+        <div
+          *ngIf="selectedTab.value === 0"
+          class="android-app-copy-form-toggle-container"
+        >
+          <div formGroupName="mobileFormGroup">
+            <div class="switch-container" [ngSwitch]="mobileRegionPosition">
+              <ng-template
+                *ngFor="let region of regionsLanguagesBinding; let i = index"
+                [ngSwitchCase]="i"
+                [formGroupName]="region.code"
+              >
+                <div class="upper-table-header">
+                  <div
+                    class="mat-container android-app-copy-mat-container-region"
+                    *ngFor="let field of mobileNonTranslatableFields"
+                  >
+                    <mat-form-field
+                      appearance="fill"
+                      *ngIf="field.dataType === 'string'"
+                    >
+                      <mat-label
+                        >{{ field['fieldName']
+                        }}{{ field.required ? '*' : '' }}</mat-label
+                      >
+                      <input
+                        [formControlName]="field['fieldName']"
+                        (focus)="fieldFocus(region, field['previewImageUrl'])"
+                        (ngModelChange)="changeModuleRegionStatus(i)"
+                        matInput
+                        type="text"
+                        placeholder="Add text"
+                        autocomplete="off"
+                      />
+                    </mat-form-field>
+                    <mat-form-field
+                      appearance="fill"
+                      *ngIf="field.dataType === 'number'"
+                    >
+                      <mat-label
+                        >{{ field['fieldName']
+                        }}{{ field.required ? '*' : '' }}</mat-label
+                      >
+                      <input
+                        [formControlName]="field['fieldName']"
+                        (focus)="fieldFocus(region, field['previewImageUrl'])"
+                        (ngModelChange)="changeModuleRegionStatus(i)"
+                        matInput
+                        type="number"
+                        placeholder="Add text"
+                        autocomplete="off"
+                      />
+                    </mat-form-field>
+                    <div
+                      appearance="fill"
+                      class="android-app-copy-form-boolean-container"
+                      *ngIf="field.dataType === 'boolean'"
+                    >
+                      <mat-checkbox
+                        type="checkbox"
+                        [checked]="
+                          getRegionFieldValue(
+                            platforms[0],
+                            region,
+                            field['fieldName']
+                          )
+                        "
+                        (ngModelChange)="changeModuleRegionStatus(i)"
+                        [formControlName]="field['fieldName']"
+                        >{{ field['fieldName'] }}{{ field.required ? '*' : '' }}
+                      </mat-checkbox>
+                    </div>
+                    <mat-form-field
+                      *ngIf="field.dataType === 'date'"
+                      appearance="fill"
+                    >
+                      <mat-label
+                        >{{ field['fieldName']
+                        }}{{ field.required ? '*' : '' }}</mat-label
+                      >
+                      <input
+                        #DateRef
+                        [matDatepicker]="date"
+                        class="pointer-cursor-cls"
+                        matInput
+                        autocomplete="off"
+                        placeholder="MM/DD/YYYY"
+                        (focus)="fieldFocus(region, field['previewImageUrl'])"
+                        [formControlName]="field['fieldName']"
+                        (ngModelChange)="changeModuleRegionStatus(i)"
+                      />
+                      <mat-datepicker-toggle
+                        class="android-datepicker-toggle"
+                        [for]="date"
+                        matSuffix
+                      >
+                      </mat-datepicker-toggle>
+                      <mat-datepicker #date></mat-datepicker>
+                    </mat-form-field>
+                  </div>
+                </div>
+                <div class="android-app-copy-table-container">
+                  <div class="fields-container">
+                    <div class="field-container table-header"></div>
+                    <div class="margin-top-container">
+                      <div
+                        class="field-container"
+                        [style.color]="
+                          isRequiredFieldEmpty(field, region)
+                            ? '#ff5252'
+                            : 'white'
+                        "
+                        *ngFor="let field of mobileTranslatableFields"
+                      >
+                        {{ field['fieldName'] }}
+                        {{ field.required ? '*' : '' }}
+                      </div>
+                    </div>
+                  </div>
+                  <div
+                    *ngFor="let language of region.languages"
+                    [formGroupName]="language.code"
+                  >
+                    <div
+                      class="cell-container table-header"
+                      [style.width]="
+                        doesRegionHaveOneLanguage(region) ? '450px' : '280px'
+                      "
+                    >
+                      {{ language.name }}
+                      <mat-icon
+                        class="copy-icon md-18 copy-button"
+                        (click)="copyFields(region.code, language.code)"
+                        matTooltip="Copy Column"
+                        matTooltipPosition="above"
+                      >
+                        file_copy
+                      </mat-icon>
+                      <mat-icon
+                        class="paste-icon md-18 paste-button"
+                        (click)="pasteFields(region.code, language.code, i)"
+                        matTooltip="Paste Column"
+                        matTooltipPosition="above"
+                      >
+                        insert_drive_file
+                      </mat-icon>
+                    </div>
+                    <div class="margin-top-container">
+                      <div
+                        class="cell-container"
+                        [style.width]="
+                          doesRegionHaveOneLanguage(region) ? '450px' : '280px'
+                        "
+                        *ngFor="let field of mobileTranslatableFields"
+                      >
+                        <div
+                          class="boolean-type-container"
+                          *ngIf="field['dataType'] === 'boolean'"
+                        >
+                          <input
+                            type="checkbox"
+                            (focus)="
+                              fieldFocus(region, field['previewImageUrl'])
+                            "
+                            [formControlName]="field['fieldName']"
+                            (ngModelChange)="changeModuleRegionStatus(i)"
+                          />
+                        </div>
+                        <input
+                          *ngIf="field['dataType'] === 'number'"
+                          class="android-app-copy-form-input"
+                          type="number"
+                          (focus)="fieldFocus(region, field['previewImageUrl'])"
+                          [formControlName]="field['fieldName']"
+                          (ngModelChange)="changeModuleRegionStatus(i)"
+                        />
+                        <input
+                          *ngIf="field['dataType'] === 'string'"
+                          class="android-app-copy-form-input"
+                          type="text"
+                          (focus)="fieldFocus(region, field['previewImageUrl'])"
+                          [formControlName]="field['fieldName']"
+                          (ngModelChange)="changeModuleRegionStatus(i)"
+                        />
+                        <mat-form-field
+                          *ngIf="field['dataType'] === 'date'"
+                          appearance="fill"
+                        >
+                          <input
+                            #DateRef
+                            [matDatepicker]="date"
+                            class="pointer-cursor-cls"
+                            matInput
+                            autocomplete="off"
+                            placeholder="MM/DD/YYYY"
+                            (focus)="
+                              fieldFocus(region, field['previewImageUrl'])
+                            "
+                            [formControlName]="field['fieldName']"
+                            (ngModelChange)="changeModuleRegionStatus(i)"
+                          />
+                          <mat-datepicker-toggle
+                            class="android-datepicker-toggle"
+                            [for]="date"
+                            matSuffix
+                          >
+                          </mat-datepicker-toggle>
+                          <mat-datepicker #date></mat-datepicker>
+                        </mat-form-field>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </ng-template>
+            </div>
+          </div>
+        </div>
+        <div
+          class="android-app-copy-image-container mobile-image-container"
+          #mobileImgContainer
+          *ngIf="selectedTab.value === 0"
+          [ngSwitch]="tvRegionPosition"
+        >
+          <ng-template
+            *ngFor="let region of regionsLanguagesBinding; let i = index"
+            [ngSwitchCase]="i"
+          >
+            <mat-spinner
+              class="img-spinner"
+              *ngIf="showImgSpinner"
+              [ngStyle]="{ left: mobileImgSpinnerPosition }"
+            >
+            </mat-spinner>
+            <img
+              class="android-app-copy-image"
+              [class]="!!showImgSpinner ? 'loading-image' : ''"
+              (error)="showImgSpinner = false; mobileImgCanBeLoaded = false"
+              (load)="showImgSpinner = false"
+              *ngIf="mobileImgCanBeLoaded; else defaultImg"
+              [src]="formGroup.controls.mobileFormGroup.value[region.code].img"
+            />
+            <ng-template #defaultImg>
+              <div class="default-image">The image can't be loaded.</div>
+            </ng-template>
+          </ng-template>
+        </div>
+
+        <div
+          *ngIf="selectedTab.value === 1"
+          class="android-app-copy-region-buttons-container"
+        >
+          <button
+            class="region-button"
+            type="button"
+            *ngFor="let region of regionsLanguagesBinding; let i = index"
+            (click)="regionButtonClick(i)"
+            [ngClass]="getClassArray(region, i)"
+          >
+            {{ region.code }}
+          </button>
+        </div>
+        <div
+          *ngIf="selectedTab.value === 1"
+          class="android-app-copy-form-toggle-container"
+        >
+          <div formGroupName="tvFormGroup">
+            <div class="switch-container" [ngSwitch]="tvRegionPosition">
+              <ng-template
+                *ngFor="let region of regionsLanguagesBinding; let i = index"
+                [ngSwitchCase]="i"
+                [formGroupName]="region.code"
+              >
+                <div class="upper-table-header">
+                  <div
+                    class="mat-container android-app-copy-mat-container-region"
+                    *ngFor="let field of tvNonTranslatableFields"
+                  >
+                    <mat-form-field
+                      appearance="fill"
+                      *ngIf="field.dataType === 'string'"
+                    >
+                      <mat-label
+                        >{{ field['fieldName']
+                        }}{{ field.required ? '*' : '' }}</mat-label
+                      >
+                      <input
+                        [formControlName]="field['fieldName']"
+                        (focus)="fieldFocus(region, field['previewImageUrl'])"
+                        (ngModelChange)="changeModuleRegionStatus(i)"
+                        matInput
+                        type="text"
+                        placeholder="Add text"
+                        autocomplete="off"
+                      />
+                    </mat-form-field>
+                    <mat-form-field
+                      appearance="fill"
+                      *ngIf="field.dataType === 'number'"
+                    >
+                      <mat-label
+                        >{{ field['fieldName']
+                        }}{{ field.required ? '*' : '' }}</mat-label
+                      >
+                      <input
+                        [formControlName]="field['fieldName']"
+                        (focus)="fieldFocus(region, field['previewImageUrl'])"
+                        (ngModelChange)="changeModuleRegionStatus(i)"
+                        matInput
+                        type="number"
+                        placeholder="Add text"
+                        autocomplete="off"
+                      />
+                    </mat-form-field>
+                    <div
+                      appearance="fill"
+                      class="android-app-copy-form-boolean-container"
+                      *ngIf="field.dataType === 'boolean'"
+                    >
+                      <mat-checkbox
+                        type="checkbox"
+                        [checked]="
+                          getRegionFieldValue(
+                            platforms[1],
+                            region,
+                            field['fieldName']
+                          )
+                        "
+                        (ngModelChange)="changeModuleRegionStatus(i)"
+                        [formControlName]="field['fieldName']"
+                        >{{ field['fieldName'] }}{{ field.required ? '*' : '' }}
+                      </mat-checkbox>
+                    </div>
+                    <mat-form-field
+                      *ngIf="field.dataType === 'date'"
+                      appearance="fill"
+                    >
+                      <mat-label
+                        >{{ field['fieldName']
+                        }}{{ field.required ? '*' : '' }}</mat-label
+                      >
+                      <input
+                        #DateRef
+                        [matDatepicker]="date"
+                        class="pointer-cursor-cls"
+                        matInput
+                        autocomplete="off"
+                        placeholder="MM/DD/YYYY"
+                        (focus)="fieldFocus(region, field['previewImageUrl'])"
+                        [formControlName]="field['fieldName']"
+                        (ngModelChange)="changeModuleRegionStatus(i)"
+                      />
+                      <mat-datepicker-toggle
+                        class="android-datepicker-toggle"
+                        [for]="date"
+                        matSuffix
+                      >
+                      </mat-datepicker-toggle>
+                      <mat-datepicker #date></mat-datepicker>
+                    </mat-form-field>
+                  </div>
+                </div>
+                <div class="android-app-copy-table-container">
+                  <div class="fields-container">
+                    <div class="field-container table-header"></div>
+                    <div class="margin-top-container">
+                      <div
+                        class="field-container"
+                        [style.color]="
+                          isRequiredFieldEmpty(field, region)
+                            ? '#ff5252'
+                            : 'white'
+                        "
+                        *ngFor="let field of tvTranslatableFields"
+                      >
+                        {{ field['fieldName'] }}
+                        {{ field.required ? '*' : '' }}
+                      </div>
+                    </div>
+                  </div>
+                  <div
+                    *ngFor="let language of region.languages"
+                    [formGroupName]="language.code"
+                  >
+                    <div
+                      class="cell-container table-header"
+                      [style.width]="
+                        doesRegionHaveOneLanguage(region) ? '450px' : '280px'
+                      "
+                    >
+                      {{ language.name }}
+                      <mat-icon
+                        class="copy-icon md-18 copy-button"
+                        (click)="copyFields(region.code, language.code)"
+                        matTooltip="Copy Column"
+                        matTooltipPosition="above"
+                      >
+                        file_copy
+                      </mat-icon>
+                      <mat-icon
+                        class="paste-icon md-18 paste-button"
+                        (click)="pasteFields(region.code, language.code, i)"
+                        matTooltip="Paste Column"
+                        matTooltipPosition="above"
+                      >
+                        insert_drive_file
+                      </mat-icon>
+                    </div>
+                    <div class="margin-top-container">
+                      <div
+                        class="cell-container"
+                        [style.width]="
+                          doesRegionHaveOneLanguage(region) ? '450px' : '280px'
+                        "
+                        *ngFor="let field of tvTranslatableFields"
+                      >
+                        <div
+                          class="boolean-type-container"
+                          *ngIf="field['dataType'] === 'boolean'"
+                        >
+                          <input
+                            type="checkbox"
+                            (focus)="
+                              fieldFocus(region, field['previewImageUrl'])
+                            "
+                            [formControlName]="field['fieldName']"
+                            (ngModelChange)="changeModuleRegionStatus(i)"
+                          />
+                        </div>
+                        <input
+                          *ngIf="field['dataType'] === 'number'"
+                          class="android-app-copy-form-input"
+                          type="number"
+                          (focus)="fieldFocus(region, field['previewImageUrl'])"
+                          [formControlName]="field['fieldName']"
+                          (ngModelChange)="changeModuleRegionStatus(i)"
+                        />
+                        <input
+                          *ngIf="field['dataType'] === 'string'"
+                          class="android-app-copy-form-input"
+                          type="text"
+                          (focus)="fieldFocus(region, field['previewImageUrl'])"
+                          [formControlName]="field['fieldName']"
+                          (ngModelChange)="changeModuleRegionStatus(i)"
+                        />
+                        <mat-form-field
+                          *ngIf="field['dataType'] === 'date'"
+                          appearance="fill"
+                        >
+                          <input
+                            #DateRef
+                            [matDatepicker]="date"
+                            class="pointer-cursor-cls"
+                            matInput
+                            autocomplete="off"
+                            (focus)="
+                              fieldFocus(region, field['previewImageUrl'])
+                            "
+                            [formControlName]="field['fieldName']"
+                            placeholder="MM/DD/YYYY"
+                            (ngModelChange)="changeModuleRegionStatus(i)"
+                          />
+                          <mat-datepicker-toggle
+                            class="datepicker-toggle"
+                            [for]="date"
+                            matSuffix
+                          >
+                          </mat-datepicker-toggle>
+                          <mat-datepicker #date></mat-datepicker>
+                        </mat-form-field>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </ng-template>
+            </div>
+          </div>
+        </div>
+        <div
+          class="android-app-copy-image-container tv-image-container"
+          #tvImgContainer
+          *ngIf="selectedTab.value === 1"
+          [ngSwitch]="tvRegionPosition"
+        >
+          <ng-template
+            *ngFor="let region of regionsLanguagesBinding; let i = index"
+            [ngSwitchCase]="i"
+          >
+            <mat-spinner
+              class="img-spinner"
+              *ngIf="showImgSpinner"
+              [ngStyle]="{ left: tvImgSpinnerPosition }"
+            >
+            </mat-spinner>
+            <img
+              class="android-app-copy-image"
+              [class]="!!showImgSpinner ? 'loading-image' : ''"
+              (error)="showImgSpinner = false; tvImgCanBeLoaded = false"
+              (load)="showImgSpinner = false"
+              *ngIf="tvImgCanBeLoaded; else defaultImg"
+              [src]="formGroup.controls.tvFormGroup.value[region.code].img"
+            />
+            <ng-template #defaultImg>
+              <div class="default-image">The image can't be loaded.</div>
+            </ng-template>
+          </ng-template>
+        </div>
+      </div>
+    </div>
+  </form>
+</div>

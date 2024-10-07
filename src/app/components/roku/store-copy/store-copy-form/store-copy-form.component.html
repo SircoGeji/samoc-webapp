@@ -1,0 +1,175 @@
+<app-header></app-header>
+
+<app-spinner></app-spinner>
+
+<div
+  class="store-copy-styles-container"
+  [formGroup]="formGroup"
+  *ngIf="isFormVisible"
+>
+  <header class="form-header">
+    <span
+      (click)="navigateBack()"
+      class="backbtn back-arrow material-icons md-light md-36"
+    >
+      keyboard_arrow_left
+    </span>
+    <div class="mat-container store-copy-mat-container">
+      <mat-form-field appearance="fill">
+        <mat-label>Store Copy Name*</mat-label>
+        <input
+          matInput
+          type="text"
+          placeholder="Add text"
+          autocomplete="off"
+          formControlName="storeCopyName"
+        />
+      </mat-form-field>
+      <div
+        class="error-container"
+        *ngIf="!formGroup.controls.storeCopyName.valid"
+      >
+        {{ getStoreCopyNameErrorMessage() }}
+      </div>
+    </div>
+    <button
+      *ngIf="!(importedModuleData.status === 'live' && pageQuery === 'view')"
+      (click)="publish()"
+      class="publish-button button-primary"
+      [ngClass]="{ 'button-disabled': isPublishButtonDisabled() }"
+      [disabled]="isPublishButtonDisabled()"
+    >
+      PUBLISH
+    </button>
+    <button
+      [matMenuTriggerFor]="saveMenu"
+      class="save-button button-secondary"
+      [ngClass]="{ 'button-disabled': isSaveOuterButtonDisabled() }"
+      [disabled]="isSaveOuterButtonDisabled()"
+    >
+      {{ pageQuery === 'view' ? 'UPDATE' : 'SAVE' }}
+      <mat-icon class="arrow-drop-down">arrow_drop_down</mat-icon>
+    </button>
+    <mat-menu #saveMenu="matMenu">
+      <button
+        [ngClass]="{ 'button-disabled': isSaveAllButtonDisabled() }"
+        [disabled]="isSaveAllButtonDisabled()"
+        mat-menu-item
+        (click)="saveAll()"
+      >
+        {{ pageQuery === 'view' ? 'UPDATE ALL' : 'SAVE ALL' }}
+      </button>
+      <button
+        mat-menu-item
+        *ngIf="pageQuery === 'view'"
+        (click)="updateLanguage()"
+        [ngClass]="{ 'button-disabled': isUpdateLanguageButtonDisabled() }"
+        [disabled]="isUpdateLanguageButtonDisabled()"
+      >
+        UPDATE SELECTED LANGUAGE
+      </button>
+    </mat-menu>
+    <button
+      [matMenuTriggerFor]="clearMenu"
+      class="clear-button button-primary"
+      [ngClass]="{ 'button-disabled': isClearALLButtonDisabled() }"
+      [disabled]="isClearALLButtonDisabled()"
+    >
+      CLEAR
+      <mat-icon class="arrow-drop-down">arrow_drop_down</mat-icon>
+    </button>
+    <mat-menu #clearMenu="matMenu">
+      <button mat-menu-item (click)="clearAll()">CLEAR ALL</button>
+      <button
+        mat-menu-item
+        (click)="clearLanguage()"
+        [ngClass]="{ 'button-disabled': isClearLanguageButtonDisabled() }"
+        [disabled]="isClearLanguageButtonDisabled()"
+      >
+        CLEAR SELECTED LANGUAGE
+      </button>
+    </mat-menu>
+  </header>
+  <div class="store-copy-form-container">
+    <div class="language-buttons-container">
+      <div
+        class="region-button"
+        *ngFor="let language of languages; let i = index"
+        (click)="languageButtonClick(i)"
+        [matTooltip]="language['code']"
+        [ngClass]="getClassArray(language, i)"
+      >
+        {{ language.code.slice(0, 2).toUpperCase() }}
+      </div>
+    </div>
+    <div
+      formGroupName="languages"
+      class="switch-container"
+      [ngSwitch]="languagePosition"
+    >
+      <ng-template
+        *ngFor="let language of languages; let i = index"
+        [ngSwitchCase]="i"
+        [formGroupName]="language['code']"
+      >
+        <p class="store-name">{{ currentStore.name }}</p>
+        <div class="copy-paste-buttons-container">
+          <button class="copy-button" (click)="copy(language)">COPY</button>
+          <button class="paste-button" (click)="paste(language)">PASTE</button>
+        </div>
+        <div *ngFor="let field of storeCopyFields">
+          <div
+            class="store-copy-boolean-container"
+            *ngIf="field['dataType'] === 'boolean'"
+          >
+            <mat-checkbox
+              (change)="changeLanguageStatus(language)"
+              [formControlName]="field['fieldName']"
+              >{{ field['fieldName'] }}
+            </mat-checkbox>
+          </div>
+          <mat-form-field
+            class="store-copy-text-area"
+            *ngIf="field['dataType'] === 'string'"
+            appearance="fill"
+            autocomplete="off"
+          >
+            <mat-label>
+              {{ field['fieldName'] }}
+              {{ field.required ? '*' : '' }}
+            </mat-label>
+            <textarea
+              matInput
+              rows="4"
+              [maxlength]="field.maxLength"
+              (ngModelChange)="checkInputText(language, field['fieldName']); changeLanguageStatus(language)"
+              [formControlName]="field['fieldName']"
+            >
+            </textarea>
+            <mat-hint align="end">
+              {{ getFieldLength(language, field) }} / {{ field.maxLength }}
+            </mat-hint>
+          </mat-form-field>
+          <mat-form-field
+            class="store-copy-text-area"
+            *ngIf="field['dataType'] === 'number'"
+            appearance="fill"
+            autocomplete="off"
+          >
+            <mat-label>
+              {{ field['fieldName'] }}
+              {{ field.required ? '*' : '' }}
+            </mat-label>
+            <input
+              matInput
+              class="store-copy-number-input"
+              type="number"
+              [formControlName]="field['fieldName']"
+              (ngModelChange)="changeLanguageStatus(language)"
+            />
+          </mat-form-field>
+        </div>
+      </ng-template>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,711 @@
+<div cdkDropListGroup>
+  <form
+    [formGroup]="formGroup"
+    class="plan-adjustment-2-wrapper"
+    [ngStyle]="{
+      'grid-template-columns': isDefault ? '2fr 4fr' : '1fr 2fr 4fr'
+    }"
+  >
+    <div *ngIf="!isDefault" class="left-column">
+      <!-- RULE NAME -->
+      <div class="rule-form-fields">
+        <div class="rule-form-field-container field-full-width">
+          <mat-form-field appearance="fill" class="rule-form-field">
+            <mat-label>Rule name</mat-label>
+            <input
+              matInput
+              [disabled]="!canChangeRules()"
+              type="text"
+              formControlName="name"
+              (change)="updateRule()"
+            />
+          </mat-form-field>
+        </div>
+        <!-- PLAN TERM -->
+        <div class="rule-form-field-container field-full-width">
+          <mat-form-field
+            appearance="fill"
+            class="rule-form-field"
+            matTooltip='Select "--" if you want rule to ignore this field'
+            matTooltipPosition="right"
+          >
+            <mat-label>Plan Term</mat-label>
+            <mat-select
+              [disabled]="!canChangeRules()"
+              formControlName="planLengthInMonths"
+              (selectionChange)="updateRule('plan')"
+            >
+              <mat-option
+                *ngFor="
+                  let term of [
+                    [1, '1 mo'],
+                    [3, '3 mo'],
+                    [6, '6 mo'],
+                    [10, '10 mo'],
+                    [12, '12 mo']
+                  ]
+                "
+                [value]="term[0]"
+              >
+                {{ term[1] }}
+              </mat-option>
+            </mat-select>
+            <mat-error
+              *ngIf="formGroup.get('planLengthInMonths').hasError('required')"
+              >Please enter plan term
+            </mat-error>
+          </mat-form-field>
+        </div>
+        <!-- FREE TRIAL -->
+        <div class="rule-form-field-container field-full-width">
+          <mat-form-field
+            appearance="fill"
+            class="rule-form-field"
+            matTooltip='Select "--" if you want rule to ignore this field'
+            matTooltipPosition="right"
+          >
+            <mat-label>Free Trial</mat-label>
+            <mat-select
+              [disabled]="!canChangeRules()"
+              formControlName="isInFreeTrial"
+              (selectionChange)="updateRule()"
+            >
+              <mat-option
+                *ngFor="
+                  let ft of [
+                    ['', '--'],
+                    [true, 'Yes'],
+                    [false, 'No']
+                  ]
+                "
+                [value]="ft[0]"
+              >
+                {{ ft[1] }}
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
+          <span
+            class="material-icons rule-info-container"
+            (click)="openInfoModal('freeTrialInfo', $event)"
+          >
+            info
+          </span>
+        </div>
+        <!-- STOREFRONT -->
+        <div class="rule-form-field-container field-full-width">
+          <mat-form-field appearance="fill" class="rule-form-field">
+            <mat-label>Storefront</mat-label>
+            <mat-select
+              [disabled]="!canChangeRules()"
+              formControlName="selectedStorefronts"
+              (closed)="updateRule()"
+              multiple
+            >
+              <mat-option
+                *ngFor="let storefrontOption of storefrontOptionsList"
+                [value]="storefrontOption.name"
+              >
+                {{ storefrontOption.name }}
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
+          <!-- <span
+            class="material-icons rule-info-container"
+            (click)="openInfoModal('freeTrialInfo', $event)"
+          >
+            info
+          </span> -->
+        </div>
+        <!-- CHURN PROBABILITY -->
+        <div class="rule-form-field-container field-full-width">
+          <mat-form-field appearance="fill" class="rule-form-field">
+            <mat-label>Churn Probability</mat-label>
+            <mat-select
+              [disabled]="!canChangeRules()"
+              formControlName="churnScore"
+              (selectionChange)="updateRule()"
+            >
+              <mat-option
+                *ngFor="let churnOption of churnOptionsList"
+                [value]="churnOption"
+              >
+                {{ churnOption }}
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
+          <!-- <span
+            class="material-icons rule-info-container"
+            (click)="openInfoModal('freeTrialInfo', $event)"
+          >
+            info
+          </span> -->
+        </div>
+
+        <!-- ACCOUNT ACTIVITY -->
+        <div>ACCOUNT ACTIVITY</div>
+        <div
+          class="mat-form-field-wrapper"
+          style="
+            display: flex;
+            align-items: top;
+            justify-content: space-between;
+          "
+        >
+          <div
+            class="rule-form-field-container datepicker-container field-middle-width"
+          >
+            <!-- LAST ACTIVE -->
+            <mat-form-field appearance="fill">
+              <mat-label>LAST ACTIVE</mat-label>
+              <input
+                #lastActiveRef
+                [matDatepicker]="lastLogin"
+                class="pointer-cursor-cls"
+                matInput
+                autocomplete="off"
+                onkeydown="return false"
+                formControlName="lastLogin"
+                (dateChange)="updateRule()"
+              />
+              <i
+                *ngIf="lastActiveRef.value.length != 0"
+                (click)="formGroup.get('lastLogin').reset(); updateRule()"
+                class="material-icons md-light md-inactive table-component-container-icon clear-enddate-icon show-pointer"
+                >close</i
+              >
+              <mat-datepicker-toggle
+                class="datepicker-toggle"
+                [for]="lastLogin"
+                matSuffix
+              >
+              </mat-datepicker-toggle>
+              <mat-datepicker #lastLogin></mat-datepicker>
+            </mat-form-field>
+          </div>
+          <!-- LAST ACTIVE MODE -->
+          <div class="date-range-direction-container">
+            <mat-form-field appearance="fill" class="rule-form-field">
+              <mat-select
+                [disabled]="!canChangeRules()"
+                formControlName="dateRangeDirection"
+                (selectionChange)="updateRule()"
+              >
+                <mat-option
+                  *ngFor="let lastActiveModeOption of lastActiveModeOptionsList"
+                  [value]="lastActiveModeOption.value"
+                >
+                  {{ lastActiveModeOption.name }}
+                </mat-option>
+              </mat-select>
+            </mat-form-field>
+          </div>
+        </div>
+
+        <!-- SIGN UP DATE -->
+        <div class="mat-form-field-wrapper">
+          <div
+            class="rule-form-field-container datepicker-container field-full-width"
+          >
+            <mat-form-field appearance="fill">
+              <mat-label>SIGN UP DATE</mat-label>
+              <mat-date-range-input [rangePicker]="rangeDatepicker">
+                <input
+                  #signUpDateStartRef
+                  matStartDate
+                  formControlName="signUpDateStart"
+                  placeholder="Start date"
+                  (dateChange)="updateRule()"
+                />
+                <input
+                  #signUpDateEndRef
+                  matEndDate
+                  formControlName="signUpDateEnd"
+                  placeholder="End date"
+                  (dateChange)="updateRule()"
+                />
+              </mat-date-range-input>
+              <mat-hint>MM/DD/YYYY – MM/DD/YYYY</mat-hint>
+              <i
+                *ngIf="
+                  signUpDateStartRef.value.length != 0 ||
+                  signUpDateEndRef.value.length != 0
+                "
+                (click)="
+                  formGroup.get('signUpDateStart').reset();
+                  formGroup.get('signUpDateEnd').reset();
+                  updateRule()
+                "
+                class="material-icons md-light md-inactive table-component-container-icon clear-enddate-icon show-pointer"
+                >close</i
+              >
+              <mat-datepicker-toggle
+                class="datepicker-toggle"
+                [for]="rangeDatepicker"
+                matSuffix
+              >
+              </mat-datepicker-toggle>
+              <mat-date-range-picker #rangeDatepicker></mat-date-range-picker>
+            </mat-form-field>
+          </div>
+        </div>
+
+        <!-- CONTENT ACTIVITY -->
+        <div class="mat-form-field-wrapper">
+          <div class="rule-form-field-container field-full-width">
+            <mat-form-field appearance="fill" class="rule-form-field">
+              <mat-label>CONTENT ACTIVITY</mat-label>
+              <mat-select
+                [disabled]="!canChangeRules()"
+                formControlName="contentActivity"
+                multiple
+                (closed)="updateRule()"
+              >
+                <mat-option
+                  *ngFor="let originalsContentOption of originalsContentList"
+                  [value]="originalsContentOption.contentId"
+                >
+                  {{ originalsContentOption.title }}
+                </mat-option>
+              </mat-select>
+            </mat-form-field>
+            <!-- <span
+              class="material-icons rule-info-container"
+              (click)="openInfoModal('freeTrialInfo', $event)"
+            >
+              info
+            </span> -->
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="center-column">
+      <div class="rule-offers-list">
+        <div class="search">
+          <input
+            type="text"
+            aria-describedby="search-text"
+            placeholder="Enter offer code to search"
+            formControlName="searchText"
+          />
+          <mat-icon
+            *ngIf="!!getFormControlValue('searchText')"
+            (click)="resetSearch()"
+            >clear</mat-icon
+          >
+        </div>
+
+        <div class="grid-row-main">
+          <span>Offers</span>
+          <span class="align-center"></span>
+        </div>
+        <div>
+          <div
+            *ngIf="
+              !!isDefault || isStorefrontSelected(storefrontOptionsList[0].name)
+            "
+            class="all-offers-list"
+          >
+            <div>Apple</div>
+            <div
+              *ngIf="!!allAppleOffers && !!allAppleOffers.length"
+              class="scrollable-center-list"
+              cdkDropList
+              cdkDropListSortingDisabled
+              id="all-apple-offers-list"
+              [cdkDropListData]="
+                allAppleOffers | offersFilter: getFormControlValue('searchText')
+              "
+            >
+              <div
+                *ngFor="
+                  let appleOffer of allAppleOffers
+                    | offersFilter: getFormControlValue('searchText');
+                  let i = index
+                "
+                class="grid-row-main all-offers-element"
+                [ngClass]="{ 'odd-element': !(i % 2) }"
+                cdkDrag
+                [cdkDragDisabled]="
+                  !canChangeRules() || appleOffer.couponState === 'expired'
+                "
+                (cdkDragStarted)="elementDragStarted($event)"
+                (cdkDragReleased)="elementDragFinished($event)"
+              >
+                <div class="drag-handle" cdkDragHandle>
+                  <mat-icon>reorder</mat-icon>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div
+            *ngIf="
+              !!isDefault || isStorefrontSelected(storefrontOptionsList[1].name)
+            "
+            class="all-offers-list"
+          >
+            <div>Google</div>
+            <div
+              *ngIf="!!allGoogleOffers && !!allGoogleOffers.length"
+              class="scrollable-center-list"
+              cdkDropList
+              cdkDropListSortingDisabled
+              id="all-google-offers-list"
+              [cdkDropListData]="
+                allGoogleOffers
+                  | offersFilter: getFormControlValue('searchText')
+              "
+            >
+              <div
+                *ngFor="
+                  let googleOffer of allGoogleOffers
+                    | offersFilter: getFormControlValue('searchText');
+                  let i = index
+                "
+                class="grid-row-main all-offers-element"
+                [ngClass]="{ 'odd-element': !(i % 2) }"
+                cdkDrag
+                [cdkDragDisabled]="false"
+                (cdkDragStarted)="elementDragStarted($event)"
+                (cdkDragReleased)="elementDragFinished($event)"
+              >
+                <div
+                  class="rule-offer-container"
+                  matTooltip="{{ googleOffer.offerName }} | {{
+                    googleOffer.offerCode
+                  }}"
+                  matTooltipPosition="above"
+                >
+                  <span class="three-dots">{{ googleOffer.offerCode }}</span>
+                  <span class="rule-offer-code three-dots">{{
+                    googleOffer.offerName
+                  }}</span>
+                </div>
+                <div class="drag-handle" cdkDragHandle>
+                  <mat-icon>reorder</mat-icon>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div
+            *ngIf="
+              !!isDefault || isStorefrontSelected(storefrontOptionsList[2].name)
+            "
+            class="all-offers-list"
+          >
+            <div>Recurly</div>
+            <div
+              *ngIf="!!allRecurlyOffers && !!allRecurlyOffers.length"
+              class="scrollable-center-list"
+              cdkDropList
+              cdkDropListSortingDisabled
+              id="all-recurly-offers-list"
+              [cdkDropListData]="
+                allRecurlyOffers
+                  | offersFilter: getFormControlValue('searchText')
+              "
+            >
+              <div
+                *ngFor="
+                  let recurlyOffer of allRecurlyOffers
+                    | offersFilter: getFormControlValue('searchText');
+                  let i = index
+                "
+                class="grid-row-main all-offers-element"
+                [ngClass]="{ 'odd-element': !(i % 2) }"
+                cdkDrag
+                [cdkDragDisabled]="
+                  !canChangeRules() || recurlyOffer.couponState === 'expired'
+                "
+                (cdkDragStarted)="elementDragStarted($event)"
+                (cdkDragReleased)="elementDragFinished($event)"
+              >
+                <div
+                  class="rule-offer-container"
+                  matTooltip="{{ getTooltipText(recurlyOffer) }}"
+                  matTooltipPosition="above"
+                >
+                  <span class="three-dots">{{ recurlyOffer.offerName }}</span>
+                  <a
+                    *ngIf="
+                      hasOfferDetailPage(recurlyOffer.offerCode);
+                      else linklessOffer
+                    "
+                    href="{{ getOfferLinkUrl(recurlyOffer) }}"
+                    target="_blank"
+                    class="rule-offer-code three-dots"
+                    >{{ recurlyOffer.offerCode }}</a
+                  >
+                  <ng-template #linklessOffer>
+                    <span class="rule-offer-code three-dots">{{
+                      recurlyOffer.offerCode
+                    }}</span>
+                  </ng-template>
+                </div>
+                <div class="drag-handle" cdkDragHandle>
+                  <mat-icon>reorder</mat-icon>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="right-column">
+      <div>
+        <div class="rules-legend-container">
+          <div class="rules-legend-row">
+            <div class="rules-legend-item">
+              <span class="legend-active">{{ legendExampleStringName }}</span> -
+              active offer
+            </div>
+            <div class="rules-legend-item">
+              <span class="legend-link">{{ legendExampleStringCode }}</span> -
+              active offer with detail page link
+            </div>
+          </div>
+          <div class="rules-legend-row">
+            <!-- <div class="rules-legend-item">
+              <span class="legend-expired">{{ legendExampleStringName }}</span> - expired offer
+            </div> -->
+            <div class="rules-legend-item">
+              <span class="legend-absent">{{ legendExampleStringName }}</span> -
+              unavailable with current rule configuration offer
+            </div>
+          </div>
+        </div>
+        <div class="rule-storefront-block">
+          <div
+            *ngFor="let storefront of formGroup.value.storeFront; let i = index"
+          >
+            <div
+              *ngIf="!!isDefault || isStorefrontSelected(storefront.name)"
+              class="rule-storefront-row"
+              [ngStyle]="{
+                'border-bottom':
+                  i < formGroup.value.storeFront.length - 1
+                    ? 'solid 1px #fff'
+                    : 'none'
+              }"
+            >
+              <div class="rule-storefront-name">
+                <div *ngIf="i === 0" class="rule-storefront-header">
+                  Receipt Type
+                </div>
+                <div style="margin: auto 0">{{ storefront.name }}</div>
+              </div>
+              <div style="min-width: 300px">
+                <div
+                  *ngIf="i === 0"
+                  class="rule-storefront-header header-center"
+                >
+                  Primary Lists
+                </div>
+                <div class="plan-adjustment-errors">
+                  <mat-error *ngIf="weightSumError1Handle"
+                    >Lists weight values sum is greater than 100
+                  </mat-error>
+                  <!-- <mat-error *ngIf="absentOffersError1Handle"
+                  >There are absent coupons in list
+                </mat-error> -->
+                </div>
+                <div
+                  *ngIf="!isDefault && storefront.primaryLists"
+                  class="primary-weight-lists scrollable-right-list"
+                >
+                  <app-weight-list-2
+                    *ngFor="let list of storefront.primaryLists; let j = index"
+                    [listName]="primaryString"
+                    [status]="status"
+                    [list]="list"
+                    [storefrontIndex]="i"
+                    [storefrontName]="storefront.name.toLowerCase()"
+                    [listIndex]="j"
+                    [rule]="rule"
+                    [allOffers]="
+                      getStorefrontAllOffers(storefront.name.toLowerCase())
+                    "
+                    [plans]="plans"
+                    [isDefault]="isDefault"
+                    (changeWeightListDataEvent)="
+                      changeWeightListData(i, 0, j, $event)
+                    "
+                    (changeAnotherWeightListDataEvent)="
+                      changeAnotherWeightListData($event)
+                    "
+                    (weightListRemoveEvent)="
+                      removeWeightList(i, 0, $event, list.name)
+                    "
+                  ></app-weight-list-2>
+                  <button
+                    (click)="addWeightList(i, 0)"
+                    class="button-primary add-selected-list-button"
+                    type="button"
+                    [disabled]="!canChangeRules()"
+                  >
+                    Add List
+                  </button>
+                </div>
+                <div
+                  *ngIf="!!isDefault && storefront.primaryLists"
+                  class="primary-weight-lists scrollable-right-list"
+                >
+                  <app-weight-list-2
+                    [listName]="primaryString"
+                    [status]="status"
+                    [list]="storefront.primaryLists"
+                    [storefrontIndex]="i"
+                    [storefrontName]="storefront.name.toLowerCase()"
+                    [listIndex]="0"
+                    [rule]="rule"
+                    [allOffers]="
+                      getStorefrontAllOffers(storefront.name.toLowerCase())
+                    "
+                    [plans]="plans"
+                    [isDefault]="isDefault"
+                    (changeWeightListDataEvent)="
+                      changeWeightListData(i, 0, 0, $event)
+                    "
+                    (changeAnotherWeightListDataEvent)="
+                      changeAnotherWeightListData($event)
+                    "
+                  ></app-weight-list-2>
+                </div>
+              </div>
+
+              <div class="rule-secondary-list" style="min-width: 300px">
+                <div
+                  *ngIf="i === 0"
+                  class="rule-storefront-header header-center"
+                >
+                  Secondary Lists
+                </div>
+                <div class="plan-adjustment-errors">
+                  <mat-error *ngIf="weightSumError2Handle"
+                    >Lists weight values sum is greater than 100
+                  </mat-error>
+                  <!-- <mat-error *ngIf="absentOffersError2Handle"
+                >There are absent coupons in list
+              </mat-error> -->
+                </div>
+                <div
+                  *ngIf="!isDefault && storefront.secondaryLists"
+                  class="primary-weight-lists scrollable-right-list"
+                >
+                  <app-weight-list-2
+                    *ngFor="
+                      let list of storefront.secondaryLists;
+                      let j = index
+                    "
+                    [listName]="secondaryString"
+                    [status]="status"
+                    [list]="list"
+                    [storefrontIndex]="i"
+                    [storefrontName]="storefront.name.toLowerCase()"
+                    [listIndex]="j"
+                    [rule]="rule"
+                    [allOffers]="
+                      getStorefrontAllOffers(storefront.name.toLowerCase())
+                    "
+                    [plans]="plans"
+                    [isDefault]="isDefault"
+                    (changeWeightListDataEvent)="
+                      changeWeightListData(i, 1, j, $event)
+                    "
+                    (changeAnotherWeightListDataEvent)="
+                      changeAnotherWeightListData($event)
+                    "
+                    (weightListRemoveEvent)="
+                      removeWeightList(i, 1, $event, list.name)
+                    "
+                  ></app-weight-list-2>
+                  <button
+                    (click)="addWeightList(i, 1)"
+                    class="button-primary add-selected-list-button"
+                    type="button"
+                    [disabled]="!canChangeRules()"
+                  >
+                    Add List
+                  </button>
+                </div>
+                <div
+                  *ngIf="!!isDefault && storefront.secondaryLists"
+                  class="primary-weight-lists scrollable-right-list"
+                >
+                  <app-weight-list-2
+                    [listName]="secondaryString"
+                    [status]="status"
+                    [list]="storefront.secondaryLists"
+                    [storefrontIndex]="i"
+                    [storefrontName]="storefront.name.toLowerCase()"
+                    [listIndex]="0"
+                    [rule]="rule"
+                    [allOffers]="
+                      getStorefrontAllOffers(storefront.name.toLowerCase())
+                    "
+                    [plans]="plans"
+                    [isDefault]="isDefault"
+                    (changeWeightListDataEvent)="
+                      changeWeightListData(i, 1, 0, $event)
+                    "
+                    (changeAnotherWeightListDataEvent)="
+                      changeAnotherWeightListData($event)
+                    "
+                  ></app-weight-list-2>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div *ngIf="false" style="margin-left: 20px">
+        <p class="title">EXCLUSIVE OFFERS</p>
+        <div style="height: 100px; width: 100%">
+          <div
+            class="rule-form-field-container"
+            style="display: inline-block; margin-right: 50px"
+            *ngIf="currentRegion === 'US'"
+          >
+            <mat-form-field appearance="fill" class="rule-form-field">
+              <mat-label>State</mat-label>
+              <mat-select
+                formControlName="exclusiveState"
+                (selectionChange)="emitListInfo()"
+                [disabled]="statesList.length <= 1"
+              >
+                <div class="custom-panel">
+                  <mat-option
+                    *ngFor="let state of statesList"
+                    [value]="state.stateCode"
+                    >{{ state.stateName }}
+                  </mat-option>
+                </div>
+              </mat-select>
+            </mat-form-field>
+          </div>
+          <div class="rule-form-field-container">
+            <mat-form-field appearance="fill" class="rule-form-field">
+              <mat-label>Exclusive Overrides</mat-label>
+              <mat-select
+                formControlName="exclusiveOffer"
+                (selectionChange)="emitListInfo()"
+                [disabled]="exclusiveOffersList.length <= 1"
+              >
+                <div class="custom-panel">
+                  <mat-option
+                    *ngFor="let offer of exclusiveOffersList"
+                    [value]="offer"
+                  >
+                    {{ offer }}
+                  </mat-option>
+                </div>
+              </mat-select>
+            </mat-form-field>
+          </div>
+        </div>
+      </div>
+    </div>
+  </form>
+</div>

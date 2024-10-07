@@ -1,0 +1,421 @@
+<app-header></app-header>
+
+<app-spinner></app-spinner>
+
+<div class="app-copy-component-container">
+  <div
+    class="app-copy-filters-container"
+    [ngClass]="
+      showFiltersBlock ? 'filters-block-shown' : 'filters-block-hidden'
+    "
+  >
+    <div class="filter-accordion-container">
+      <!-- FILTERS: COPY PACKAGE NAME -->
+      <mat-accordion class="filters-accordion" multi>
+        <mat-expansion-panel style="margin-top: 10px">
+          <mat-expansion-panel-header>
+            <mat-panel-title style="font-weight: bold">
+              {{ filtersHeaders[0] }}
+            </mat-panel-title>
+          </mat-expansion-panel-header>
+
+          <div class="filters-accordion-content">
+            <div matInput class="accordion-filter-container">
+              <input
+                matInput
+                #searchInputRef
+                (keyup)="applyFilter($event, 'search')"
+                [(ngModel)]="searchFilter"
+                autocomplete="off"
+                placeholder="Enter Package Name"
+              />
+              <i
+                *ngIf="searchFilter === ''"
+                class="material-icons md-dark md-inactive inter-table-component-container-icon"
+                >search</i
+              >
+              <i
+                (click)="clearSearchInput()"
+                *ngIf="searchFilter !== ''"
+                class="material-icons md-dark md-inactive inter-table-component-container-icon clear-icon"
+                >close</i
+              >
+            </div>
+          </div>
+        </mat-expansion-panel>
+      </mat-accordion>
+      <!-- FILTERS: STATUS -->
+      <!-- <mat-accordion class="filters-accordion">
+        <mat-expansion-panel
+          style="margin-top: 10px"
+          [disabled]="
+            !statusCheckboxesValues.length ||
+            statusCheckboxesValues.length === 1
+          "
+        >
+          <mat-expansion-panel-header>
+            <mat-panel-title style="font-weight: bold">
+              {{ filtersHeaders[1] }}
+            </mat-panel-title>
+          </mat-expansion-panel-header>
+
+          <div class="filters-accordion-content">
+            <div
+              matInput
+              class="accordion-filter-container"
+              *ngFor="let status of statusCheckboxesValues"
+            >
+              <mat-checkbox
+                (change)="changeCheckedFilters('status', status)"
+                [checked]="isElementChecked(status, statusCheckedValues)"
+                >{{ status }}</mat-checkbox
+              >
+            </div>
+          </div>
+        </mat-expansion-panel>
+      </mat-accordion> -->
+      <!-- FILTERS: REGIONS -->
+      <mat-accordion class="filters-accordion" multi>
+        <mat-expansion-panel
+          style="margin-top: 10px"
+          [disabled]="
+            !regionsCheckboxesValues.length ||
+            regionsCheckboxesValues.length === 1
+          "
+        >
+          <mat-expansion-panel-header>
+            <mat-panel-title style="font-weight: bold">
+              {{ filtersHeaders[1] }}
+            </mat-panel-title>
+          </mat-expansion-panel-header>
+
+          <div class="filters-accordion-content">
+            <div
+              matInput
+              class="accordion-filter-container"
+              *ngFor="let region of regionsCheckboxesValues"
+            >
+              <mat-checkbox
+                (change)="changeCheckedFilters('regions', region)"
+                [checked]="isElementChecked(region, regionsCheckedValues)"
+                >{{ region }}</mat-checkbox
+              >
+            </div>
+          </div>
+        </mat-expansion-panel>
+      </mat-accordion>
+      <!-- FILTERS: PUBLISH -->
+      <mat-accordion class="filters-accordion" multi>
+        <mat-expansion-panel style="margin-top: 10px">
+          <mat-expansion-panel-header>
+            <mat-panel-title style="font-weight: bold">
+              {{ filtersHeaders[2] }}
+            </mat-panel-title>
+          </mat-expansion-panel-header>
+
+          <div class="filters-accordion-content">
+            <div matInput class="accordion-filter-container">
+              <mat-checkbox
+                (change)="checkCheckboxAction($event, 'env', publishOptions[0])"
+                [checked]="envCheckedValue === publishOptions[0]"
+              >
+                Published
+              </mat-checkbox>
+            </div>
+            <div matInput class="accordion-filter-container">
+              <mat-checkbox
+                (change)="checkCheckboxAction($event, 'env', publishOptions[1])"
+                [checked]="envCheckedValue === publishOptions[1]"
+              >
+                Not Published
+              </mat-checkbox>
+            </div>
+          </div>
+        </mat-expansion-panel>
+      </mat-accordion>
+      <!-- FILTERS: PROMOTED -->
+      <mat-accordion
+        class="filters-accordion"
+        multi
+        *ngIf="currentEnv.code !== 'prod'"
+      >
+        <mat-expansion-panel style="margin-top: 10px">
+          <mat-expansion-panel-header>
+            <mat-panel-title style="font-weight: bold">
+              {{ filtersHeaders[3] }}
+            </mat-panel-title>
+          </mat-expansion-panel-header>
+
+          <div class="filters-accordion-content">
+            <div matInput class="accordion-filter-container">
+              <mat-checkbox
+                (change)="
+                  checkCheckboxAction($event, 'promote', promotionOptions[0])
+                "
+                [checked]="promoteCheckedValue === promotionOptions[0]"
+              >
+                Promoted
+              </mat-checkbox>
+            </div>
+            <div matInput class="accordion-filter-container">
+              <mat-checkbox
+                (change)="
+                  checkCheckboxAction($event, 'promote', promotionOptions[1])
+                "
+                [checked]="promoteCheckedValue === promotionOptions[1]"
+              >
+                Not Promoted
+              </mat-checkbox>
+            </div>
+          </div>
+        </mat-expansion-panel>
+      </mat-accordion>
+      <!-- FILTERS: ACTIVE -->
+      <mat-accordion class="filters-accordion" multi>
+        <mat-expansion-panel style="margin-top: 10px">
+          <mat-expansion-panel-header>
+            <mat-panel-title style="font-weight: bold">
+              {{ filtersHeaders[4] }}
+            </mat-panel-title>
+          </mat-expansion-panel-header>
+
+          <div class="filters-accordion-content">
+            <div matInput class="accordion-filter-container">
+              <mat-checkbox
+                (change)="
+                  checkCheckboxAction($event, 'active', activeOptions[0])
+                "
+                [checked]="activeCheckedValue === activeOptions[0]"
+              >
+                Active
+              </mat-checkbox>
+            </div>
+            <div matInput class="accordion-filter-container">
+              <mat-checkbox
+                (change)="
+                  checkCheckboxAction($event, 'active', activeOptions[1])
+                "
+                [checked]="activeCheckedValue === activeOptions[1]"
+              >
+                Not Active
+              </mat-checkbox>
+            </div>
+          </div>
+        </mat-expansion-panel>
+      </mat-accordion>
+    </div>
+  </div>
+  <div class="app-copy-container">
+    <div
+      class="filter-clear-all-button-container"
+      [ngClass]="
+        showFiltersBlock
+          ? 'filter-clear-all-button-container-shown'
+          : 'filter-clear-all-button-container-hidden'
+      "
+    >
+      <button
+        class="filter-clear-all-button"
+        (click)="clearAllFilters()"
+        matTooltip="Clear all filters"
+      >
+        <mat-icon class="filter-clear-all-button-icon">clear</mat-icon>
+      </button>
+    </div>
+    <div class="app-copy-title-container">
+      <h2>APP COPY</h2>
+      <h3>Copy Templates</h3>
+    </div>
+    <div class="app-copy-buttons-container">
+      <button class="button-primary" (click)="toggleFiltersBlock()">
+        FILTERS
+      </button>
+      <div>
+        <button
+          class="button-primary"
+          (click)="createNewCopy()"
+          *ngIf="currentEnv.code === 'dev'"
+        >
+          CREATE NEW COPY
+        </button>
+        <button
+          class="button-secondary"
+          style="margin-left: 10px"
+          (click)="publishList()"
+        >
+          PUBLISH
+        </button>
+      </div>
+    </div>
+    <div class="app-copy-table-container">
+      <table [dataSource]="data" class="mat-elevation-z8" mat-table matSort>
+        <ng-container
+          *ngFor="let column of dataKeys; index as i"
+          [matColumnDef]="column"
+        >
+          <th
+            class="table-header-row"
+            *matHeaderCellDef
+            mat-header-cell
+            mat-sort-header
+            [disabled]="tableHeaders[i] === ''"
+          >
+            <div class="table-header-flex-row">
+              <div>{{ tableHeaders[i] }}</div>
+              <div
+                *ngIf="
+                  tableHeaders[i] === 'PUBLISH' || tableHeaders[i] === 'ACTIVE'
+                "
+              >
+                ({{ currentEnv.name }})
+              </div>
+            </div>
+          </th>
+          <td
+            *matCellDef="let element; index as j"
+            [ngSwitch]="column"
+            mat-cell
+          >
+            <div
+              *ngSwitchCase="'appCopyName'"
+              [ngClass]="{ 'default-copy': element.isDefault }"
+            >
+              <a href="{{ getEditHRef(element) }}">{{ element[column] }}</a>
+              <span
+                *ngIf="
+                  currentEnv.code === 'dev' &&
+                  !getRemovedModuleTooltipText(element) &&
+                  !!getPromotionIconTooltipText(element) &&
+                  !!isPromotedModuleExist(element)
+                "
+                class="promote-module-icon-container"
+                [matTooltip]="getPromotionIconTooltipText(element)"
+              >
+                <mat-icon
+                  class="module-icon"
+                  [ngClass]="getPromotionIconClass(element)"
+                  (click)="
+                    !!canPromoteModule(element)
+                      ? menuAction('PROMOTE', element)
+                      : null
+                  "
+                >
+                  arrow_upward
+                </mat-icon>
+              </span>
+              <span
+                *ngIf="!!getRemovedModuleTooltipText(element)"
+                class="promote-module-icon-container"
+                [matTooltip]="getRemovedModuleTooltipText(element)"
+              >
+                <mat-icon class="module-icon deleted">
+                  report_problem
+                </mat-icon>
+              </span>
+              <span
+                *ngIf="
+                  currentEnv.code === 'prod' &&
+                  !getRemovedModuleTooltipText(element) &&
+                  !!element.hasChanges &&
+                  !!isOriginalModuleExist(element)
+                "
+                class="promote-module-icon-container"
+                [matTooltip]="getPromotionIconTooltipText(element)"
+              >
+                <div class="icon-background"></div>
+                <mat-icon
+                  class="module-icon"
+                  [ngClass]="getPromotionIconClass(element)"
+                  (click)="
+                    !!isOriginalModuleExist(element)
+                      ? pullPromotionAction(element)
+                      : null
+                  "
+                >
+                  new_releases
+                </mat-icon>
+              </span>
+            </div>
+            <div *ngSwitchCase="'isPublished'">
+              <div class="env-checkbox">
+                <mat-checkbox
+                  (change)="changeTableCheckbox('publish', element.appCopyId)"
+                  [checked]="element.isPublished"
+                >
+                </mat-checkbox>
+              </div>
+            </div>
+            <div *ngSwitchCase="'isActive'">
+              <div class="env-checkbox">
+                <mat-checkbox
+                  (change)="changeTableCheckbox('active', element.appCopyId)"
+                  [checked]="element.isActive"
+                  [disabled]="!element.isPublished"
+                >
+                </mat-checkbox>
+              </div>
+            </div>
+            <div
+              *ngSwitchCase="'supportedRegions'"
+              matTooltip="{{ element.tooltipText }}"
+              matTooltipPosition="above"
+              class="ellipsis-container"
+            >
+              {{ element[column] }}
+            </div>
+            <div *ngSwitchCase="'actions'">
+              <button
+                class="table-menu-action-button"
+                mat-icon-button
+                [matMenuTriggerFor]="menu"
+              >
+                <mat-icon>more_horiz</mat-icon>
+              </button>
+              <mat-menu #menu="matMenu">
+                <button
+                  mat-menu-item
+                  (click)="menuAction('DUPLICATE', element)"
+                >
+                  <span>Duplicate</span>
+                </button>
+                <button
+                  mat-menu-item
+                  (click)="menuAction('DEFAULT', element)"
+                  *ngIf="canSetDefaultModule(element)"
+                >
+                  <span>Set as Default</span>
+                </button>
+                <button
+                  mat-menu-item
+                  (click)="menuAction('PROMOTE', element)"
+                  *ngIf="canPromoteModule(element)"
+                >
+                  <span>Promote to Prod</span>
+                </button>
+                <button mat-menu-item (click)="menuAction('VIEW', element)">
+                  <span>Edit</span>
+                </button>
+                <button
+                  mat-menu-item
+                  (click)="menuAction('DELETE', element)"
+                  *ngIf="canDeleteModule(element)"
+                >
+                  <span>Delete</span>
+                </button>
+              </mat-menu>
+            </div>
+          </td>
+        </ng-container>
+        <tr *matHeaderRowDef="dataKeys; sticky: true" mat-header-row></tr>
+        <tr *matRowDef="let row; columns: dataKeys" mat-row></tr>
+      </table>
+      <mat-paginator
+        #listViewPaginator
+        (page)="setPageSize($event, 'AppCopy')"
+        [pageSize]="getPageSize('AppCopy')"
+        [pageSizeOptions]="getPageSizeOptions()"
+        showFirstLastButtons
+      ></mat-paginator>
+    </div>
+  </div>
+</div>

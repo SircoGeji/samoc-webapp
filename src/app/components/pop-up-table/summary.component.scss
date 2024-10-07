@@ -1,0 +1,59 @@
+.summary-container {
+  background-color: grey;
+  position: relative;
+  .summary-header {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: flex-end;
+    margin-top: 20px;
+    margin-bottom: 10px;
+    margin-left: 20px;
+    .summary-title-container {
+      color: white;
+      margin-bottom: 10px;
+      .summary-title {
+        font-weight: bold;
+        font-size: 20px;
+        margin-bottom: 10px;
+      }
+      .summary-description {
+        font-weight: bold;
+        font-size: 16px;
+      }
+    }
+    .summary-actions {
+
+    }
+  }
+  .close-button-container {
+    position: absolute;
+    top: -25px;
+    right: -5px;
+    .close-button {
+      background: transparent;
+      height: 24px;
+      width: 24px;
+      border: none;
+      padding: 0;
+      cursor: pointer;
+      .close-button-icon {
+        height: 24px;
+        width: 24px;
+        color: #000;
+      }
+    }
+  }
+  .summary-table-container {
+    background-color: white;
+    .summary-table {
+      .table-cell-start {
+
+      }
+      .mat-header-cell {
+        color: #000;
+        font-weight: bold;
+      }
+    }
+  }
+}

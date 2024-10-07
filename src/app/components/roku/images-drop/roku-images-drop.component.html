@@ -1,0 +1,38 @@
+<div
+  class="component-container"
+  [class.hovering]="isDragging"
+  [ngClass]="{ error: uploadError }"
+  (click)="fileSelector.click()"
+  (drop)="onDrop($event)"
+  (dragover)="onDragOver($event)"
+  (dragleave)="stopDrag($event)"
+  (dragend)="stopDrag($event)"
+>
+  <div *ngIf="!uploadPending && !uploadFinished">
+    <mat-icon>add_photo_alternate</mat-icon>
+    <div class="text">DRAG &amp; DROP OR CLICK</div>
+    <div class="text">TO UPLOAD IMAGE{{ uploadMultipleImages ? 'S' : '' }}</div>
+    <div class="text" *ngIf="dimensions && maxSize">[ {{dimensions}} pixels and less than or equal to {{maxSizeStr}} ]</div>
+    <p *ngIf="uploadError">({{ uploadError }})</p>
+  </div>
+  <div *ngIf="uploadPending && !uploadFinished" style="width: 340px">
+    <mat-spinner
+      style="top: calc(50% - 50px); left: calc(50% - 50px)"
+    ></mat-spinner>
+  </div>
+  <div *ngIf="uploadFinished && !singleImage" class="images-grid">
+    <div class="image-container" *ngFor="let image of images">
+      <img [ngClass]="images.length > 4 ? 'thin-grid-image' : 'wide-grid-image'" src="{{ image.path }}" />
+    </div>
+  </div>
+  <div class="image-container" *ngIf="uploadFinished && singleImage">
+    <img class="single-image" src="{{ images[0].path }}" />
+  </div>
+  <input
+    #fileSelector
+    type="file"
+    [multiple]="uploadMultipleImages"
+    (change)="onFilesSelected($event.target.files)"
+    hidden
+  />
+</div>

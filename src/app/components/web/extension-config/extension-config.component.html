@@ -1,0 +1,160 @@
+<app-header></app-header>
+<app-spinner></app-spinner>
+<ng-container>
+  <div class="extension-config-wrapper">
+    <div class="action-button-container">
+      <button
+        (click)="addNewElement(1)"
+        class="button-primary add-new-rule-button"
+        type="button"
+      >
+        ADD NEW RULE
+      </button>
+      <button
+        (click)="updateList('stg')"
+        class="button-primary"
+        [disabled]="isUpdateButtonDisabled()"
+        [ngClass]="{ 'button-disabled': isUpdateButtonDisabled() }"
+        type="button"
+      >
+        UPDATE ON STG
+      </button>
+      <button
+        (click)="updateList('prod')"
+        class="button-secondary"
+        [disabled]="isPublishButtonDisabled()"
+        [ngClass]="{
+          'button-disabled': isPublishButtonDisabled()
+        }"
+        type="button"
+        style="margin-left: 10px"
+      >
+        PUBLISH TO PROD
+      </button>
+    </div>
+    <div class="right-block">
+      <h2>RULES</h2>
+      <p class="extension-error-message" *ngIf="!isRuleListValid()">
+        {{ getRuleErrorMessage() }}
+      </p>
+      <form [formGroup]="formGroup">
+        <ng-container formArrayName="rulesFormArray">
+          <div
+            class="overflow-content"
+            cdkDropList
+            (cdkDropListDropped)="drop($event)"
+          >
+            <ng-container
+              *ngFor="
+                let ruleForm of getRulesFormArray().controls;
+                let j = index
+              "
+            >
+              <ng-container [formGroup]="ruleForm">
+                <div class="rule-container" cdkDrag>
+                  <div *cdkDragPreview></div>
+                  <div class="drag-handle" cdkDragHandle>
+                    <mat-icon>reorder</mat-icon>
+                  </div>
+                  <div class="block-form-field-container">
+                    <mat-form-field
+                      appearance="fill"
+                      class="rule-form-field"
+                      [style.width.px]="680"
+                    >
+                      <mat-label
+                        class="{{
+                          isRuleValid(j) ? 'validRule' : 'invalidRule'
+                        }}"
+                        >OFFER CODE</mat-label
+                      >
+                      <mat-select
+                        formControlName="offerCode"
+                        (selectionChange)="
+                          updateOfferCodeDependentFields($event, j)
+                        "
+                        class="{{
+                          isRuleValid(j) ? 'validRule' : 'invalidRule'
+                        }}"
+                      >
+                        <mat-option
+                          *ngFor="let offerCodeOption of offerCodesList"
+                          [value]="offerCodeOption"
+                        >
+                          {{ getOfferCodeOption(offerCodeOption) }}
+                        </mat-option>
+                      </mat-select>
+                    </mat-form-field>
+                  </div>
+                  <div class="block-form-field-container">
+                    <mat-form-field appearance="fill" class="rule-form-field">
+                      <mat-label
+                        class="{{
+                          isRuleValid(j) ? 'validRule' : 'invalidRule'
+                        }}"
+                        >PLAN LENGTH</mat-label
+                      >
+                      <input
+                        matInput
+                        type="number"
+                        onkeypress="return (event.charCode == 8 || event.charCode == 0 || event.charCode == 13) ? null : event.charCode >= 48 && event.charCode <= 57"
+                        formControlName="planLengthsInMonthsAllowed"
+                        (change)="turnOnUnpublishedChanges()"
+                        [ngClass]="{
+                          'field-disabled': isPlanLengthFieldDisabled(
+                            ruleForm.value.offerCode
+                          )
+                        }"
+                        (keypress)="keyPressNumbersWithDecimal($event)"
+                        [style.color]="
+                          !containsOnlyNumbers(
+                            formGroup.getRawValue().rulesFormArray[j]
+                              .planLengthsInMonthsAllowed
+                          ) || !isRuleValid(j)
+                            ? 'red'
+                            : 'white'
+                        "
+                      />
+                    </mat-form-field>
+                  </div>
+                  <div class="block-form-field-container">
+                    <mat-form-field appearance="fill" class="rule-form-field">
+                      <mat-label
+                        class="{{
+                          isRuleValid(j) ? 'validRule' : 'invalidRule'
+                        }}"
+                        >PRICE</mat-label
+                      >
+                      <input
+                        matInput
+                        type="number"
+                        [style.color]="isRuleValid(j) ? 'white' : 'red'"
+                        formControlName="priceForCurrentPeriod"
+                        (change)="turnOnUnpublishedChanges()"
+                      />
+                    </mat-form-field>
+                  </div>
+                  <div class="remove-element-button-container">
+                    <button
+                      (click)="
+                        deleteRule(1, j);
+                        $event.stopPropagation();
+                        $event.preventDefault()
+                      "
+                      class="icon-button"
+                      type="button"
+                      matTooltip="Removes rule"
+                      matTooltipPosition="above"
+                    >
+                      <mat-icon>remove_circle_outline</mat-icon>
+                    </button>
+                  </div>
+                </div>
+              </ng-container>
+            </ng-container>
+          </div>
+        </ng-container>
+      </form>
+    </div>
+  </div>
+</ng-container>

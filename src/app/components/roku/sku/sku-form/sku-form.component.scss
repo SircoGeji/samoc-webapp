@@ -1,0 +1,298 @@
+@import '../../../../../base/_variables.scss';
+@import '../../../../../base/_mixin.scss';
+
+@include custom-scrollbar();
+
+$grey: rgb(120, 120, 120);
+
+.roku-sku-form-styles-container {
+  * {
+    box-sizing: border-box;
+  }
+  .roku-sku-form-boolean-container {
+    label {
+      padding: 0;
+    }
+    .mat-checkbox-frame {
+      border-color: gray;
+    }
+  }
+  
+  .roku-sku-form-header {
+    position: relative;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    margin: 10px 20px 0 20px;
+  }
+
+  .roku-sku-title {
+    position: relative;
+    left: 45px;
+    color: #b1b1b1;
+    font-weight: 300;
+    font-size: 24px;
+    font-style: normal;
+    font-stretch: normal;
+    letter-spacing: 0.72px;
+  }
+
+  .back-arrow {
+    position: relative;
+    left: 15px;
+  }
+
+  .roku-sku-form-save-button {
+    position: absolute;
+    right: 0;
+  }
+
+  .roku-sku-form-save-button {
+    position: absolute;
+    right: 0;
+  }
+
+  .arrow-drop-down {
+    position: absolute;
+    top: 5px;
+    right: 8px;
+  }
+
+  .roku-sku-form-container {
+    @include mat-container();
+    @include mat-select-container();
+    @include cell-container();
+    @include region-button();
+    textarea.mat-input-element {
+      overflow-y: hidden;
+    }
+    .full-width-textarea {
+      textarea.mat-input-element {
+        overflow-y: visible;
+        width: 100%;
+        height: 100%;
+      }
+    }
+    .region-button {
+      display: flex;
+      justify-content: space-around;
+      width: 60px;
+      .button-checkbox {
+        cursor: pointer;
+        width: 15px;
+        max-width: none;
+      }
+    }
+
+    position: relative;
+    height: calc(100vh - 180px);
+    overflow: auto;
+
+    .boolean-type-container {
+      height: inherit;
+      width: inherit;
+      input {
+        cursor: pointer;
+        height: inherit;
+        margin: 0;
+        max-width: none;
+      }
+    }
+  }
+
+  .roku-sku-inputs-container {
+    position: relative;
+    left: 111px;
+    top: 0;
+    display: flex;
+    max-width: 800px;
+    flex-flow: column wrap;
+    align-content: flex-start;
+    height: 150px;
+  }
+
+  .upper-table-header {
+    display: flex;
+    justify-content: left;
+    flex-direction: column;
+  }
+
+  .buttons-container {
+    position: relative;
+    top: 10px;
+    display: inline-flex;
+    gap: 10px;
+  }
+
+  .button-disabled {
+    cursor: not-allowed;
+  }
+
+  .roku-sku-form-translatable-container {
+    position: relative;
+    display: inline-flex;
+    flex-direction: row;
+    top: 20px;
+    left: 45px;
+  }
+
+  .roku-sku-form-region-buttons-container {
+    display: inline-flex;
+    flex-flow: column wrap;
+    align-content: flex-end;
+    margin-bottom: 10px;
+  }
+
+  .roku-sku-form-table-container {
+    display: inline-flex;
+    flex-direction: row;
+    overflow-y: auto;
+  }
+
+  .field-container {
+    padding-left: 10px;
+    width: 250px;
+    height: 48px;
+    border-bottom: solid $grey 1px;
+    border-right: solid black 1px;
+    border-left: solid $grey 1px;
+    background-color: rgb(32, 32, 32);
+    line-height: 3.5;
+  }
+
+  .margin-top-container {
+    margin-top: 48px;
+  }
+
+  .roku-datepicker-toggle {
+    color: #fff;
+    position: absolute;
+    top: -30px;
+    right: 5px;
+  }
+
+  .cell-container {
+    padding-left: 10px;
+    width: 280px;
+    height: 48px;
+    border-bottom: solid $grey 1px;
+    border-right: solid $grey 1px;
+    background-color: rgb(48, 48, 48);
+    line-height: 3.5;
+    cursor: text;
+  }
+
+  .table-header {
+    display: flex;
+    flex-direction: row;
+    position: absolute;
+    align-items: center;
+    padding-left: 20px;
+    border-top: solid $grey 1px;
+    border-bottom: solid black 1px;
+  }
+
+  .copy-icon {
+    position: absolute;
+    right: 30px;
+    top: 14px;
+    cursor: pointer;
+  }
+
+  .paste-icon {
+    position: absolute;
+    right: 5px;
+    top: 14px;
+    cursor: pointer;
+  }
+
+  .roku-sku-form-input {
+    all: initial;
+    width: 100%;
+    height: 100%;
+    border: 0;
+    outline: none;
+    cursor: inherit;
+    line-height: inherit;
+    font-family: MuseoSans-300, Arial, Helvetica, sans-serif;
+    color: white;
+  }
+
+  .roku-sku-mat-container {
+    position: relative;
+    width: 330px;
+    margin-top: 20px;
+    margin-right: 20px;
+    cursor: pointer;
+  }
+
+  .roku-sku-mat-container-region {
+    position: relative;
+    display: inline-block;
+    margin-top: 0px;
+    margin-bottom: 10px;
+    margin-right: 20px;
+    cursor: pointer;
+  }
+
+  .middle-width-field-container {
+    width: 260px;
+  }
+
+  .roku-sku-custom-region-field {
+    height: 50px;
+    display: flex;
+    justify-content: space-between;
+    cursor: pointer;
+    margin-right: 20px;
+    input {
+      height: inherit;
+      margin: 0;
+      cursor: pointer;
+    }
+    label {
+      padding: 0;
+      margin: auto 0 auto 10px;
+      cursor: pointer;
+    }
+  }
+
+  .roku-sku-form-image-container {
+    position: relative;
+    margin-left: 20px;
+    margin-bottom: 20px;
+    width: calc(100vw - 1150px);
+    min-width: 300px;
+    max-width: 400px;
+    .roku-sku-form-image {
+      width: 100%;
+    }
+  }
+
+  .img-selector-container {
+    width: 300px;
+    margin-bottom: 10px;
+    margin-left: auto;
+    margin-top: 0;
+  }
+
+  .img-spinner {
+    position: absolute;
+    top: 100px;
+  }
+
+  .default-image {
+    color: grey;
+  }
+
+  @media only screen and (min-width: 1621px) {
+    .roku-sku-form-table-container {
+      max-height: calc(100vh - 320px);
+    }
+  }
+  @media only screen and (max-width: 1620px) {
+    .roku-sku-form-table-container {
+      max-height: calc(100vh - 190px);
+    }
+  }
+}

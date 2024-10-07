@@ -1,0 +1,50 @@
+<div
+  class="language-modal-container"
+  [formGroup]="formGroup"
+  *ngIf="isFormVisible"
+>
+  <p class="title">
+    {{ data.pageQuery === 'create' ? 'NEW LANGUAGE' : 'EDIT LANGUAGE' }}
+  </p>
+  <div class="mat-container language-input-container">
+    <mat-form-field appearance="fill">
+      <mat-label>Language Name*</mat-label>
+      <input
+        matInput
+        formControlName="languageName"
+        type="text"
+        placeholder="Add text"
+        autocomplete="off"
+      />
+    </mat-form-field>
+    <div class="error-container">
+      {{ getLanguageNameErrorMessage() }}
+    </div>
+  </div>
+  <div class="mat-container language-input-container">
+    <mat-form-field appearance="fill">
+      <mat-label>Code*</mat-label>
+      <input
+        matInput
+        formControlName="languageCode"
+        type="text"
+        placeholder="Add text"
+        autocomplete="off"
+      />
+    </mat-form-field>
+    <div class="error-container">
+      {{ getLanguageCodeErrorMessage() }}
+    </div>
+  </div>
+  <div class="buttons-container">
+    <button class="button-primary" (click)="closeModal()">CANCEL</button>
+    <button
+      class="button-secondary"
+      (click)="onSubmit()"
+      [disabled]="isSaveButtonDisabled()"
+      [ngClass]="{ 'button-disabled': isSaveButtonDisabled() }"
+    >
+      {{ data.pageQuery === 'create' ? 'SAVE' : 'UPDATE' }}
+    </button>
+  </div>
+</div>

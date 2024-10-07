@@ -1,0 +1,214 @@
+<app-header></app-header>
+<app-spinner></app-spinner>
+<ng-container *ngIf="createdOffers?.length && plans?.length">
+  <div class="filters-wrapper">
+    <div class="header">
+      <div class="header-flexbox">
+        <h1>FILTERS</h1>
+        <div
+          [ngStyle]="{ 'background-color': getStatusColor() }"
+          class="status multiline-tooltip"
+          matTooltipClass="custom-tooltip"
+          matTooltipPosition="after"
+        >
+          {{ getStatusTitle() }}
+        </div>
+      </div>
+      <span>{{ description }}</span>
+      <p *ngIf="testUrl">
+        <a href="{{ testUrl }}"><span>Validation URL</span></a>
+      </p>
+    </div>
+    <hr />
+
+    <div class="button-group">
+      <button
+        *ngIf="canRetire"
+        (click)="rollback()"
+        class="button-tertiary"
+        style="margin-left: 30px; margin-top: -5px"
+        type="button"
+      >
+        {{ rollbackName }}
+      </button>
+      <button
+        *ngIf="canSave && isModified()"
+        (click)="save()"
+        class="button-primary"
+        style="margin-left: 30px; margin-top: -5px"
+        type="button"
+        [disabled]="
+          rulesDuplicatesExists() || emptyRuleExist() || someRuleHasErrors()
+        "
+      >
+        SAVE AS DFT
+      </button>
+      <button
+        *ngIf="canCreate && (isModified() || isDraft)"
+        (click)="stage()"
+        class="button-secondary"
+        style="margin-left: 30px; margin-top: -5px"
+        type="button"
+        [disabled]="
+          rulesDuplicatesExists() || emptyRuleExist() || someRuleHasErrors()
+        "
+      >
+        PUSH TO STG
+      </button>
+      <button
+        *ngIf="canPublish && !isModified()"
+        (click)="publish()"
+        class="button-danger"
+        style="margin-left: 30px; margin-top: -5px"
+        type="button"
+        [disabled]="rulesDuplicatesExists() || emptyRuleExist()"
+      >
+        PUBLISH ON PROD
+      </button>
+    </div>
+
+    <div class="rules-actions-container">
+      <div class="add-rule-container">
+        <button
+          (click)="accordion.closeAll(); addRule()"
+          class="button-primary"
+          type="button"
+          [disabled]="
+            rulesDuplicatesExists() ||
+            emptyRuleExist() ||
+            !canChangeRules() ||
+            someRuleHasErrors()
+          "
+        >
+          ADD RULE
+        </button>
+        <button
+          (click)="addDefaultFilter()"
+          class="button-primary default-filter-button"
+          type="button"
+          [disabled]="defaultRuleExists()"
+        >
+          ADD DEFAULT FILTER
+        </button>
+        <div class="filters-errors">
+          <mat-error *ngIf="rulesDuplicatesExists()"
+            >Some rule duplicates another
+          </mat-error>
+          <mat-error *ngIf="someRuleHasErrors()"
+            >Some rule is invalid
+          </mat-error>
+          <mat-error *ngIf="emptyRuleExist()">Some rule is empty </mat-error>
+          <mat-error *ngIf="!canChangeRules()"
+            >On STG changing rules is prohibited
+          </mat-error>
+        </div>
+      </div>
+      <div>
+        <button
+          (click)="synchronizeRulesAction()"
+          style="border-radius: 7px"
+          matTooltip="Synchronize criteria with GhostLocker configuration"
+          matTooltipPosition="above"
+        >
+          <mat-icon>sync</mat-icon>
+        </button>
+      </div>
+    </div>
+
+    <div class="accordion-wrapper">
+      <mat-accordion
+        cdkDropList
+        (cdkDropListDropped)="drop($event)"
+        class="example-headers-align"
+        #accordion="matAccordion"
+        [multi]="true"
+      >
+        <ng-container *ngFor="let rule of rules; index as i">
+          <mat-expansion-panel
+            [(expanded)]="expansionPanels[i]"
+            [ngClass]="{ 'rule-have-error': hasRuleErrors(rule, i) }"
+            cdkDrag
+            [cdkDragDisabled]="
+              !canChangeRules() ||
+              rule.name === 'Default' ||
+              someRuleHasErrors()
+            "
+          >
+            <div *cdkDragPreview>
+              <div class="rules-drag-preview-wrapper">
+                <mat-expansion-panel-header>
+                  <mat-panel-title>
+                    <div
+                      *ngIf="i < rules.length - 1"
+                      class="drag-handle"
+                      cdkDragHandle
+                    >
+                      <mat-icon>reorder</mat-icon>
+                    </div>
+                  </mat-panel-title>
+                  <mat-panel-description>
+                    <span class="rule-name">{{ ruleName(i, rule) }}</span>
+                    &nbsp;&nbsp;&nbsp;
+                    <span class="rule-description">
+                      {{ ruleDescription(rule) }}
+                    </span>
+                  </mat-panel-description>
+                </mat-expansion-panel-header>
+              </div>
+            </div>
+            <mat-expansion-panel-header>
+              <mat-panel-title>
+                <div
+                  *ngIf="i < rules.length - 1"
+                  class="drag-handle"
+                  cdkDragHandle
+                >
+                  <mat-icon>reorder</mat-icon>
+                </div>
+                <div
+                  class="delete-icon-wrapper"
+                  *ngIf="rule.name !== 'Default' && i !== rules.length"
+                >
+                  <button
+                    class="mat-icon-button"
+                    mat-icon-button
+                    (click)="
+                      deleteRule(i, rule.name);
+                      $event.stopPropagation();
+                      $event.preventDefault()
+                    "
+                    [disabled]="!canChangeRules()"
+                    color="primary"
+                  >
+                    <mat-icon>delete_forever</mat-icon>
+                  </button>
+                </div>
+              </mat-panel-title>
+              <mat-panel-description>
+                <span class="rule-name">{{ ruleName(i, rule) }}</span>
+                &nbsp;&nbsp;&nbsp;
+                <span class="rule-description">
+                  {{ ruleDescription(rule) }}
+                </span>
+              </mat-panel-description>
+            </mat-expansion-panel-header>
+
+            <app-plan-adjustment
+              cdkDropListGroup
+              [status]="status"
+              [rule]="rule"
+              [rules]="rules"
+              [plans]="plans"
+              [index]="i"
+              [createdOffers]="createdOffers"
+              [isDefault]="rule.name === 'Default' && i === rules.length - 1"
+              [statesList]="statesList"
+              [currentRegion]="currentRegion"
+              (selectedOffersEvent)="serializeData($event)"
+            ></app-plan-adjustment>
+          </mat-expansion-panel>
+        </ng-container>
+      </mat-accordion>
+    </div>
+  </div>
+</ng-container>

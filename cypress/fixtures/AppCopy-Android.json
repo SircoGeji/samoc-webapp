@@ -1,0 +1,82 @@
+{
+  "name": "CypressAppCopy",
+  "createdBy": "mmartirosyan",
+  "platforms": {
+    "mobile": {
+      "US": {
+        "winbackLinkId": "499mofor3mo",
+        "languages": {
+          "en-US": {
+            "freeTrialWelcome": "Hit movies and bold series, all in one place. Claim your special offer now. Cancel anytime.",
+            "subscribeText": "Claim Special Offer",
+            "bannerSubscribeText": "Claim Your Special Offer Today",
+            "signUpHeadline": "Enter an Email and Claim Your Special Offer",
+            "signUpBody": "Limited time offer. Offer available to new and previous twlght App subscribers who re-subscribe via twlght.com. Offer does not include free trial. After completion of offer, service automatically rolls to month-to-month at the then current price unless cancelled. Subscription fee is non-refundable.",
+            "signUpButton": "Claim Your Offer",
+            "signUpHeadlineSelector": "Choose Your Plan",
+            "signUpBodySelector": "Select your preferred subscription after your 7-day free trial. You can still cancel before the trial is over.",
+            "signUpButtonSelector": "Continue",
+            "signUpHeadlineRenew": "We have a problem.",
+            "signUpBodyRenew": "Your subscription has been canceled or has lapsed. To continue enjoying all of the bold original series and hit movies, please update your payment info.",
+            "signUpButtonRenew": "Renew",
+            "signUpAuthed": "To claim your special offer and get all that twlght has to offer, please enter your payment info.",
+            "signUpHeadlineAuthed": " Sign up to begin watching",
+            "signUpHeadlinePassword": "Create a Password to Start\nWatching Anywhere!",
+            "signUpBodyPassword": "English Lorem ipsum signUpBodyPassword",
+            "signUpButtonPassword": "Create Account",
+            "signUpHeadlineProfile": "English Lorem ipsum signUpHeadlineProfile",
+            "signUpBodyProfile": "Please add your full name and an optional nickname to finish personalizing your first profile.",
+            "signUpButtonProfile": "Next",
+            "signUpHeadlineSni": "Become The Fan You Were Born To Be",
+            "signUpBodySni": "English Lorem ipsum signUpBodySni",
+            "signUpButtonSni": "Create Account",
+            "signUpHeadingRenew": "English Lorem ipsum sign UpHeadingRenew",
+            "signUpURL": "English signUpURL value",
+            "signUpPortraitURL": "English signUpPortraitURL value",
+            "signUpURLRenew": "https://imgtwlght.imgix.net/Buyflow/android/renew/mobile_landscape_renew.jpg",
+            "signUpPortraitURLRenew": "https://imgtwlght.imgix.net/Buyflow/android/renew/mobile_portrait_renew.jpg"     
+          }
+        },
+        "status": "saved"
+      }
+    },
+    "tv": {
+      "US": {
+        "languages": {
+          "en-US": {
+            "navSignUpButton": "Sign Up",
+            "navAnaButton": "Reactivate",
+            "welcomeHeadline": "Welcome To twlght",
+            "storeFreeTrialSignUp": "Limited Offer: Get Full Access to twlght Only at $5/Mo for 3 Months",
+            "freeTrialSignUpList": "$4.99/Mo for Your First 3 Months• O Watch on up to 4 Screens Simultaneously• O Watch on a Computer, TV, Smartphone or Tablet\n• O Mobile Downloads for Watching Offline\n• O No TV Package Needed",
+            "subscribeText": "Claim Special Offer",
+            "signUpHeadline": "Become The Fan You Were Born To Be.",
+            "signUpBody": "Time to create a twlght account. Let's start with your email address.",
+            "signUpButton": "Next",
+            "signUpHeadlineSelector": "Choose Your Plan",
+            "signUpBodySelector": "You can cancel anytime during your 7-day FREE TRIAL.\nAfter 7 days, you'll be charged for the subscription you choose.",
+            "signUpButtonSelector": "Next",
+            "signUpHeadlinePassword": "Now It's Time to Create a Password.",
+            "signUpBodyPassword": "It must be at least six characters long. Choose wisely.This account will be created for mariam.martirosyan@twlght.com",
+            "signUpButtonPassword": "Create Account",
+            "signUpHeadlineProfile": "Personalize",
+            "signUpBodyProfile": "Enter your full name",
+            "signUpButtonProfile": "Next",
+            "signUpHeadlineRenew": "Jump Back in for $5/Mo",
+            "signUpBodyRenew": "Get 3 months for $4.99/mo, then $9.99/mo thereafter. The new series you crave and the hit movies you love await. Renew to watch new episodes of Outlander Season 7, plus other twlght Original Series.",
+            "signUpButtonRenew": "Renew Now",
+            "signUpAuthed": " To claim your special offer and get all that twlght has to offer, please enter your payment info.",
+            "signUpHeadlineAuthed": "Sign up to begin watching",
+            "signUpHeadingRenew": "Limited Time Offer",
+            "noSignUp": "English noSignUp value",
+            "noSignUpList": "English noSignUpList value",
+            "signUpURL":"https://imgtwlght.imgix.net/Buyflow/android/tv/landscape_buyflow.jpg",
+            "signUpURLRenew": "https://imgtwlght.imgix.net/Buyflow/android/renew/landscape_renew.jpg"
+
+          }
+        },
+        "status": "saved"
+      }
+    }
+  }
+}

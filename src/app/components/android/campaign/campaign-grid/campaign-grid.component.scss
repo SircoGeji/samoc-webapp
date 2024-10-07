@@ -1,0 +1,139 @@
+@import '../../../../../base/_variables.scss';
+@import '../../../../../base/_mixin.scss';
+
+@include custom-scrollbar();
+@include hyperlink();
+
+.default-module:after {
+  content: "*";
+}
+
+.filters-block-hidden,
+.filters-block-shown {
+  transition: all .3s ease-in-out;
+}
+
+.filters-block-shown {
+  width: 400px;
+}
+
+.filters-block-hidden {
+  width: 0;
+}
+
+.campaigns-component-container {
+  display: flex;
+
+  .campaigns-filters-container {
+    height: 100vh;
+    background: #2F2F2F;
+    position: relative;
+
+    .filter-clear-all-button-container {
+      position: absolute;
+      top: 0;
+      z-index: 0;
+      &-hidden {
+        right: 40px;
+      }
+      &-shown {
+        right: -40px;
+      }
+      &-hidden,
+      &-shown {
+        transition: all 0.3s ease-in-out;
+      }
+      .filter-clear-all-button {
+        cursor: pointer;
+        border-radius: 5px;
+        .filter-clear-all-button-icon {
+          display: block;
+        }
+      }
+    }
+
+    .filter-accordion-container {
+      margin: 10px;
+
+      .filters-accordion-content {
+        max-height: 200px;
+        min-height: 0;
+        overflow-y: auto;
+
+        .accordion-filter-container {
+          display: flex;
+          align-items: center;
+          justify-content: flex-start;
+
+          label {
+            padding: 10px 0 10px 16px;
+          }
+
+          input {
+            margin-top: 5px;
+            border: solid 1px grey;
+            padding-left: 5px;
+            width: 100%;
+          }
+
+          i.material-icons {
+            cursor: pointer;
+          }
+        }
+      }
+    }
+  }
+
+  .campaigns-tab-group-container {
+    margin: 28px 40px;
+    width: 100%;
+
+    .mat-tab-disabled {
+      .mat-tab-label-content {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+    }
+
+    .campaigns-grid-container {
+      margin-top: 28px;
+
+      .campaigns-buttons-container {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .campaigns-table-container {
+        height: calc(100vh - 320px);
+        overflow: auto;
+        margin-top: 20px;
+
+        .table-header-row {
+          font-weight: bold;
+          color: #000;
+          font-size: 1em;
+        }
+
+        tr.mat-row:hover,
+        tr.mat-footer-row:hover {
+          background: inherit;
+          cursor: default;
+        }
+
+        .table-menu-action-button {
+          background: none;
+          border: none;
+          cursor: pointer;
+        }
+
+        mat-paginator {
+          position: sticky;
+          bottom: 0;
+          z-index: 10;
+        }
+      }
+    }
+  }
+
+}

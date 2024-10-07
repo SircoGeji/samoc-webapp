@@ -1,0 +1,38 @@
+@import '../../../base/_variables.scss';
+@import '../../../base/_mixin.scss';
+
+.login-page-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  margin: 0;
+  padding: 0;
+
+  .login-page-box {
+    text-align: left;
+
+    &-header {
+      font-size: 33px;
+      letter-spacing: 1.34px;
+      text-align: center;
+    }
+
+    &-section {
+      &-field {
+        padding-bottom: 30px;
+        @include input-field-width(432px);
+        @include input-fields;
+      }
+    }
+
+    .button-secondary {
+      width: 432px;
+      height: 60px;
+    }
+
+    .mat-error {
+      margin-top: 1.43em;
+    }
+  }
+}

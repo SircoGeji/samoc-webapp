@@ -1,0 +1,11 @@
+<app-header></app-header>
+<app-spinner></app-spinner>
+<div class="filter-diff" *ngIf="showDiffBlock">
+  <app-json-comparison
+    [env]="env"
+    [leftVersion]="firstVersion"
+    [rightVersion]="secondVersion"
+    [leftTree]="firstVersionDataJSON"
+    [rightTree]="secondVersionDataJSON"
+    ></app-json-comparison>
+</div>

@@ -1,0 +1,224 @@
+<app-header></app-header>
+<app-spinner></app-spinner>
+
+<div class="translations-wrapper">
+  <div class="header">
+    <div class="header-flexbox">
+      <h1>TRANSLATIONS</h1>
+      <div
+        [ngStyle]="{'background-color': getStatusColor()}"
+        class="status multiline-tooltip"
+        matTooltipClass="custom-tooltip"
+        matTooltipPosition="after">
+        {{getStatusTitle()}}</div>
+    </div>
+    <span>{{description}}</span>
+  </div>
+
+  <hr />
+<!--  <div class="button-container">-->
+    <div class="button-group">
+    <button
+      *ngIf='canRollback'
+      (click)="doRollback()"
+      class="button-primary"
+      style="margin-left: 30px; margin-top: -5px;"
+      type="button"
+    >
+      ROLLBACK
+    </button>
+    <button
+      *ngIf='canCreate'
+      (click)="stage()"
+      class="button-primary"
+      style="margin-left: 30px; margin-top: -5px;"
+      type="button"
+      [disabled]="changesWereMade()"
+      [class.button-disabled]="changesWereMade()"
+    >
+      CREATE ON STG
+    </button>
+    <button
+      *ngIf='canPublish'
+      (click)="publish()"
+      class="button-primary"
+      style="margin-left: 30px; margin-top: -5px;"
+      type="button"
+    >
+      PUBLISH ON PROD
+    </button>
+  </div>
+
+  <div class="container">
+    <div class="button-container" *ngIf="selectedCountry && selectedStoreOffer && canChangeTranslation()">
+      <button
+        type="button"
+        [disabled]="!changesWereMade()"
+        [class.button-disabled]="!changesWereMade()"
+        (click)="saveChanges()"
+      >
+        SAVE
+      </button>
+    </div>
+    <div class="translations-selectors">
+      <div class="left-column">
+        <mat-form-field appearance="fill">
+          <mat-label>Select country</mat-label>
+          <mat-select
+            [(value)]="selectedCountry"
+            (selectionChange)="countriesChangeHandler($event)"
+          >
+            <mat-option>None</mat-option>
+            <mat-option
+              *ngFor="let country of countries"
+              [value]="country.countries[0]"
+            >
+              {{ country.countries[0] }}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+      </div>
+
+      <div class="right-column" *ngIf="selectedCountry">
+        <mat-form-field appearance="fill">
+          <mat-label>Select Store Offer</mat-label>
+          <mat-select
+            [(value)]="selectedStoreOffer"
+            (selectionChange)="storeOffersChangeHandler($event)"
+          >
+            <mat-option>None</mat-option>
+            <mat-option
+              *ngFor="let offer of storeOffers"
+              [value]="offer.storeOfferType"
+            >
+              {{ offer.storeOfferType }}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+      </div>
+    </div>
+
+    <div
+      *ngIf="selectedCountry && selectedStoreOffer && tableTranslations"
+      class="translations-table"
+    >
+      <table
+        mat-table
+        [dataSource]="tableTranslations"
+      >
+        <ng-container matColumnDef="key">
+          <th mat-header-cell *matHeaderCellDef>Key</th>
+          <td mat-cell *matCellDef="let element; let index = index">
+            <div
+            *ngIf="!canChangeTranslation(); else keyTextarea"
+            >
+              {{ element.keyName }}
+            </div>
+            <ng-template
+              #keyTextarea
+              >
+              <textarea
+                matInput
+                cdkTextareaAutosize
+                placeholder="Key of translation"
+                name="keyName-translation-{{index}}"
+                #autosize="cdkTextareaAutosize"
+                cdkAutosizeMinRows="1"
+                cdkAutosizeMaxRows="10"
+                [(ngModel)]="element.keyName"
+                (change)='updateTranslations()'
+              ></textarea>
+            </ng-template>
+          </td>
+        </ng-container>
+
+        <ng-container
+          [matColumnDef]="dynamicColumn"
+          *ngFor="let dynamicColumn of dynamicColumns"
+        >
+          <th mat-header-cell *matHeaderCellDef>{{ dynamicColumn }}</th>
+          <td mat-cell *matCellDef="let element; let index = index">
+            <div
+            *ngIf="!canChangeTranslation(); else notBooleanValueTextarea"
+            >
+              {{ element[dynamicColumns.indexOf(dynamicColumn)] }}
+            </div>
+            <!-- <div
+              *ngIf="
+              canChangeTranslation() ||
+              element[dynamicColumns.indexOf(dynamicColumn)] === false ||
+              element[dynamicColumns.indexOf(dynamicColumn)] === true;
+                else notBooleanValueTextarea
+              "
+            >
+              <mat-checkbox
+                color="primary"
+                [checked]="element[dynamicColumns.indexOf(dynamicColumn)] === true"
+                (change)="switchCheckbox(element, dynamicColumns.indexOf(dynamicColumn))"
+                [disabled]="!canChangeTranslation()"
+              ></mat-checkbox>
+            </div> -->
+            <ng-template #notBooleanValueTextarea
+            >
+              <ng-container
+              *ngIf="
+              canChangeTranslation() ||
+              element[dynamicColumns.indexOf(dynamicColumn)] === false ||
+              element[dynamicColumns.indexOf(dynamicColumn)] === true;
+                else booleanValue
+              ">
+                <textarea
+                  matInput
+                  cdkTextareaAutosize
+                  placeholder="Value of translation"
+                  name="{{dynamicColumn}}-translation-{{index}}"
+                  #autosize="cdkTextareaAutosize"
+                  cdkAutosizeMinRows="1"
+                  cdkAutosizeMaxRows="10"
+                  [(ngModel)]="element[dynamicColumns.indexOf(dynamicColumn)]"
+                  (change)='updateTranslations()'
+                  matTooltip='{{ getKeylessTooltip(element) }}'
+                  matTooltipPosition='above'
+                ></textarea>
+              </ng-container>
+            </ng-template>
+            <ng-template
+              #booleanValue
+            >
+              <mat-checkbox
+                color="primary"
+                [checked]="element[dynamicColumns.indexOf(dynamicColumn)] === true"
+                (change)="switchCheckbox(element, dynamicColumns.indexOf(dynamicColumn))"
+                [disabled]="!canChangeTranslation()"
+              ></mat-checkbox>
+            </ng-template>
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="delete-button">
+          <th mat-header-cell *matHeaderCellDef></th>
+          <td mat-cell *matCellDef="let element">
+            <!-- <mat-icon
+            *ngIf="element !== tableTranslations[tableTranslations.length - 1]"
+            (click)="deleteTranslation(element)"
+              >delete_forever</mat-icon
+            > -->
+            <button
+              *ngIf="element !== tableTranslations[tableTranslations.length - 1]"
+              class="mat-icon-button"
+              mat-icon-button
+              (click)="deleteTranslation(element)"
+              [disabled]="!canChangeTranslation()"
+              color="primary" >
+                <mat-icon>delete_forever</mat-icon>
+            </button>
+          </td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+      </table>
+    </div>
+
+  </div>
+</div>

@@ -1,0 +1,138 @@
+@import '../../../../../base/variables';
+@import '../../../../../base/_mixin.scss';
+
+@include custom-scrollbar();
+@include hyperlink();
+
+.select-panel-option {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  .option-image {
+    border-radius: 50%;
+    margin-right: 10px;
+    width: 32px;
+  }
+  .option-name {
+
+  }
+}
+mat-option:disabled {
+  cursor: not-allowed;
+}
+
+.mentions-select-list {
+  margin-top: 50px !important;
+  margin-left: 40px;
+}
+
+.default-copy:after {
+  content: '*';
+}
+
+.slack-notifications {
+  @include mat-container();
+  .template-info {
+    font-weight: bold;
+    margin-bottom: 5px;
+  }
+  .grey {
+    color: $input-underline-grey;
+  }
+  .red {
+    color: $red;
+  }
+  .slack-notifications__header {
+  }
+  .slack-notifications__content {
+    .content__slack-bot {
+      margin-top: 10px;
+      border-bottom: 1px solid white;
+      .slack-bot__header {
+        margin-bottom: 10px;
+        margin-left: 10px;
+        .header__slack-bot-name {
+          margin-left: 20px;
+        }
+      }
+      .slack-bot__toggle {
+        margin-bottom: 10px;
+        margin-left: 10px;
+        .slack-bot__trigger-description {
+          margin-left: 10px;
+        }
+      }
+      .slack-bot__channels-list {
+        margin-bottom: 10px;
+        margin-left: 10px;
+        .channels-list__label {
+        }
+        .channels-list__channel {
+          margin-left: 20px;
+        }
+      }
+      .slack-bot__mentions-selector {
+        margin-bottom: 20px;
+        max-width: 560px;
+        @include input-field-width(560px);
+        @include input-field-height(50px);
+        .mat-form-field-ripple {
+          background-color: $input-underline-grey;
+        }
+
+        .mat-form-field.mat-focused .mat-form-field-ripple {
+          width: 560px;
+          background-color: $input-background-grey;
+        }
+
+        .mat-form-field {
+          height: 50px;
+        }
+
+        .mat-form-field-label {
+          top: 1.289em !important;
+          color: $label-grey;
+          font-weight: bold;
+          font-style: normal;
+          font-stretch: normal;
+          line-height: 1.21;
+          letter-spacing: normal;
+          text-align: left;
+        }
+
+        .mat-form-field.mat-focused .mat-form-field-label {
+          color: $label-grey;
+        }
+
+        .mat-input-element::placeholder {
+          color: $input-placeholder-grey;
+        }
+        .mat-form-field-appearance-fill .mat-form-field-flex {
+          padding: 0;
+        }
+        .mat-form-field-underline {
+          bottom: 0;
+        }
+
+        .mat-form-field-wrapper {
+          padding: 0;
+        }
+        .mat-select {
+          padding: 0 0 1.05em 0;
+        }
+
+        .mat-select-value-text {
+          position: absolute;
+          margin-top: 6px;
+          padding-left: 12px;
+          color: white;
+        }
+
+        .mat-select-arrow {
+          margin-right: 13px;
+          color: $label-grey;
+        }
+      }
+    }
+  }
+}

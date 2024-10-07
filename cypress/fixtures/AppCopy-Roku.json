@@ -1,0 +1,45 @@
+{
+    "name": "CypressAppCopy",
+    "createdBy": "mmartirosyan",
+    "platforms": {
+      "tv": {
+        "US": {
+          "languages": {
+            "en-US": {
+                        "productId": "1",
+                        "navSignUpButton": "Sign Up",
+                        "navAnaButton": "Reactivate",
+                        "welcomeHeadline": "Welcome To STZ",
+                        "storeFreeTrialSignUp": "GET FULL ACCESS TO twlght ORIGINAL SERIES AND HIT MOVIES",
+                        "freeTrialSignUpList":".WATCH ON UP TO 4 SCREENS SIMULTANEOUSLY. WATCH ON A COMPUTER, TV, SMARTPHONE OR TABLET. MOBILE DOWNLOADS FOR WATCHING OFFLINE.NO TV PACKAGE NEEDED",
+                        "subscribeText": "Start Free Trial",
+                        "signUpHeadline": "Become The Fan You Were Born To Be.",
+                        "signUpBody": "TIME TO CREATE A twlght ACCOUNT. LET'S START WITH YOUR EMAIL ADDRESS.",
+                        "signUpButton": "Next",
+                        "signUpHeadlineSelector": "Choose Your Plan",
+                        "signUpBodySelector": "YOU CAN CANCEL ANYTIME DURING YOUR 7-DAY FREE TRIAL.AFTER 7 DAYS, YOU'LL BE CHARGED FOR THE SUBSCRIPTION YOU CHOOSE.",
+                        "signUpButtonSelector": "Next",
+                        "signUpHeadlinePassword": "Now It's Time to Create a Password.",
+                        "signUpBodyPassword": "It must be at least six characters long. Choose wisely.This account will be created for mariam.martirosyan@twlght.com",
+                        "signUpButtonPassword": "Create Account",
+                        "signUpHeadlineProfile": "Personalize",
+                        "signUpBodyProfile": "Enter your full name",
+                        "signUpButtonProfile": "Next",
+                        "signUpHeadlineRenew": "Jump Back In!",
+                        "signUpBodyRenew": "Your subscription has been cancelled or has lapsed. To dive back into all the obsessable original series and hit movies, please renew your subscription.",
+                        "signUpButtonRenew": "Renew Now",
+                        "signUpAuthed": "You need to subscribe to begin watching. To dive into all the obsessable original series and hit movies, please finish subscribing.",
+                        "signUpHeadlineAuthed": "Sign up to begin watching",
+                        "signUpHeadingRenew": "English Lorem ipsum signUpHeadingRenew",
+                        "signUpURLRenew": "English Lorem ipsum signUpURLRenew",
+                        "newActivationWindowStart": "06-20-2023 10 AM (MT)",
+                        "newActivationWindowEnd": "07-20-2023 10 AM (MT)",
+                        "showPurchaseTermSelector": true
+            }
+          },
+          "status": "saved"
+        }
+      }
+    }
+  }
+  

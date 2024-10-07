@@ -1,0 +1,129 @@
+<app-spinner></app-spinner>
+<div class="form-component-container">
+  <div class="form-component-container-header">
+    <span (click)="openBackDialog()" class="backbtn material-icons md-light md-36">keyboard_arrow_left</span>
+    <h1 class="form-component-container-header-title">{{heading}}</h1>
+  </div>
+  <div class="form-component-container-form-container">
+    <form [formGroup]="planForm" class="form-component-container-form-container-form">
+      <div
+        class="form-component-container-form-container-form-field-medium form-component-container-form-container-form-field">
+        <mat-form-field appearance="fill" class="example-full-width">
+          <mat-label>PLAN CODE</mat-label>
+          <input [ngClass]="(requestType == 'put')? 'disabled-field': ''" autocomplete="off" formControlName="planCode" matInput
+                 required>
+          <!--                     <div>{{ planForm.get('planCode')?.errors | json }}</div>-->
+          <mat-error *ngIf="planForm.controls.planCode.hasError('required')">Please enter a plan code
+          </mat-error>
+          <mat-error *ngIf="planForm.controls.planCode.hasError('maxlength')">Maximum characters allowed (50)
+          </mat-error>
+          <mat-error *ngIf="planForm.controls.planCode.hasError('pattern')">Valid characters are "a-z", "0-9", "+", "-" and
+            "_"
+          </mat-error>
+          <mat-error
+            *ngIf="planForm.get('planCode').errors?.badPlanCode">{{planForm.get('planCode').errors?.badPlanCode}}
+          </mat-error>
+          <mat-error
+            *ngIf="planForm.get('planCode').errors?.specialPlanCode">This plan code is reserved for system administration
+          </mat-error>
+          <mat-hint *ngIf="planForm.get('planCode').valid"
+                    class="mat-hint-validation-success">{{this.planDetails}}</mat-hint>
+        </mat-form-field>
+      </div>
+      <!--          // samoc-272 - commented out for phase 2-->
+      <!--            <div class="form-component-container-form-container-subform">-->
+      <!--                <div class="form-component-container-form-container-form-field-small form-component-container-form-container-form-field">-->
+      <!--                    <mat-form-field class="example-full-width" appearance="fill">-->
+      <!--                        <mat-label> PRICE (USD)</mat-label>-->
+      <!--                        <input autocomplete="off" matInput formControlName="planPrice" required [ngClass]="(!disable('planPrice') || requestType == 'post')? '': 'disabled-field'">-->
+      <!--                        <mat-error *ngIf="planForm.controls.planPrice.hasError('required')">Please enter a plan price-->
+      <!--                        </mat-error>-->
+      <!--                        <mat-error *ngIf="planForm.controls.planPrice.hasError('pattern') || planForm.controls.planPrice.hasError('min')">-->
+      <!--                            Please enter a price greater than or equal to 0 with 2 decimals or less-->
+      <!--                        </mat-error>-->
+      <!--                    </mat-form-field>-->
+
+      <!--                </div>-->
+      <!--                <div class="form-component-container-form-container-form-field-subfield form-component-container-form-container-form-field">-->
+      <!--                    <mat-form-field>-->
+      <!--                        <mat-label>BILLING CYCLE</mat-label>-->
+      <!--                        <mat-select formControlName="billingCycle" [(ngModel)]="billingCycleSelector" required [ngClass]="(!disable('billingCycle') || requestType == 'post')? '': 'disabled-field'">-->
+      <!--                            <mat-option *ngFor="let type of billingCycleTypes" [value]="type.value">-->
+      <!--                                {{type.viewValue}}-->
+      <!--                            </mat-option>-->
+      <!--                        </mat-select>-->
+      <!--                        <mat-error *ngIf="planForm.controls.billingCycle.hasError('required')">Please select a billing cycle-->
+      <!--                        </mat-error>-->
+      <!--                    </mat-form-field>-->
+      <!--                </div>-->
+      <!--                <div *ngIf="billingCycleSelector == 'customize'" class="form-component-container-form-container-form-field-subfield form-component-container-form-container-form-field">-->
+      <!--                    <mat-form-field class="example-full-width" appearance="fill">-->
+      <!--                        <mat-label>BILLING CYCLE VALUE</mat-label>-->
+      <!--                        <input autocomplete="off" matInput formControlName="billingCycleDuration" required [ngClass]="(!disable('billingCycleDuration') || requestType == 'post')? '': 'disabled-field'">-->
+      <!--                        <mat-error *ngIf="planForm.controls.billingCycleDuration.hasError('required')">Please enter a billing cycle value-->
+      <!--                        </mat-error>-->
+      <!--                        <mat-error *ngIf="planForm.controls.billingCycleDuration.hasError('pattern') || planForm.controls.billingCycleDuration.hasError('min')">-->
+      <!--                            Please enter an integer greater than 0-->
+      <!--                        </mat-error>-->
+      <!--                    </mat-form-field>-->
+      <!--                </div>-->
+      <!--                <div *ngIf="billingCycleSelector == 'customize'" class="form-component-container-form-container-form-field-subfield form-component-container-form-container-form-field">-->
+      <!--                    <mat-form-field>-->
+      <!--                        <mat-label>BILLING CYCLE UNIT</mat-label>-->
+      <!--                        <mat-select formControlName="billingCycleUnit" required [ngClass]="(!disable('billingCycleUnit') || requestType == 'post')? '': 'disabled-field'">-->
+      <!--                            <mat-option *ngFor="let type of billingCycleUnits" [value]="type.value">-->
+      <!--                                {{type.viewValue}}-->
+      <!--                            </mat-option>-->
+      <!--                        </mat-select>-->
+      <!--                        <mat-error *ngIf="planForm.controls.billingCycleUnit.hasError('required')">Please select a billing cycle unit-->
+      <!--                        </mat-error>-->
+      <!--                    </mat-form-field>-->
+      <!--                </div>-->
+      <!--            </div>-->
+      <!--            <div class="form-component-container-form-container-subform">-->
+      <!--                <div class="form-component-container-form-container-form-field-small form-component-container-form-container-form-field">-->
+      <!--                    <mat-form-field>-->
+      <!--                        <mat-label>TRIAL OFFER</mat-label>-->
+      <!--                        <mat-select formControlName="trialOffer" [(ngModel)]="trialOffer" required [ngClass]="(!disable('trialOffer') || requestType == 'post')? '': 'disabled-field'">-->
+      <!--                            <mat-option *ngFor="let unit of trialOfferTypes" [value]="unit.value">-->
+      <!--                                {{unit.viewValue}}-->
+      <!--                            </mat-option>-->
+      <!--                        </mat-select>-->
+      <!--                        <mat-error *ngIf="planForm.controls.trialOffer.hasError('required')">Please select a trial offer-->
+      <!--                        </mat-error>-->
+      <!--                    </mat-form-field>-->
+      <!--                </div>-->
+      <!--                <div *ngIf="trialOffer === 'customize'" class="form-component-container-form-container-form-field-subfield form-component-container-form-container-form-field">-->
+      <!--                    <mat-form-field class="example-full-width" appearance="fill">-->
+      <!--                        <mat-label>TRIAL OFFER VALUE</mat-label>-->
+      <!--                        <input autocomplete="off" matInput formControlName="trialDuration" required [ngClass]="(!disable('trialDuration') || requestType == 'post')? '': 'disabled-field'">-->
+      <!--                        <mat-error *ngIf="planForm.controls.trialDuration.hasError('required')">Please enter a trial offer value-->
+      <!--                        </mat-error>-->
+      <!--                        <mat-error *ngIf="planForm.controls.trialDuration.hasError('pattern') || planForm.controls.trialDuration.hasError('min')">-->
+      <!--                            Please enter an integer greater than 0-->
+      <!--                        </mat-error>-->
+      <!--                    </mat-form-field>-->
+      <!--                </div>-->
+      <!--                <div *ngIf="trialOffer === 'customize'" class="form-component-container-form-container-form-field-subfield form-component-container-form-container-form-field">-->
+      <!--                    <mat-form-field>-->
+      <!--                        <mat-label>TRIAL OFFER UNIT</mat-label>-->
+      <!--                        <mat-select formControlName="trialUnit" required [ngClass]="(!disable('trialUnit') || requestType == 'post')? '': 'disabled-field'">-->
+      <!--                            <mat-option *ngFor="let type of billingCycleUnits" [value]="type.value">-->
+      <!--                                {{type.viewValue}}-->
+      <!--                            </mat-option>-->
+      <!--                        </mat-select>-->
+      <!--                        <mat-error *ngIf="planForm.controls.trialUnit.hasError('required')">Please select a trial offer unit-->
+      <!--                        </mat-error>-->
+      <!--                    </mat-form-field>-->
+      <!--                </div>-->
+      <!--            </div>-->
+      <div class="button-group">
+        <!-- TODO Disable plan management per CR2/samoc-135 -->
+        <!-- <button *ngIf="requestType == 'post'" id="save" type="submit" (click)="onSubmit('save')" class="button-primary" style="margin-left: 30px;" [ngClass]="(!planForm.valid || !planForm.dirty)? 'button-disabled':''" [disabled]="(!planForm.valid || !planForm.dirty)">SAVE</button> -->
+        <button (click)="onSubmit( 'publish')" [disabled]="(!planForm.valid || !planForm.dirty)" [ngClass]="(!planForm.valid || !planForm.dirty)? 'button-disabled':''" class="button-secondary"
+                id="publish" style="margin-left: 30px;"
+                type="submit">{{publishButtonText}}</button>
+      </div>
+    </form>
+  </div>
+</div>

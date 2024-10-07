@@ -1,0 +1,586 @@
+<app-spinner></app-spinner>
+
+<div class="synchronize-window"
+     *ngIf="showSynchronizeWindow">
+  <div class="mat-container offer-code-input">
+    <mat-form-field appearance="fill">
+      <mat-label>Offer code</mat-label>
+      <input
+        [formControl]="syncOfferCode"
+        matInput type="text"
+        placeholder="Add text"
+        autocomplete="off">
+    </mat-form-field>
+    <div
+      class="error-container"
+      *ngIf="isOfferAlreadyInDb()">
+      Current Offer is already in database
+    </div>
+  </div>
+  <div>Selected region: {{regionCode}}</div>
+  <div class="mat-select-container offer-type-select">
+    <mat-form-field appearance="fill">
+      <mat-label>Offer type</mat-label>
+      <mat-select
+        [formControl]="syncOfferType"
+        disableOptionCentering>
+        <div class="custom-panel">
+          <mat-option
+            *ngFor="let type of offerTypes"
+            [value]="type.offerType">
+            {{ type.typeName }}
+          </mat-option>
+        </div>
+      </mat-select>
+    </mat-form-field>
+  </div>
+  <div class="cancel-sync-buttons-container">
+    <button
+      class="cancel-button"
+      (click)="showSynchronizeWindow = false">
+      CLOSE
+    </button>
+    <button
+      class="sync-button"
+      (click)="synchronizeOffer()"
+      [disabled]="isSyncButtonDisabled()"
+      [ngClass]="{'button-disabled': isSyncButtonDisabled()}">
+      SYNCHRONIZE
+    </button>
+  </div>
+</div>
+
+<div [ngClass]="getTableClasses()" style="display: flex;">
+  <!-- FILTERS CONTAINER -->
+  <div class="page-filters-container" [ngClass]="showFiltersBlock ? 'filters-block-shown' : 'filters-block-hidden'"
+    [ngStyle]="{'height': !!navHeight ? navHeight + 'px' : 'calc(100vh - 72px)'}"
+  >
+    <div class="filter-accordion-container">
+      <!-- FILTERS: STATUS -->
+      <mat-accordion *ngIf="isParent('offers')" multi>
+        <mat-expansion-panel style="margin-top: 10px"
+          [disabled]="!statusCheckboxesValues.length || statusCheckboxesValues.length === 1">
+          <mat-expansion-panel-header>
+            <mat-panel-title style="font-weight: bold;">
+              {{ offersFiltersHeaders[0] }}
+            </mat-panel-title>
+          </mat-expansion-panel-header>
+
+          <div class="filters-accordion-content">
+            <div matInput class="accordion-filter-container" *ngFor="let status of statusCheckboxesValues">
+              <mat-checkbox
+                (change)="changeCheckedFilters('statusCheckedValues', getObjectKey(status))"
+                [checked]="isElementChecked(getObjectKey(status), statusCheckedValues)"
+              >{{ getObjectValue(status) }}</mat-checkbox>
+            </div>
+          </div>
+        </mat-expansion-panel>
+      </mat-accordion>
+      <!-- FILTERS: CREATED AT -->
+      <mat-accordion *ngIf="isParent('offers')">
+        <mat-expansion-panel style="margin-top: 10px">
+          <mat-expansion-panel-header>
+            <mat-panel-title style="font-weight: bold;">
+              {{ offersFiltersHeaders[1] }}
+            </mat-panel-title>
+          </mat-expansion-panel-header>
+
+          <div class="filters-accordion-content">
+            <div matInput class="accordion-filter-container">
+              <input matInput (keyup)="applyFilter($event, 'createdAtFilter')" autocomplete="off"
+              [(ngModel)]="createdAtFilter"
+                placeholder="Enter 'created at' text">
+              <i *ngIf="createdAtFilter === ''"
+                class="material-icons md-dark md-inactive">search</i>
+              <i (click)="clearFilterInput('createdAtFilter')" *ngIf="createdAtFilter !== ''"
+                class="material-icons md-dark md-inactive clear-icon">close</i>
+            </div>
+          </div>
+        </mat-expansion-panel>
+      </mat-accordion>
+      <!-- FILTERS: OFFER TYPE -->
+      <mat-accordion multi *ngIf="isParent('offers')">
+        <mat-expansion-panel style="margin-top: 10px"
+          [disabled]="!offerTypeCheckboxesValues.length || offerTypeCheckboxesValues.length === 1">
+          <mat-expansion-panel-header>
+            <mat-panel-title style="font-weight: bold;">
+              {{ offersFiltersHeaders[2] }}
+            </mat-panel-title>
+          </mat-expansion-panel-header>
+
+          <div class="filters-accordion-content">
+            <div matInput class="accordion-filter-container" *ngFor="let offerType of offerTypeCheckboxesValues">
+              <mat-checkbox
+                (change)="changeCheckedFilters('offerTypeCheckedValues', offerType)"
+                [checked]="isElementChecked(offerType, offerTypeCheckedValues)"
+              >{{ offerType }}</mat-checkbox>
+            </div>
+          </div>
+        </mat-expansion-panel>
+      </mat-accordion>
+      <!-- FILTERS: OFFER NAME -->
+      <mat-accordion *ngIf="isParent('offers')">
+        <mat-expansion-panel style="margin-top: 10px">
+          <mat-expansion-panel-header>
+            <mat-panel-title style="font-weight: bold;">
+              {{ offersFiltersHeaders[3] }}
+            </mat-panel-title>
+          </mat-expansion-panel-header>
+
+          <div class="filters-accordion-content">
+            <div matInput class="accordion-filter-container">
+              <input matInput (keyup)="applyFilter($event, 'offerNameFilter')" autocomplete="off"
+              [(ngModel)]="offerNameFilter"
+                placeholder="Enter 'offer name' text">
+              <i *ngIf="offerNameFilter === ''"
+                class="material-icons md-dark md-inactive">search</i>
+              <i (click)="clearFilterInput('offerNameFilter')" *ngIf="offerNameFilter !== ''"
+                class="material-icons md-dark md-inactive clear-icon">close</i>
+            </div>
+          </div>
+        </mat-expansion-panel>
+      </mat-accordion>
+      <!-- FILTERS: OFFER CODE -->
+      <mat-accordion *ngIf="isParent('offers')">
+        <mat-expansion-panel style="margin-top: 10px">
+          <mat-expansion-panel-header>
+            <mat-panel-title style="font-weight: bold;">
+              {{ offersFiltersHeaders[4] }}
+            </mat-panel-title>
+          </mat-expansion-panel-header>
+
+          <div class="filters-accordion-content">
+            <div matInput class="accordion-filter-container">
+              <input matInput (keyup)="applyFilter($event, 'offerCodeFilter')" autocomplete="off"
+              [(ngModel)]="offerCodeFilter"
+                placeholder="Enter 'offer code' text">
+              <i *ngIf="offerCodeFilter === ''"
+                class="material-icons md-dark md-inactive">search</i>
+              <i (click)="clearFilterInput('offerCodeFilter')" *ngIf="offerCodeFilter !== ''"
+                class="material-icons md-dark md-inactive clear-icon">close</i>
+            </div>
+          </div>
+        </mat-expansion-panel>
+      </mat-accordion>
+      <!-- FILTERS: TOTAL UNIQUE CODES -->
+      <mat-accordion *ngIf="isParent('offers')">
+        <mat-expansion-panel style="margin-top: 10px">
+          <mat-expansion-panel-header>
+            <mat-panel-title style="font-weight: bold;">
+              {{ offersFiltersHeaders[5] }}
+            </mat-panel-title>
+          </mat-expansion-panel-header>
+
+          <div class="filters-accordion-content">
+            <div matInput class="accordion-filter-container">
+              <input matInput (keyup)="applyFilter($event, 'totalUniqueCodesFilter')" autocomplete="off"
+              [(ngModel)]="totalUniqueCodesFilter"
+                placeholder="Enter 'total unique codes' text">
+              <i *ngIf="totalUniqueCodesFilter === ''"
+                class="material-icons md-dark md-inactive">search</i>
+              <i (click)="clearFilterInput('totalUniqueCodesFilter')" *ngIf="totalUniqueCodesFilter !== ''"
+                class="material-icons md-dark md-inactive clear-icon">close</i>
+            </div>
+          </div>
+        </mat-expansion-panel>
+      </mat-accordion>
+      <!-- FILTERS: OFFER CODE TYPE -->
+      <mat-accordion multi *ngIf="isParent('offers')">
+        <mat-expansion-panel style="margin-top: 10px"
+          [disabled]="!offerCodeTypeCheckboxesValues.length || offerCodeTypeCheckboxesValues.length === 1">
+          <mat-expansion-panel-header>
+            <mat-panel-title style="font-weight: bold;">
+              {{ offersFiltersHeaders[6] }}
+            </mat-panel-title>
+          </mat-expansion-panel-header>
+
+          <div class="filters-accordion-content">
+            <div matInput class="accordion-filter-container" *ngFor="let offerCodeType of offerCodeTypeCheckboxesValues">
+              <mat-checkbox
+                (change)="changeCheckedFilters('offerCodeTypeCheckedValues', offerCodeType)"
+                [checked]="isElementChecked(offerCodeType, offerCodeTypeCheckedValues)"
+              >{{ offerCodeType }}</mat-checkbox>
+            </div>
+          </div>
+        </mat-expansion-panel>
+      </mat-accordion>
+      <!-- FILTERS: PLAN -->
+      <mat-accordion *ngIf="isParent('offers')">
+        <mat-expansion-panel style="margin-top: 10px">
+          <mat-expansion-panel-header>
+            <mat-panel-title style="font-weight: bold;">
+              {{ offersFiltersHeaders[7] }}
+            </mat-panel-title>
+          </mat-expansion-panel-header>
+
+          <div class="filters-accordion-content">
+            <div matInput class="accordion-filter-container">
+              <input matInput (keyup)="applyFilter($event, 'plansFilter')" autocomplete="off"
+              [(ngModel)]="plansFilter"
+                placeholder="Enter 'plan' text">
+              <i *ngIf="plansFilter === ''"
+                class="material-icons md-dark md-inactive">search</i>
+              <i (click)="clearFilterInput('plansFilter')" *ngIf="plansFilter !== ''"
+                class="material-icons md-dark md-inactive clear-icon">close</i>
+            </div>
+          </div>
+        </mat-expansion-panel>
+      </mat-accordion>
+      <!-- FILTERS: DICOUNT AMOUNT -->
+      <mat-accordion *ngIf="isParent('offers')">
+        <mat-expansion-panel style="margin-top: 10px">
+          <mat-expansion-panel-header>
+            <mat-panel-title style="font-weight: bold;">
+              {{ offersFiltersHeaders[8] }}
+            </mat-panel-title>
+          </mat-expansion-panel-header>
+
+          <div class="filters-accordion-content">
+            <div matInput class="accordion-filter-container">
+              <input matInput (keyup)="applyFilter($event, 'discountAmountFilter')" autocomplete="off"
+              [(ngModel)]="discountAmountFilter"
+                placeholder="Enter 'discount amount' text">
+              <i *ngIf="discountAmountFilter === ''"
+                class="material-icons md-dark md-inactive">search</i>
+              <i (click)="clearFilterInput('discountAmountFilter')" *ngIf="discountAmountFilter !== ''"
+                class="material-icons md-dark md-inactive clear-icon">close</i>
+            </div>
+          </div>
+        </mat-expansion-panel>
+      </mat-accordion>
+      <!-- FILTERS: PROMO DURATION -->
+      <mat-accordion *ngIf="isParent('offers')">
+        <mat-expansion-panel style="margin-top: 10px">
+          <mat-expansion-panel-header>
+            <mat-panel-title style="font-weight: bold;">
+              {{ offersFiltersHeaders[9] }}
+            </mat-panel-title>
+          </mat-expansion-panel-header>
+
+          <div class="filters-accordion-content">
+            <div matInput class="accordion-filter-container">
+              <input matInput (keyup)="applyFilter($event, 'promoDurationFilter')" autocomplete="off"
+              [(ngModel)]="promoDurationFilter"
+                placeholder="Enter 'promo duration' text">
+              <i *ngIf="promoDurationFilter === ''"
+                class="material-icons md-dark md-inactive">search</i>
+              <i (click)="clearFilterInput('promoDurationFilter')" *ngIf="promoDurationFilter !== ''"
+                class="material-icons md-dark md-inactive clear-icon">close</i>
+            </div>
+          </div>
+        </mat-expansion-panel>
+      </mat-accordion>
+      <!-- FILTERS: REDEEM BY -->
+      <mat-accordion *ngIf="isParent('offers')">
+        <mat-expansion-panel style="margin-top: 10px">
+          <mat-expansion-panel-header>
+            <mat-panel-title style="font-weight: bold;">
+              {{ offersFiltersHeaders[10] }}
+            </mat-panel-title>
+          </mat-expansion-panel-header>
+
+          <div class="filters-accordion-content">
+            <div matInput class="accordion-filter-container">
+              <input matInput (keyup)="applyFilter($event, 'redeemByFilter')" autocomplete="off"
+              [(ngModel)]="redeemByFilter"
+                placeholder="Enter 'redeem by' text">
+              <i *ngIf="redeemByFilter === ''"
+                class="material-icons md-dark md-inactive">search</i>
+              <i (click)="clearFilterInput('redeemByFilter')" *ngIf="redeemByFilter !== ''"
+                class="material-icons md-dark md-inactive clear-icon">close</i>
+            </div>
+          </div>
+        </mat-expansion-panel>
+      </mat-accordion>
+      <!-- FILTERS: LINK -->
+      <mat-accordion multi *ngIf="isParent('offers')">
+        <mat-expansion-panel style="margin-top: 10px"
+          [disabled]="!linkCheckboxesValues.length || linkCheckboxesValues.length === 1">
+          <mat-expansion-panel-header>
+            <mat-panel-title style="font-weight: bold;">
+              {{ offersFiltersHeaders[11] }}
+            </mat-panel-title>
+          </mat-expansion-panel-header>
+
+          <div class="filters-accordion-content">
+            <div matInput class="accordion-filter-container" *ngFor="let linkStatus of linkCheckboxesValues">
+              <mat-checkbox
+                (change)="changeCheckedFilters('linkCheckedValues', linkStatus)"
+                [checked]="isElementChecked(linkStatus, linkCheckedValues)"
+              >{{ linkStatus }}</mat-checkbox>
+            </div>
+          </div>
+        </mat-expansion-panel>
+      </mat-accordion>
+      <!-- FILTERS: PLAN CODE -->
+      <mat-accordion *ngIf="isParent('plans')">
+        <mat-expansion-panel style="margin-top: 10px">
+          <mat-expansion-panel-header>
+            <mat-panel-title style="font-weight: bold;">
+              {{ plansFiltersHeaders[0] }}
+            </mat-panel-title>
+          </mat-expansion-panel-header>
+
+          <div class="filters-accordion-content">
+            <div matInput class="accordion-filter-container">
+              <input matInput (keyup)="applyFilter($event, 'planCodeFilter')" autocomplete="off"
+              [(ngModel)]="planCodeFilter"
+                placeholder="Enter 'plan code' text">
+              <i *ngIf="planCodeFilter === ''"
+                class="material-icons md-dark md-inactive">search</i>
+              <i (click)="clearFilterInput('planCodeFilter')" *ngIf="planCodeFilter !== ''"
+                class="material-icons md-dark md-inactive clear-icon">close</i>
+            </div>
+          </div>
+        </mat-expansion-panel>
+      </mat-accordion>
+      <!-- FILTERS: PRICE -->
+      <mat-accordion *ngIf="isParent('plans')">
+        <mat-expansion-panel style="margin-top: 10px">
+          <mat-expansion-panel-header>
+            <mat-panel-title style="font-weight: bold;">
+              {{ plansFiltersHeaders[1] }}
+            </mat-panel-title>
+          </mat-expansion-panel-header>
+
+          <div class="filters-accordion-content">
+            <div matInput class="accordion-filter-container">
+              <input matInput (keyup)="applyFilter($event, 'priceFilter')" autocomplete="off"
+              [(ngModel)]="priceFilter"
+                placeholder="Enter 'price' text">
+              <i *ngIf="priceFilter === ''"
+                class="material-icons md-dark md-inactive">search</i>
+              <i (click)="clearFilterInput('priceFilter')" *ngIf="priceFilter !== ''"
+                class="material-icons md-dark md-inactive clear-icon">close</i>
+            </div>
+          </div>
+        </mat-expansion-panel>
+      </mat-accordion>
+      <!-- FILTERS: TERM -->
+      <mat-accordion *ngIf="isParent('plans')">
+        <mat-expansion-panel style="margin-top: 10px">
+          <mat-expansion-panel-header>
+            <mat-panel-title style="font-weight: bold;">
+              {{ plansFiltersHeaders[2] }}
+            </mat-panel-title>
+          </mat-expansion-panel-header>
+
+          <div class="filters-accordion-content">
+            <div matInput class="accordion-filter-container">
+              <input matInput (keyup)="applyFilter($event, 'termFilter')" autocomplete="off"
+              [(ngModel)]="termFilter"
+                placeholder="Enter 'term' text">
+              <i *ngIf="termFilter === ''"
+                class="material-icons md-dark md-inactive">search</i>
+              <i (click)="clearFilterInput('termFilter')" *ngIf="termFilter !== ''"
+                class="material-icons md-dark md-inactive clear-icon">close</i>
+            </div>
+          </div>
+        </mat-expansion-panel>
+      </mat-accordion>
+      <!-- FILTERS: TRIAL OFFER -->
+      <mat-accordion *ngIf="isParent('plans')">
+        <mat-expansion-panel style="margin-top: 10px">
+          <mat-expansion-panel-header>
+            <mat-panel-title style="font-weight: bold;">
+              {{ plansFiltersHeaders[3] }}
+            </mat-panel-title>
+          </mat-expansion-panel-header>
+
+          <div class="filters-accordion-content">
+            <div matInput class="accordion-filter-container">
+              <input matInput (keyup)="applyFilter($event, 'trialOfferFilter')" autocomplete="off"
+              [(ngModel)]="trialOfferFilter"
+                placeholder="Enter 'trial text' text">
+              <i *ngIf="trialOfferFilter === ''"
+                class="material-icons md-dark md-inactive">search</i>
+              <i (click)="clearFilterInput('trialOfferFilter')" *ngIf="trialOfferFilter !== ''"
+                class="material-icons md-dark md-inactive clear-icon">close</i>
+            </div>
+          </div>
+        </mat-expansion-panel>
+      </mat-accordion>
+    </div>
+  </div>
+
+  <div class="table-component-container-table">
+    <div class="page-buttons-container">
+      <button class="button-primary" (click)="toggleFiltersBlock()">FILTERS</button>
+      <div class="right-side">
+        <span
+          *ngIf="isParent('offers')"
+          (click)="showSynchronizeWindow = true"
+          class="material-icons synchronize-button"
+          matTooltip="Synchronize Offers"
+          matTooltipClass="synchronize-tool-tip"
+          matTooltipPosition="above"
+        >autorenew
+        </span>
+        <div class="add-offer-container">
+          <button (click)="addNew()" class="button-secondary">
+                <span class="material-icons md-light image">add</span>
+                <span class="action-text">{{buttonText}}</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="table-component-container-table-container">
+      <table [dataSource]="data" #contentTable class="mat-elevation-z8" mat-table matSort>
+        <ng-container *ngFor="let column of dataKeys; index as i" [matColumnDef]="column">
+          <th *matHeaderCellDef [disabled]="column === 'ellipsis' || column === 'actions'" mat-header-cell mat-sort-header>
+            {{tableHeaders[i]}}</th>
+          <td *matCellDef="let element" [ngSwitch]="column" mat-cell>
+            <div *ngSwitchCase="'DIT'" class="table-component-container-table-container-tests" style="color: #000">
+              <button
+                class="mdc-button"
+                (click)="startRecordDIT(element, $event.target); $event.stopPropagation(); $event.preventDefault();"
+                [ngStyle]="{ 'background-color': getDITButtonColor(element) }"
+                matTooltip="{{ getDITButtonTooltipText(element) }}"
+                matTooltipPosition="below"
+                [disabled]="isOfferStatusInvalidForDIT(element) || isExtensionOfferType(element)"
+              >
+              </button>
+            </div>
+            <div *ngSwitchCase="'statusId'" [matTooltip]="getStatusTooltip(element)"
+                 [ngStyle]="{'background-color': getStatusColor(element['statusId'])}"
+                 class="table-component-container-table-container-status multiline-tooltip {{shouldBlink(element['statusId'])}}"
+                 matTooltipClass="custom-tooltip"
+                 matTooltipPosition="after">
+              {{ getStatusTitle(element[column] )}}</div>
+            <a (click)="$event.stopPropagation()" *ngSwitchCase="'link'" href="{{element[column]}}"
+               target="_blank">
+                          <span *ngIf="element['link'] && element['offerCodeType'] == 'single_code'"
+                                class="material-icons md-dark table-component-container-table-container-icon">link</span>
+            </a>
+            <div *ngIf="!element['link'] && column == 'link' && element['offerCodeType']=='bulk'"></div>
+            <div *ngSwitchCase=" 'ellipsis' ">
+              <div (click)="$event.stopPropagation()" [matMenuTriggerFor]="menu" class="table-component-container-table-container-action"
+                   mat-button>
+                <span class="material-icons table-component-container-table-container-action-icon">more_vert</span>
+                <mat-menu #menu="matMenu">
+                  <button (click)="addOffer(element['planCode'])" *ngIf="element['statusId'] == statusEnum.PROD"
+                          mat-menu-item>ADD OFFER
+                  </button>
+                  <button (click)="confirmDelete(element['planCode'], element['statusId'])"
+                          mat-menu-item>{{ element['statusId'] === statusEnum.PROD ? 'RETIRE' : 'DELETE' }}</button>
+                </mat-menu>
+              </div>
+            </div>
+            <ng-container *ngSwitchCase=" 'offerCode' ">
+              <div style="display: flex; align-items: center;">{{ element[column] }}
+                <mat-icon
+                  class="copy-offer-code-icon"
+                  (click)="$event.stopPropagation(); copyOfferCode(element[column])"
+                  matTooltip="Copy offer code"
+                  matTooltipPosition="above"
+                >file_copy</mat-icon>
+              </div>
+              <div *ngIf="element.createUpgradeOffer" style="display: flex; align-items: center;">{{ element[column] }}_upgrade
+                <mat-icon
+                  class="copy-offer-code-icon"
+                  (click)="$event.stopPropagation(); copyOfferCode(element[column] + '_upgrade')"
+                  matTooltip="Copy offer code"
+                  matTooltipPosition="above"
+                >file_copy</mat-icon>
+              </div>
+            </ng-container>
+            <ng-container *ngIf="element.planTerm">
+              <div *ngSwitchCase=" 'planCode' ">{{ element[column] }} ({{ element.planTerm }})
+              </div>
+            </ng-container>
+            <div *ngSwitchCase=" 'formattedPlans' ">
+              {{ getFormattedPlans(element) }}
+              <ng-container *ngIf="element.upgradePlan">
+                <div><i><br>Upgrade plan:<br>{{ element.upgradePlan }}</i></div>
+              </ng-container>
+            </div>
+            <div *ngSwitchCase=" 'discountAmount' ">{{ element[column] || element[column] === 0 ? formatDiscountAmount(element[column], element['discountType']) : '-' }}
+            </div>
+            <div *ngSwitchCase=" 'price' ">{{ element[column] ? '$' + element[column] : ' ' }} </div>
+            <div *ngSwitchCase=" 'promoDurationString' " style="text-transform:'capitalize'">{{ element[column] }}
+            </div>
+            <div *ngSwitchCase=" 'planTrial' " style="text-transform:'capitalize'">{{ element[column] }} </div>
+            <div *ngSwitchCase=" 'offerCodeType' ">{{ formatOfferCodeType(element[column]) }} </div>
+            <div *ngSwitchCase=" 'offerName' ">
+              <div *ngIf="!!element[column]" style="display: flex; justify-content: space-between; align-items: center;">
+                <div *ngIf="element[column].length >30" matTooltip="{{element[column]}}"
+                  matTooltipPosition="below">
+                  {{ element[column].length > 30 ? element[column].slice(0, 30) + '...' : element[column] }}
+                </div>
+                <div *ngIf="element[column].length <= 30">
+                  {{ element[column] }}
+                </div>
+                <a
+                  [routerLink]="['detail', element.offerCode]"
+                  (click)="$event.stopPropagation()"
+                  target="_blank"
+                  matTooltip="Open offer detail page in a new tab"
+                  matTooltipPosition="above"
+                >
+                  <mat-icon style="color: #000;">open_in_new</mat-icon>
+                </a>
+              </div>
+            </div>
+            <div *ngSwitchCase=" 'offerTitle' ">
+              <div *ngIf="!!element[column]" style="display: flex; justify-content: space-between; align-items: center;">
+                <div *ngIf="element[column].length > 30" matTooltip="{{element[column]}}"
+                  matTooltipPosition="below">
+                  {{ element[column].length > 30 ? element[column].slice(0, 30) + '...' : element[column] }}
+                </div>
+                <div *ngIf="element[column].length <= 30">
+                  {{ element[column] }}
+                </div>
+                <a
+                  [routerLink]="['detail', element.offerCode]"
+                  (click)="$event.stopPropagation()"
+                  target="_blank"
+                  matTooltip="Open offer detail page in a new tab"
+                  matTooltipPosition="above"
+                >
+                  <mat-icon style="color: #000;">open_in_new</mat-icon>
+                </a>
+              </div>
+            </div>
+            <div *ngSwitchCase=" 'endDate' ">{{ getFormattedDate(element.endDateTime) }} </div>
+            <div *ngSwitchCase=" 'createdAtDate' ">{{ getFormattedDate(element.couponCreatedAt) }} </div>
+            <div *ngSwitchCase=" 'offerTypeTitle' ">{{ getOfferTypeTitle(element.OfferType.id) }} </div>
+            <div *ngSwitchDefault>{{ element[column] }}</div>
+            <div *ngSwitchCase="'actions'">
+              <button class="table-menu-action-button" mat-icon-button [matMenuTriggerFor]="menu" (click)="$event.stopPropagation()">
+                <mat-icon>more_horiz</mat-icon>
+              </button>
+              <mat-menu #menu="matMenu">
+                <button mat-menu-item (click)="menuAction('HISTORY', element)">
+                  <span>History</span>
+                </button>
+                <button mat-menu-item (click)="menuAction('VIEW', element)">
+                  <span>View</span>
+                </button>
+                <button mat-menu-item (click)="menuAction('DUPLICATE', element)">
+                  <span>Duplicate</span>
+                </button>
+                <button
+                  mat-menu-item
+                  *ngIf="showEditBtn(element)"
+                  (click)="menuAction('UPDATE', element)">
+                  <span>Edit</span>
+                </button>
+                <button
+                  mat-menu-item
+                  *ngIf="showRetireBtn(element)"
+                  (click)="menuAction('RETIRE', element)">
+                  <span>{{ isOfferStatusDraft(element) ? 'Delete' : 'Retire' }}</span>
+                </button>
+              </mat-menu>
+            </div>
+          </td>
+        </ng-container>
+        <tr *matHeaderRowDef="dataKeys; sticky: true" mat-header-row></tr>
+        <tr (click)="onDataSelect(row)" *matRowDef="let row; columns: dataKeys;" [ngClass]="colorRollbackRows(row['statusId'])"
+            mat-row></tr>
+      </table>
+      <mat-paginator #listViewPaginator [pageSizeOptions]="[10, 20, 50]" showFirstLastButtons></mat-paginator>
+    </div>
+  </div>
+</div>

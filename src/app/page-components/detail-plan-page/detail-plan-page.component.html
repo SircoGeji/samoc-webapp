@@ -1,0 +1,47 @@
+<app-spinner></app-spinner>
+<app-header></app-header>
+<div class="details-component-container">
+  <div class="details-component-container-header">
+    <span (click)="return()" class="backbtn material-icons md-light md-36">keyboard_arrow_left</span>
+    <h1 class="details-component-container-header-title">{{planName}}</h1>
+    <div class="details-component-container-header-button-group">
+      <button (click)="onSubmit(retireButtonText)" class="button-tertiary"> {{retireButtonText}} </button>
+      <!-- TODO Disable plan management per CR2/samoc-135 -->
+      <!-- <button *ngIf="status === StatusEnum.DFT" class="button-primary details-component-container-header-button-group-button" (click)="onSubmit('CREATE')">CREATE</button> -->
+      <!--<button class="button-secondary details-component-container-header-button-group-button" (click)="editPlan()">EDIT</button>-->
+    </div>
+  </div>
+  <div class="details-component-container-details">
+    <div class="details-component-container-details-field">
+      <p class="details-component-container-details-field-title">PLAN CODE</p>
+      <p class="details-component-container-details-field-subtitle">{{planCode}}</p>
+    </div>
+    <div class="details-component-container-details-multifield">
+      <div class="details-component-container-details-field details-component-container-details-primary">
+        <p class="details-component-container-details-field-title subwidth">PRICE</p>
+        <p *ngIf="price" class="details-component-container-details-field-subtitle subwidth">${{price}} USD</p>
+      </div>
+      <div class="details-component-container-details-subfield">
+        <p class="details-component-container-details-field-title subwidth">BILLING CYCLE DURATION</p>
+        <p class="details-component-container-details-field-subtitle subwidth">{{billingCycleDuration}}
+        </p>
+      </div>
+      <div class="details-component-container-details-subfield">
+        <p class="details-component-container-details-field-title subwidth">TOTAL BILLING CYCLES</p>
+        <p class="details-component-container-details-field-subtitle subwidth">{{totalBillingCycles}}
+        </p>
+      </div>
+    </div>
+    <div class="details-component-container-details-field">
+      <p class="details-component-container-details-field-title subwidth">TRIAL OFFER DURATION</p>
+      <p class="details-component-container-details-field-subtitle subwidth">{{trialDuration}}
+      </p>
+    </div>
+    <!-- Removed User Count (see samoc-153)
+      <div class="details-component-container-details-field">
+          <p class="details-component-container-details-field-title">NUMBER OF USERS</p>
+          <p class="details-component-container-details-field-subtitle">{{numberOfUsers}}</p>
+      </div>
+    -->
+  </div>
+</div>

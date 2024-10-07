@@ -1,0 +1,252 @@
+<app-header></app-header>
+
+<app-spinner></app-spinner>
+
+<div class="images-component-container">
+  <div
+    *ngIf="selectedTab.value === 0"
+    class="images-filters-container"
+    [ngClass]="
+      showFiltersBlock ? 'filters-block-shown' : 'filters-block-hidden'
+    "
+  >
+    <div
+      class="filter-clear-all-button-container"
+      [ngClass]="
+        showFiltersBlock
+          ? 'filter-clear-all-button-container-shown'
+          : 'filter-clear-all-button-container-hidden'
+      "
+    >
+      <button
+        class="filter-clear-all-button"
+        (click)="clearAllFilters()"
+        matTooltip="Clear all filters"
+      >
+        <mat-icon class="filter-clear-all-button-icon">clear</mat-icon>
+      </button>
+    </div>
+    <div class="filter-accordion-container">
+      <!-- FILTERS: NAME -->
+      <mat-accordion class="filters-accordion" multi>
+        <mat-expansion-panel style="margin-top: 10px">
+          <mat-expansion-panel-header>
+            <mat-panel-title style="font-weight: bold">
+              {{ bundlesFiltersHeaders[0] }}
+            </mat-panel-title>
+          </mat-expansion-panel-header>
+
+          <div class="filters-accordion-content">
+            <div matInput class="accordion-filter-container">
+              <input
+                matInput
+                #imagesNameSearchInputRef
+                (keyup)="applyBundleFilter($event)"
+                [(ngModel)]="bundleNameSearchFilter"
+                autocomplete="off"
+                placeholder="Enter Bundle Name"
+              />
+              <i
+                *ngIf="imagesNameSearchInputRef.value.length == 0"
+                class="material-icons md-dark md-inactive inter-table-component-container-icon"
+                >search</i
+              >
+              <i
+                (click)="clearSearchInput(imagesNameSearchInputRef)"
+                *ngIf="imagesNameSearchInputRef.value.length != 0"
+                class="material-icons md-dark md-inactive inter-table-component-container-icon clear-icon"
+                >close</i
+              >
+            </div>
+          </div>
+        </mat-expansion-panel>
+      </mat-accordion>
+      <!-- FILTERS: STATUS -->
+      <mat-accordion class="filters-accordion" multi>
+        <mat-expansion-panel
+          style="margin-top: 10px"
+          [disabled]="
+            !statusCheckboxesValues.length ||
+            statusCheckboxesValues.length === 1
+          "
+        >
+          <mat-expansion-panel-header>
+            <mat-panel-title style="font-weight: bold">
+              {{ bundlesFiltersHeaders[1] }}
+            </mat-panel-title>
+          </mat-expansion-panel-header>
+
+          <div class="filters-accordion-content">
+            <div
+              matInput
+              class="accordion-filter-container"
+              *ngFor="let status of statusCheckboxesValues"
+            >
+              <mat-checkbox
+                (change)="changeCheckedFilters('status', status)"
+                [checked]="isElementChecked(status, statusCheckedValues)"
+                >{{ status }}</mat-checkbox
+              >
+            </div>
+          </div>
+        </mat-expansion-panel>
+      </mat-accordion>
+      <!-- FILTERS: SUPPORTED REGIONS -->
+      <mat-accordion class="filters-accordion" multi>
+        <mat-expansion-panel
+          style="margin-top: 10px"
+          [disabled]="
+            !supportedRegionsCheckboxesValues.length ||
+            supportedRegionsCheckboxesValues.length === 1
+          "
+        >
+          <mat-expansion-panel-header>
+            <mat-panel-title style="font-weight: bold">
+              {{ bundlesFiltersHeaders[2] }}
+            </mat-panel-title>
+          </mat-expansion-panel-header>
+
+          <div class="filters-accordion-content">
+            <div
+              matInput
+              class="accordion-filter-container"
+              *ngFor="let region of supportedRegionsCheckboxesValues"
+            >
+              <mat-checkbox
+                (change)="changeCheckedFilters('supportedRegions', region)"
+                [checked]="
+                  isElementChecked(region, supportedRegionsCheckedValues)
+                "
+                >{{ region }}</mat-checkbox
+              >
+            </div>
+          </div>
+        </mat-expansion-panel>
+      </mat-accordion>
+    </div>
+  </div>
+
+  <div class="images-tab-group-container">
+    <mat-tab-group
+      [selectedIndex]="selectedTab.value"
+      (selectedIndexChange)="changeTab($event)"
+    >
+      <!-- BUNDLES TAB -->
+      <mat-tab label="BUNDLES">
+        <div class="images-grid-container">
+          <div class="images-buttons-container">
+            <button class="button-primary" (click)="toggleFiltersBlock()">
+              FILTERS
+            </button>
+            <button class="button-primary" (click)="createNewBundle()">
+              CREATE NEW
+            </button>
+          </div>
+          <div class="images-table-container">
+            <table
+              [dataSource]="bundlesData"
+              class="mat-elevation-z8"
+              mat-table
+              matSort
+            >
+              <ng-container
+                *ngFor="let column of bundlesDataKeys; index as i"
+                [matColumnDef]="column"
+              >
+                <th
+                  class="table-header-row"
+                  *matHeaderCellDef
+                  mat-header-cell
+                  mat-sort-header
+                  [disabled]="bundlesTableHeaders[i] === ''"
+                >
+                  {{ bundlesTableHeaders[i] }}
+                </th>
+                <td *matCellDef="let element" [ngSwitch]="column" mat-cell>
+                  <div
+                    *ngSwitchCase="'name'"
+                    [ngClass]="{ 'default-images': element.isDefault }"
+                  >
+                    <a href="{{ getEditHRef(element) }}">{{
+                      element[column]
+                    }}</a>
+                  </div>
+                  <div *ngSwitchCase="'statusTitle'">
+                    <p>{{ element[column] }}{{ element.environments }}</p>
+                    <p>{{ element.endedOn ? element.endedOn : '' }}</p>
+                  </div>
+                  <div
+                    *ngSwitchCase="'supportedRegions'"
+                    matTooltip="{{ element.tooltipText }}"
+                    matTooltipPosition="above"
+                  >
+                    {{ element[column] }}
+                  </div>
+                  <div *ngSwitchCase="'actions'">
+                    <button
+                      class="table-menu-action-button"
+                      mat-icon-button
+                      [matMenuTriggerFor]="menu"
+                      [disabled]="actionsDisabled(element.status)"
+                    >
+                      <mat-icon>more_horiz</mat-icon>
+                    </button>
+                    <mat-menu #menu="matMenu">
+                      <button
+                        mat-menu-item
+                        (click)="menuAction('DUPLICATE', element)"
+                      >
+                        <span>Duplicate</span>
+                      </button>
+                      <button
+                        mat-menu-item
+                        (click)="menuAction('VIEW', element)"
+                        *ngIf="canEditModule(element)"
+                      >
+                        <span>Edit</span>
+                      </button>
+                      <button
+                        mat-menu-item
+                        (click)="menuAction('PUBLISH', element)"
+                        *ngIf="canPublishModule(element)"
+                      >
+                        <span>Publish</span>
+                      </button>
+                      <button
+                        mat-menu-item
+                        (click)="menuAction('DELETE', element)"
+                        *ngIf="canDeleteModule(element)"
+                      >
+                        <span>Delete</span>
+                      </button>
+                    </mat-menu>
+                  </div>
+                </td>
+              </ng-container>
+              <tr
+                *matHeaderRowDef="bundlesDataKeys; sticky: true"
+                mat-header-row
+              ></tr>
+              <tr *matRowDef="let row; columns: bundlesDataKeys" mat-row></tr>
+            </table>
+            <mat-paginator
+              #bundlesListViewPaginator
+              (page)="setPageSize($event, 'Bundle')"
+              [pageSize]="getPageSize('Bundle')"
+              [pageSizeOptions]="getPageSizeOptions()"
+              showFirstLastButtons
+            ></mat-paginator>
+          </div>
+        </div>
+      </mat-tab>
+
+      <!-- GALLERY TAB -->
+      <mat-tab label="GALLERY">
+        <gallery-form
+          isInTab="true"
+          [loadingEnded]="loadingEnded"
+        ></gallery-form>
+      </mat-tab>
+    </mat-tab-group>
+  </div>
+</div>

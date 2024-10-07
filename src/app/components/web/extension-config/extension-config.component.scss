@@ -1,0 +1,110 @@
+@import '../../../../base/_variables.scss';
+@import '../../../../base/_mixin.scss';
+@include custom-scrollbar();
+
+::ng-deep {
+  .mat-form-field-disabled .mat-form-field-label {
+    color: #fff !important;
+    opacity: 0.5;
+  }
+}
+
+.extension-config-wrapper {
+  position: relative;
+  .cdk-drag-placeholder {
+    box-sizing: border-box;
+    border: 2px dashed #fff;
+    opacity: 0.5;
+    height: 50px;
+    transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
+  }
+  h2 {
+    text-align: center;
+  }
+  .extension-error-message {
+    text-align: center;
+    color: #bb0a13;
+  }
+  .action-button-container {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    .button-disabled {
+      cursor: not-allowed;
+    }
+    .add-new-rule-button {
+      margin: 10px;
+    }
+  }
+  .left-block {
+    width: 100%;
+    padding-top: 70px;
+    .connection-container {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      justify-content: center;
+    }
+    ::ng-deep {
+      .duplicateConnection .mat-select-value-text {
+        color: red;
+      }
+      .validConnection .mat-select-value-text {
+        color: white;
+      }
+    }
+  }
+  .right-block {
+    width: 100%;
+    padding-top: 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    .rule-container {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      justify-content: center;
+    }
+    .plan-length-error-container {
+      display: inline-block;
+      width: 200px;
+      margin-left: 840px;
+    }
+    .invalidRule {
+      color: red;
+    }
+    .validRule {
+      color: white;
+    }
+    ::ng-deep {
+      .invalidRule .mat-select-value-text {
+        color: red;
+      }
+      .validRule .mat-select-value-text {
+        color: white;
+      }
+    }
+  }
+  .icon-button {
+    cursor: pointer;
+    background: none;
+    border: none;
+    color: #fff;
+  }
+  .overflow-content {
+    height: calc(100vh - 210px);
+    overflow-y: auto;
+  }
+  .block-form-field-container {
+    margin: 5px;
+    .rule-form-field {
+      .field-disabled {
+        color: #fff;
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+    }
+  }
+}

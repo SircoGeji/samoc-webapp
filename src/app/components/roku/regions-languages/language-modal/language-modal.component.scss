@@ -1,0 +1,31 @@
+@import '../../../../../base/_variables.scss';
+@import '../../../../../base/_mixin.scss';
+
+.language-modal-container {
+  * {
+    box-sizing: border-box;
+  }
+  @include mat-container();
+  @include custom-scrollbar();
+  .title {
+    color: #b1b1b1;
+    font-weight: 300;
+    font-size: 24px;
+    font-style: normal;
+    font-stretch: normal;
+    letter-spacing: 0.72px;
+    text-align: center;
+  }
+  .language-input-container {
+    width: 330px;
+    margin: 30px auto;
+  }
+  .buttons-container {
+    margin: 10px auto;
+    position: relative;
+    top: 15px;
+    width: 330px;
+    display: flex;
+    justify-content: space-between;
+  }
+}

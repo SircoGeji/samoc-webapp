@@ -1,0 +1,159 @@
+@import '../../../../../base/_variables.scss';
+@import '../../../../../base/_mixin.scss';
+
+@include custom-scrollbar();
+@include bundle-form();
+
+$grey: rgb(120, 120, 120);
+
+.higher-tooltip {
+  margin-bottom: 40px !important;
+}
+
+.mat-dialog-container {
+  color: #fff;
+}
+
+.white-border-checkbox {
+  .mat-checkbox-frame {
+    border-color: #fff;
+  }
+}
+
+.bundle-container {
+  * {
+    box-sizing: border-box;
+  }
+
+  .mat-form-field-subscript-wrapper {
+    .mat-error {
+      word-break: break-word;
+      overflow-wrap: break-word;
+      margin-top: 20px;
+    }
+  }
+
+  .bundle-form-header {
+    position: relative;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    margin: 40px 20px 20px 20px;
+  }
+
+  .back-arrow {
+    position: relative;
+    left: 15px;
+  }
+
+  .bundle-save-button {
+    position: absolute;
+    right: 24px;
+    top: 0;
+  }
+
+  .bundle-publish-button {
+    position: absolute;
+    right: 180px;
+  }
+
+  .button-disabled {
+    cursor: not-allowed;
+  }
+
+  .bundle-mat-container {
+    position: absolute;
+    left: 100px;
+    max-width: 330px;
+    cursor: pointer;
+  }
+
+  .bundle-form-container {
+    margin: 0 45px;
+
+    .bundle-form-regions-container {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+
+      .regions-label {
+        font-weight: bold;
+        margin: 20px 0;
+      }
+
+      .regions-checkboxed-container {
+        display: grid;
+        grid-template-columns: 80px repeat(auto-fill, 80px) 80px;
+        grid-template-rows: 1fr;
+      }
+    }
+
+    .bundle-form-images-grid {
+      margin-top: 40px;
+      height: calc(100vh - 350px);
+      overflow: auto;
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      grid-template-rows: 1fr 1fr 1fr;
+
+      .bundle-image-container {
+        margin-left: 5px;
+        min-width: 100px;
+        display: flex;
+        flex-direction: column;
+        position: relative;
+
+        label {
+          font-weight: bold;
+          text-align: center;
+        }
+
+        .image-container {
+          width: 100%;
+          height: 100%;
+          position: relative;
+
+          .thumbnail {
+            aspect-ratio: 1;
+            img {
+              width: 100%;
+              height: calc((100vw - 90px)/3);
+              object-fit: cover;
+            }
+            .empty-image {
+              background-color: #7f7f7f;
+              width: 100%;
+              height: 100%;
+              cursor: pointer;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+  
+              .required-image {
+                color: #B71319;
+              }
+  
+              mat-icon {
+                font-size: 50px;
+                height: 50px;
+                width: 50px;
+              }
+            }
+          }
+
+          .upload-icon-container {
+            position: absolute;
+            cursor: pointer;
+            top: -39px;
+            right: 0;
+          }
+
+          .bundle-image {
+            width: 100%;
+            cursor: pointer;
+          }
+        }
+      }
+    }
+  }
+}

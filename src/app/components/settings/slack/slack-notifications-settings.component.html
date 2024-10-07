@@ -1,0 +1,18 @@
+<div class="slack-notifications">
+  <ng-container [formGroup]="settings">
+    <div class="slack-notifications__header">
+      <h2>GENERAL SLACK NOTIFICATIONS SETTINGS</h2>
+    </div>
+    <div class="slack-notifications__content" formArrayName="slack">
+      <div
+        class="content__slack-bot"
+        *ngFor="let slackBotForm of getSlackFormArray().controls; let i = index"
+      >
+        <slack-bot 
+          [formGroupName]="i"
+          [usersListInfo]="usersListInfoObj[i]"
+        ></slack-bot>
+      </div>
+    </div>
+  </ng-container>
+</div>

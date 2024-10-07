@@ -1,0 +1,57 @@
+@import '../../../../base/variables';
+@import '../../../../base/_mixin.scss';
+
+@include custom-scrollbar();
+@include hyperlink();
+
+.default-copy:after {
+  content: "*";
+}
+
+.slack-notifications {
+  @include mat-container();
+  .template-info {
+    font-weight: bold;
+  }
+  .slack-notifications__header {
+
+  }
+  .slack-notifications__content {
+    .content__slack-bot {
+      border-bottom: 1px solid white;
+      .slack-bot__header {
+        margin-bottom: 10px;
+        margin-left: 10px;
+        .header__slack-bot-name {
+          margin-left: 20px;
+        }
+      }
+      .slack-bot__toggle {
+        margin-bottom: 10px;
+        margin-left: 10px;
+      }
+      .slack-bot__channels-list {
+        margin-bottom: 10px;
+        margin-left: 10px;
+        .channels-list__label {
+          
+        }
+        .channels-list__channel {
+          margin-left: 20px;
+        }
+        .grey {
+          color: $input-underline-grey;
+        }
+        .red {
+          color: $red;
+        }
+      }
+      .slack-bot__mentions {
+        margin-bottom: 20px;
+        input {
+          height: 20px;
+        }
+      }
+    }
+  }
+}

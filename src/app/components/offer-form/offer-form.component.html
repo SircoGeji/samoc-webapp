@@ -1,0 +1,182 @@
+<app-spinner></app-spinner>
+
+<div class="form-component-container" *ngIf="showForm">
+  <div class="form-component-container-header">
+    <span
+      (click)="openBackDialog()"
+      class="backbtn material-icons md-light md-36"
+      >keyboard_arrow_left</span
+    >
+    <h1 class="form-component-container-header-title">{{ heading }}</h1>
+  </div>
+
+  <div class="form-component-container-form-container">
+    <form
+      [formGroup]="offerForm"
+      class="form-component-container-form-container-form"
+    >
+      <div style="position: relative">
+        <!-- OFFER TYPE -->
+        <div
+          class="form-component-container-form-container-form-field form-component-container-form-container-form-field-medium"
+        >
+          <mat-form-field>
+            <mat-label>OFFER TYPE</mat-label>
+            <mat-select required formControlName="offerType">
+              <mat-option
+                *ngFor="let offerType of offerTypes"
+                [value]="offerType.value"
+              >
+                {{ offerType.viewValue }}
+              </mat-option>
+            </mat-select>
+
+            <mat-error *ngIf="offerForm.controls.offerType.hasError('required')"
+              >Please select an offer type
+            </mat-error>
+          </mat-form-field>
+        </div>
+
+        <!-- OFFER CODE -->
+        <div
+          class="form-component-container-form-container-form-field-medium form-component-container-form-container-form-field offer-code-wrapper"
+          style="position: absolute; left: 0"
+          [style.top]="getOfferCodeDivTopValue()"
+        >
+          <mat-form-field appearance="fill" class="example-full-width">
+            <mat-label>OFFER CODE</mat-label>
+            <input
+              matInput
+              required
+              maxlength="{{ offerCodeLength }}"
+              autocomplete="off"
+              formControlName="offerCode"
+              (focus)="offerCodeCounter.hidden = false; setOfferCodePrefix()"
+              (blur)="offerCodeCounter.hidden = true"
+            />
+
+            <mat-hint #offerCodeCounter class="char-counter" align="end" hidden
+              >{{ offerForm.get('offerCode').value.length }} /
+              {{ offerCodeLength }}</mat-hint
+            >
+
+            <mat-error
+              *ngIf="
+                offerCodeLength < 50 &&
+                offerForm.get('offerCode').hasError('maxlength')
+              "
+            >
+              Maximum <b>{{ offerCodeLength }}</b> characters allowed for
+              upgrade offers
+            </mat-error>
+            <mat-error
+              *ngIf="
+                offerCodeLength == 50 &&
+                offerForm.get('offerCode').hasError('maxlength')
+              "
+            >
+              Maximum <b>{{ offerCodeLength }}</b> characters allowed
+            </mat-error>
+
+            <mat-error *ngIf="offerForm.get('offerCode').hasError('required')"
+              >Please enter an offer code
+            </mat-error>
+
+            <mat-error *ngIf="offerForm.get('offerCode').hasError('pattern')"
+              >{{ getOfferCodeErrorMessage() }}
+            </mat-error>
+
+            <mat-hint
+              *ngIf="offerForm.get('offerCode').valid"
+              class="mat-hint-validation-success"
+              >Offer code is valid to use.
+            </mat-hint>
+          </mat-form-field>
+          <div
+            *ngIf="offerForm.get('offerCode').pending || showOfferCodeLoader"
+            class="offer-code-field-spinner"
+          >
+            <mat-spinner></mat-spinner>
+          </div>
+          <div
+            class="pre-input-mat-error"
+            *ngIf="offerForm.get('offerCode').hasError('badOfferCode')"
+          >
+            {{ offerForm.get('offerCode').getError('badOfferCode') }}
+          </div>
+        </div>
+      </div>
+
+      <app-winback-form
+        *ngIf="
+          currentOfferType === OfferTypeEnum.ACQUISITION ||
+          currentOfferType === OfferTypeEnum.WINBACK
+        "
+        formControlName="acquisitionWinback"
+        [regionCode]="regionCode"
+        [regionsLanguagesBinding]="regionsLanguagesBinding"
+      ></app-winback-form>
+
+      <app-retention-form
+        *ngIf="currentOfferType === OfferTypeEnum.RETENTION"
+        formControlName="retention"
+        [regionCode]="regionCode"
+        [regionsLanguagesBinding]="regionsLanguagesBinding"
+      ></app-retention-form>
+
+      <app-extension-form
+        *ngIf="currentOfferType === OfferTypeEnum.EXTENSION"
+        formControlName="extension"
+        [regionCode]="regionCode"
+        [regionsLanguagesBinding]="regionsLanguagesBinding"
+      ></app-extension-form>
+
+      <div class="button-group">
+        <button
+          *ngIf="showSaveBtn()"
+          [disabled]="isSaveButtonDisabled()"
+          [class.button-disabled]="isSaveButtonDisabled()"
+          (click)="save()"
+          class="button-primary"
+          style="margin-left: 30px"
+          type="button"
+        >
+          SAVE
+        </button>
+        <button
+          *ngIf="showUpdateBtn()"
+          [disabled]="isPublishButtonDisabled()"
+          [class.button-disabled]="isPublishButtonDisabled()"
+          (click)="update()"
+          class="button-secondary"
+          style="margin-left: 30px"
+          type="button"
+        >
+          UPDATE
+        </button>
+        <button
+          *ngIf="showCreateBtn()"
+          [disabled]="isSaveButtonDisabled()"
+          [class.button-disabled]="isSaveButtonDisabled()"
+          (click)="create()"
+          class="button-secondary"
+          style="margin-left: 30px"
+          type="button"
+        >
+          CREATE
+        </button>
+        <button
+          *ngIf="showPublishBtn()"
+          [disabled]="isPublishButtonDisabled()"
+          [class.button-disabled]="isPublishButtonDisabled()"
+          (click)="publish()"
+          class="button-secondary"
+          style="margin-left: 30px"
+          type="button"
+        >
+          PUBLISH
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

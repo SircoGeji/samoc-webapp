@@ -1,0 +1,214 @@
+@import '../../../base/_variables.scss';
+@import '../../../base/_mixin.scss';
+
+::ng-deep .mat-tooltip {
+  overflow: visible !important;
+}
+
+::ng-deep .cdk-drag-preview {
+  .weight-list-drag-preview-wrapper {
+    display: flex;
+    align-items: center;
+    box-sizing: border-box;
+    .drag-handle {
+      margin-right: 5px;
+    }
+  }
+}
+
+* {
+  box-sizing: border-box;
+}
+
+.weight-list-2-wrapper {
+  overflow: visible;
+  input {
+    background-color: #303030;
+    color: #f0f0f0;
+    border: none;
+    border-bottom: 1px solid #757575;
+    padding: 0 0 0 5px;
+    outline: none;
+    caret-color: #b1b1b1;
+  }
+  input:disabled {
+    cursor: not-allowed;
+    color: #757575;
+  }
+  .weight-list-border {
+    margin-bottom: 10px;
+    border: #fff 1px solid;
+    border-radius: 10px;
+    position: relative;
+    .delete-list-button {
+      position: absolute;
+      left: 5px;
+      top: -12px;
+      width: 24px;
+      height: 24px;
+      background-color: $app-background;
+    }
+    .list-title-wrapper {
+      position: absolute;
+      left: 40px;
+      top: -15px;
+      min-width: 100px;
+      text-align: center;
+      font-weight: bold;
+      border-right: 1px solid #fff;
+      border-left: 1px solid #fff;
+      background-color: #181818;
+      .list-title {
+        input {
+          width: 180px;
+          height: 30px;
+        }
+      }
+    }
+    .list-weight-wrapper {
+      position: absolute;
+      top: -15px;
+      left: 240px;
+      border-right: 1px solid #fff;
+      border-left: 1px solid #fff;
+      .list-weight-input {
+        input {
+          max-width: 30px;
+        }
+        input::-webkit-outer-spin-button,
+        input::-webkit-inner-spin-button {
+          -webkit-appearance: none;
+          margin: 0;
+        }
+        /* Firefox */
+        input[type=number] {
+          -moz-appearance: textfield;
+        }
+      }
+    }
+    .selected-offers-list {
+      min-height: 34px;
+      display: block;
+      .list-placeholder {
+        box-sizing: border-box;
+        margin: 5px;
+        height: 50px;
+        border: 2px dashed #757575;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        div {
+          width: 100%;
+          min-width: 100px;
+          display: block;
+          margin: auto;
+          color: #757575;
+          text-align: center;
+        }
+      }
+      .selected-offer-element {
+        margin: 10px;
+        box-sizing: border-box;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        .weight-list-element {
+          padding: 5px;
+          display: flex;
+          min-width: 0;
+          flex-direction: row;
+          .drag-handle {
+            display: block;
+            width: 24px;
+            height: 24px;
+            flex-shrink: 0;
+            margin: auto 0;
+            margin-right: 5px;
+          }
+          .rule-offer-container {
+            display: flex;
+            flex-direction: column;
+            min-width: 0;
+            .rule-offer-code {
+              margin-left: 10px;
+              font-size: 12px;
+              color: rgba(255, 255, 255, 0.445);
+            }
+            .three-dots {
+              overflow: hidden;
+              white-space: nowrap;
+              text-overflow: ellipsis;
+            }
+          }
+        }
+        .absent-offer {
+          color: red;
+        }
+      }
+      .odd-element {
+        background-color: rgba(255, 255, 255, 0.05);
+      }
+      .cdk-drag-disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+        mat-icon {
+          cursor: not-allowed;
+        }
+      }
+      .selected-offer-element-wrapper {
+        display: block;
+        width: 100%;
+        box-sizing: border-box;
+      }
+    }
+    .selected-offers-list.cdk-drop-list-dragging {
+      .list-placeholder {
+        display: none;
+      }
+    }
+    .cdk-drop-list-receiving,
+    .cdk-drop-list-dragging {
+      border: 3px dashed #f00;
+      border-radius: 10px;
+      z-index: 50;
+      transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
+    }
+    .cdk-drag-placeholder {
+      box-sizing: border-box;
+      border: 2px dotted #fff;
+      opacity: 0.5;
+      min-height: 34px;
+      transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
+    }
+    .cdk-drag-animating {
+      transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
+    }
+    .cdk-drag-disabled {
+      opacity: 0.5;
+    }
+    .mat-icon {
+      background-color: transparent;
+      cursor: pointer;
+    }
+    .mat-icon-button {
+      margin: 0;
+      padding: 0;
+      height: 24px;
+      width: 24px;
+      border: none;
+      flex-shrink: 0;
+      .mat-icon-remove-list {
+        color: #f00;
+      }
+    }
+    .delete-item-button {
+      margin-right: 5px;
+    }
+    .mat-icon-button:disabled {
+      mat-icon {
+        cursor: not-allowed;
+        opacity: 0.5;
+      }
+    }
+  }
+}

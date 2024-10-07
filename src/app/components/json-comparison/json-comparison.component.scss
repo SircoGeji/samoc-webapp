@@ -1,0 +1,36 @@
+@import '../../../base/_variables.scss';
+@import '../../../base/mixin';
+@include custom-scrollbar();
+
+.legend-container {
+  display: flex;
+  justify-content: center;
+  margin-top: 20px;
+  .legend-element {
+    display: flex;
+    margin: 0 10px;
+    .legend-label {
+      margin-left: 5px;
+    }
+    .missing-block {
+      width: 50px;
+      height: 1em;
+      background: green;
+    }
+    .changed-block {
+      width: 50px;
+      height: 1em;
+      background: #f70;
+    }
+    .removed-block {
+      width: 50px;
+      height: 1em;
+      background: #f00;
+    }
+    .selected-block {
+      width: 50px;
+      height: 1em;
+      background: blue;
+    }
+  }
+}

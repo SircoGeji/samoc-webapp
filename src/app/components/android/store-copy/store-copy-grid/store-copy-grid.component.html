@@ -1,0 +1,235 @@
+<app-header></app-header>
+
+<app-spinner></app-spinner>
+
+<div class="store-copy-component-container">
+  <div
+    class="store-copy-filters-container"
+    [ngClass]="
+      showFiltersBlock ? 'filters-block-shown' : 'filters-block-hidden'
+    "
+  >
+    <div
+      class="filter-clear-all-button-container"
+      [ngClass]="
+        showFiltersBlock
+          ? 'filter-clear-all-button-container-shown'
+          : 'filter-clear-all-button-container-hidden'
+      "
+    >
+      <button
+        class="filter-clear-all-button"
+        (click)="clearAllFilters()"
+        matTooltip="Clear all filters"
+      >
+        <mat-icon class="filter-clear-all-button-icon">clear</mat-icon>
+      </button>
+    </div>
+    <div class="filter-accordion-container">
+      <!-- FILTERS: COPY PACKAGE NAME -->
+      <mat-accordion class="filters-accordion" multi>
+        <mat-expansion-panel style="margin-top: 10px">
+          <mat-expansion-panel-header>
+            <mat-panel-title style="font-weight: bold">
+              {{ filtersHeaders[0] }}
+            </mat-panel-title>
+          </mat-expansion-panel-header>
+
+          <div class="filters-accordion-content">
+            <div matInput class="accordion-filter-container">
+              <input
+                matInput
+                #searchInputRef
+                (keyup)="applyFilter($event, 'search')"
+                [(ngModel)]="searchFilter"
+                autocomplete="off"
+                placeholder="Enter Package Name"
+              />
+              <i
+                *ngIf="searchFilter === ''"
+                class="material-icons md-dark md-inactive inter-table-component-container-icon"
+                >search</i
+              >
+              <i
+                (click)="clearSearchInput()"
+                *ngIf="searchFilter !== ''"
+                class="material-icons md-dark md-inactive inter-table-component-container-icon clear-icon"
+                >close</i
+              >
+            </div>
+          </div>
+        </mat-expansion-panel>
+      </mat-accordion>
+      <!-- FILTERS: STATUS -->
+      <mat-accordion class="filters-accordion">
+        <mat-expansion-panel
+          style="margin-top: 10px"
+          [disabled]="
+            !statusCheckboxesValues.length ||
+            statusCheckboxesValues.length === 1
+          "
+        >
+          <mat-expansion-panel-header>
+            <mat-panel-title style="font-weight: bold">
+              {{ filtersHeaders[1] }}
+            </mat-panel-title>
+          </mat-expansion-panel-header>
+
+          <div class="filters-accordion-content">
+            <div
+              matInput
+              class="accordion-filter-container"
+              *ngFor="let status of statusCheckboxesValues"
+            >
+              <mat-checkbox
+                (change)="changeCheckedFilters('status', status)"
+                [checked]="isElementChecked(status, statusCheckedValues)"
+                >{{ status }}</mat-checkbox
+              >
+            </div>
+          </div>
+        </mat-expansion-panel>
+      </mat-accordion>
+      <!-- FILTERS: SUPPORTED LANGUAGES -->
+      <mat-accordion class="filters-accordion" multi>
+        <mat-expansion-panel
+          style="margin-top: 10px"
+          [disabled]="
+            !languagesCheckboxesValues.length ||
+            languagesCheckboxesValues.length === 1
+          "
+        >
+          <mat-expansion-panel-header>
+            <mat-panel-title style="font-weight: bold">
+              {{ filtersHeaders[2] }}
+            </mat-panel-title>
+          </mat-expansion-panel-header>
+
+          <div class="filters-accordion-content">
+            <div
+              matInput
+              class="accordion-filter-container"
+              *ngFor="let language of languagesCheckboxesValues"
+            >
+              <mat-checkbox
+                (change)="changeCheckedFilters('languages', language)"
+                [checked]="isElementChecked(language, languagesCheckedValues)"
+                >{{ language }}</mat-checkbox
+              >
+            </div>
+          </div>
+        </mat-expansion-panel>
+      </mat-accordion>
+    </div>
+  </div>
+  <div class="store-copy-container">
+    <div class="store-copy-title-container">
+      <h2>STORE COPY</h2>
+      <h3>Copy Templates</h3>
+    </div>
+    <div class="store-copy-buttons-container">
+      <button class="button-primary" (click)="toggleFiltersBlock()">
+        FILTERS
+      </button>
+      <button class="button-primary" (click)="createNewCopy()">
+        CREATE NEW COPY
+      </button>
+    </div>
+    <div class="store-copy-table-container">
+      <table [dataSource]="data" class="mat-elevation-z8" mat-table matSort>
+        <ng-container
+          *ngFor="let column of dataKeys; index as i"
+          [matColumnDef]="column"
+        >
+          <th
+            class="table-header-row"
+            *matHeaderCellDef
+            mat-header-cell
+            mat-sort-header
+            [disabled]="tableHeaders[i] === ''"
+          >
+            {{ tableHeaders[i] }}
+          </th>
+          <td
+            *matCellDef="let element; index as j"
+            [ngSwitch]="column"
+            mat-cell
+          >
+            <div
+              *ngSwitchCase="'name'"
+              [ngClass]="{ 'default-copy': element.isDefault }"
+            >
+              <a href="{{ getEditHRef(element) }}">{{ element[column] }}</a>
+            </div>
+            <div *ngSwitchCase="'statusTitle'">
+              <p>{{ element[column] }}{{ element.environments }}</p>
+              <p>{{ element.endedOn ? element.endedOn : '' }}</p>
+            </div>
+            <div
+              *ngSwitchCase="'supportedLanguages'"
+              matTooltip="{{ element.tooltipText }}"
+              matTooltipPosition="above"
+              class="ellipsis-container"
+            >
+              {{ element[column] }}
+            </div>
+            <div *ngSwitchCase="'actions'">
+              <button
+                class="table-menu-action-button"
+                mat-icon-button
+                [matMenuTriggerFor]="menu"
+              >
+                <mat-icon>more_horiz</mat-icon>
+              </button>
+              <mat-menu #menu="matMenu">
+                <button
+                  mat-menu-item
+                  (click)="menuAction('DUPLICATE', element)"
+                >
+                  <span>Duplicate</span>
+                </button>
+                <button
+                  mat-menu-item
+                  (click)="menuAction('DEFAULT', element)"
+                  *ngIf="canSetDefaultModule(element)"
+                >
+                  <span>Set as Default</span>
+                </button>
+                <button
+                  mat-menu-item
+                  (click)="menuAction('VIEW', element)"
+                  *ngIf="canEditModule(element)"
+                >
+                  <span>Edit</span>
+                </button>
+                <button
+                  mat-menu-item
+                  (click)="menuAction('PUBLISH', element)"
+                  *ngIf="canPublishModule(element)"
+                >
+                  <span>Publish</span>
+                </button>
+                <button
+                  mat-menu-item
+                  (click)="menuAction('DELETE', element)"
+                  *ngIf="canDeleteModule(element)"
+                >
+                  <span>Delete</span>
+                </button>
+              </mat-menu>
+            </div>
+          </td>
+        </ng-container>
+        <tr *matHeaderRowDef="dataKeys; sticky: true" mat-header-row></tr>
+        <tr *matRowDef="let row; columns: dataKeys" mat-row></tr>
+      </table>
+      <mat-paginator
+        #listViewPaginator
+        (page)="setPageSize($event, 'StoreCopy')"
+        [pageSize]="getPageSize('StoreCopy')"
+        [pageSizeOptions]="getPageSizeOptions()"
+        showFirstLastButtons
+      ></mat-paginator>
+    </div>
+  </div>
+</div>

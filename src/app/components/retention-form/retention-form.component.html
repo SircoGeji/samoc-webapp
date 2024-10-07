@@ -1,0 +1,722 @@
+<ng-container [formGroup]="retentionForm">
+  <div
+    class="form-component-container-form-container-form-field-medium form-component-container-form-container-form-field"
+  >
+    <mat-form-field>
+      <mat-label>ELIGIBLE PLANS</mat-label>
+      <mat-select formControlName="eligiblePlans" required multiple>
+        <mat-select-trigger>
+          {{ formatSelectedPlans(retentionForm.controls.eligiblePlans) }}
+        </mat-select-trigger>
+        <mat-option
+          *ngFor="let plan of plans"
+          [value]="plan.planCode"
+          [disabled]="!isPlanAvailable(plan.planCode)"
+        >
+          {{ plan.planCode }} - {{ plan['planDetails'] }}
+        </mat-option>
+      </mat-select>
+      <mat-error
+        *ngIf="retentionForm.controls.eligiblePlans.hasError('required')"
+      >
+        Please select at least one eligible plan
+      </mat-error>
+    </mat-form-field>
+  </div>
+
+  <div
+    *ngIf="showCreateUpgradeOffer"
+    class="form-component-container-form-container-subform"
+  >
+    <div
+      class="form-component-container-form-container-form-field-medium form-component-container-form-container-form-field"
+    >
+      <mat-checkbox formControlName="createUpgradeOffer"
+        >Create Upgrade Offer</mat-checkbox
+      >
+      <div *ngIf="offerCode" style="font-size: 80%">
+        <mat-hint class="mat-hint-validation-success"
+          >Upgrade offer name is<br />
+          <b>'{{ offerCode }}_upgrade'</b></mat-hint
+        >
+      </div>
+    </div>
+
+    <div
+      *ngIf="retentionForm.controls.createUpgradeOffer.value"
+      class="form-component-container-form-container-form-field-medium form-component-container-form-container-form-field"
+      style="margin-left: 3%"
+    >
+      <mat-form-field>
+        <mat-label>SWITCH TO PLAN</mat-label>
+        <mat-select formControlName="upgradePlan" required>
+          <mat-option
+            *ngFor="let plan of listOfUpgradePlans()"
+            [value]="plan.planCode"
+          >
+            {{ plan.planCode }} - {{ plan['planDetails'] }}
+          </mat-option>
+        </mat-select>
+        <mat-error
+          *ngIf="retentionForm.controls.upgradePlan.hasError('required')"
+          >Please select an upgrade plan</mat-error
+        >
+      </mat-form-field>
+    </div>
+  </div>
+
+  <div
+    *ngIf="retentionForm.controls.createUpgradeOffer.value"
+    class="form-component-container-form-container-form-field-medium form-component-container-form-container-form-field"
+  >
+    <mat-form-field>
+      <mat-label>UPGRADE USERS ON PLANS</mat-label>
+      <mat-select formControlName="usersOnPlans" multiple required>
+        <mat-select-trigger>
+          {{ formatSelectedPlans(retentionForm.controls.usersOnPlans) }}
+        </mat-select-trigger>
+        <mat-option value="-" (click)="selectAllUserPlans()"
+          >All Plans</mat-option
+        >
+        <mat-option
+          *ngFor="let plan of upgradeUsersPlan"
+          [value]="plan.planCode"
+          (click)="selectUserPlan()"
+        >
+          {{ plan.planCode }} - {{ plan['planDetails'] }}
+        </mat-option>
+      </mat-select>
+    </mat-form-field>
+  </div>
+
+  <!-- OFFER CODE TYPE & TOTAL UNIQUE CODES -->
+  <div class="form-component-container-form-container-subform">
+    <!-- OFFER CODE TYPE -->
+    <div
+      class="form-component-container-form-container-form-field-medium form-component-container-form-container-form-field"
+    >
+      <mat-form-field>
+        <mat-label>OFFER CODE TYPE</mat-label>
+        <mat-select formControlName="offerCodeType" required>
+          <mat-option
+            *ngFor="let offerCodeType of offerCodeTypes"
+            [value]="offerCodeType.value"
+          >
+            {{ offerCodeType.viewValue }}
+          </mat-option>
+        </mat-select>
+        <mat-error
+          *ngIf="retentionForm.get('offerCodeType').hasError('required')"
+          >Please select an offer code type
+        </mat-error>
+      </mat-form-field>
+    </div>
+  </div>
+
+  <!--  It makes no sense to configure discount until eligible plans are select -->
+  <div
+    class="form-component-container-form-container-subform"
+    style="margin-bottom: 95px"
+  >
+    <div
+      class="form-component-container-form-container-form-field-small form-component-container-form-container-form-field"
+    >
+      <mat-form-field>
+        <mat-label>DISCOUNT TYPE</mat-label>
+        <mat-select formControlName="discountType" required>
+          <mat-option *ngFor="let offer of offers" [value]="offer.value">
+            {{ offer.viewValue }}
+          </mat-option>
+        </mat-select>
+        <mat-error
+          *ngIf="retentionForm.controls.discountType.hasError('required')"
+        >
+          Please select a discount type
+        </mat-error>
+      </mat-form-field>
+    </div>
+    <div
+      *ngIf="retentionForm.controls.discountType.value === 'fixed'"
+      class="form-component-container-form-container-form-field-subfield margin-left-3-perc form-component-container-form-container-form-field"
+    >
+      <mat-form-field appearance="fill" class="example-full-width">
+        <mat-label>PROMO PRICE (USD)</mat-label>
+        <input
+          type="number"
+          min="0"
+          step="0.01"
+          (keypress)="keyPressNumbersWithDecimal($event)"
+          autocomplete="off"
+          formControlName="discountAmount"
+          matInput
+          required
+        />
+        <span
+          class="offer-form-tooltip-button"
+          matTooltip="Selected plan price is ${{ planPrice }} USD"
+          matTooltipPosition="above"
+          >&nbsp;</span
+        >
+        <mat-error
+          *ngIf="retentionForm.controls.discountAmount.hasError('required')"
+          >Please enter the promo price
+        </mat-error>
+        <mat-error
+          *ngIf="retentionForm.controls.discountAmount.hasError('pattern')"
+        >
+          Price should be greater or equal to 0 with maximum 2 decimals
+        </mat-error>
+        <mat-error
+          *ngIf="
+            retentionForm.controls.discountAmount.hasError(
+              'validatePromoPriceError'
+            )
+          "
+        >
+          Please enter a promo price smaller than or equal to the plan price
+        </mat-error>
+      </mat-form-field>
+    </div>
+    <div
+      *ngIf="retentionForm.controls.discountType.value === 'percent'"
+      class="form-component-container-form-container-form-field-subfield margin-left-3-perc form-component-container-form-container-form-field"
+    >
+      <mat-form-field appearance="fill" class="example-full-width">
+        <mat-label>PERCENTAGE (%)</mat-label>
+        <input
+          type="number"
+          min="1"
+          max="100"
+          step="1"
+          (keypress)="keyPressNumbersIntOnly($event)"
+          autocomplete="off"
+          formControlName="discountPercents"
+          matInput
+          required
+        />
+        <mat-error
+          *ngIf="retentionForm.controls.discountPercents.hasError('required')"
+          >Please enter the promo price
+        </mat-error>
+        <mat-error
+          *ngIf="
+            retentionForm.controls.discountPercents.hasError('min') ||
+            retentionForm.controls.discountPercents.hasError('max')
+          "
+        >
+          Percentage should be greater or equal to 1 and less or equal to 100
+        </mat-error>
+        <mat-error
+          *ngIf="
+            retentionForm.controls.discountPercents.hasError(
+              'validatePromoPriceError'
+            )
+          "
+        >
+          Please enter a promo price smaller than or equal to the plan price
+        </mat-error>
+      </mat-form-field>
+    </div>
+    <div
+      *ngIf="retentionForm.controls.discountType.value"
+      class="form-component-container-form-container-form-field-subfield margin-left-3-perc form-component-container-form-container-form-field"
+    >
+      <mat-form-field>
+        <mat-label>DISCOUNT DURATION</mat-label>
+        <mat-select required formControlName="discountDurationType">
+          <mat-option *ngFor="let type of durationTypes" [value]="type.value">
+            {{ type.viewValue }}
+          </mat-option>
+        </mat-select>
+        <mat-error
+          *ngIf="retentionForm.get('discountDurationType').hasError('required')"
+          >Please select a discount duration
+        </mat-error>
+      </mat-form-field>
+    </div>
+    <div
+      *ngIf="retentionForm.controls.discountDurationType.value === 'customize'"
+      class="form-component-container-form-container-form-field-subfield margin-left-3-perc form-component-container-form-container-form-field"
+    >
+      <mat-form-field appearance="fill" class="example-full-width">
+        <mat-label>DURATION VALUE</mat-label>
+        <input
+          type="number"
+          min="1"
+          step="1"
+          matInput
+          required
+          autocomplete="off"
+          formControlName="discountDurationValue"
+          (keypress)="keyPressNumbersIntOnly($event)"
+        />
+        <mat-error
+          *ngIf="
+            retentionForm.get('discountDurationValue').hasError('required')
+          "
+          >Please enter a duration value
+        </mat-error>
+
+        <mat-error
+          *ngIf="
+            retentionForm.get('discountDurationValue').hasError('min') ||
+            retentionForm.get('discountDurationValue').hasError('max')
+          "
+          >{{ durationValueError }}
+        </mat-error>
+
+        <mat-error
+          *ngIf="
+            retentionForm.get('discountDurationValue').hasError('durationError')
+          "
+          >{{
+            retentionForm.get('discountDurationValue').getError('durationError')
+          }}
+        </mat-error>
+      </mat-form-field>
+    </div>
+    <!-- DISCOUNT UNIT -->
+    <div
+      *ngIf="retentionForm.controls.discountDurationType.value === 'customize'"
+      class="form-component-container-form-container-form-field-subfield margin-left-3-perc form-component-container-form-container-form-field"
+    >
+      <mat-form-field>
+        <mat-label>DISCOUNT UNIT</mat-label>
+        <mat-select required formControlName="discountDurationUnit">
+          <mat-option *ngFor="let unit of durationUnits" [value]="unit.value">
+            {{ unit.viewValue }}
+          </mat-option>
+        </mat-select>
+        <mat-error
+          *ngIf="retentionForm.get('discountDurationUnit').hasError('required')"
+          >Please select a discount unit
+        </mat-error>
+      </mat-form-field>
+    </div>
+  </div>
+
+  <!-- ================================================================= -->
+
+  <!-- OFFER NAME -->
+  <div
+    class="form-component-container-form-container-form-field-medium form-component-container-form-container-form-field"
+  >
+    <mat-form-field appearance="fill" class="example-full-width">
+      <mat-label>OFFER NAME</mat-label>
+      <input
+        matInput
+        required
+        maxlength="{{ nameLength }}"
+        autocomplete="off"
+        formControlName="offerName"
+        (focus)="offerNameCounter.hidden = false"
+        (blur)="offerNameCounter.hidden = true"
+        (paste)="removeNewlines($event, retentionForm.controls.offerName)"
+      />
+
+      <mat-hint #offerNameCounter class="char-counter" align="end" hidden>
+        {{ retentionForm.get('offerName').value.length }} / {{ nameLength }}
+      </mat-hint>
+
+      <mat-error *ngIf="retentionForm.get('offerName').hasError('required')"
+        >Please enter an offer name
+      </mat-error>
+
+      <mat-error *ngIf="retentionForm.get('offerName').hasError('pattern')"
+        >{{ generalTextFieldPatternErrMsg }}
+      </mat-error>
+    </mat-form-field>
+  </div>
+
+  <!-- OFFER HEADER -->
+  <div
+    class="form-component-container-form-container-form-field-large form-component-container-form-container-form-field"
+  >
+    <mat-form-field appearance="fill" class="example-full-width">
+      <mat-label>OFFER HEADER</mat-label>
+      <input
+        matInput
+        required
+        maxlength="{{ headerLength }}"
+        autocomplete="off"
+        formControlName="offerHeader"
+        (focus)="offerHeaderCounter.hidden = false"
+        (blur)="offerHeaderCounter.hidden = true"
+        (paste)="removeNewlines($event, retentionForm.controls.offerHeader)"
+      />
+
+      <mat-hint class="mat-hint-validation-success" align="start">
+        Use <b>&lt;strong&gt;</b> to enter offer price, e.g.
+        '&lt;strong&gt;$14.99&lt;/strong&gt; for 6 months' to display <br />
+        '<strong>$14.99</strong> for 6 months'<br />
+      </mat-hint>
+      <mat-hint #offerHeaderCounter class="char-counter" align="end" hidden>
+        {{ retentionForm.get('offerHeader').value.length }} / {{ headerLength }}
+      </mat-hint>
+
+      <mat-error *ngIf="retentionForm.get('offerHeader').hasError('required')"
+        >Please enter an offer header
+      </mat-error>
+
+      <mat-error *ngIf="retentionForm.get('offerHeader').hasError('pattern')"
+        >{{ generalTextFieldPatternErrMsg }}
+      </mat-error>
+      <span
+        class="material-icons info-container"
+        (click)="openInfoModal('retentionOfferHeader', $event)"
+      >
+        info
+      </span>
+    </mat-form-field>
+  </div>
+
+  <!-- OFFER BODY TEXT -->
+  <div
+    class="form-component-container-form-container-form-field-text form-component-container-form-container-form-field"
+  >
+    <mat-form-field appearance="fill" class="example-full-width">
+      <mat-label>OFFER BODY TEXT</mat-label>
+      <textarea
+        matInput
+        required
+        maxlength="{{ bodyTxtLength }}"
+        cdkTextareaAutosize
+        cdkAutosizeMinRows="1"
+        cdkAutosizeMaxRows="2"
+        #autosize="cdkTextareaAutosize"
+        formControlName="offerBodyText"
+        (focus)="offerBodyCounter.hidden = false"
+        (blur)="offerBodyCounter.hidden = true"
+        (paste)="removeNewlines($event, retentionForm.controls.offerBodyText)"
+      ></textarea>
+
+      <mat-hint #offerBodyCounter class="char-counter" align="end" hidden>
+        {{ retentionForm.get('offerBodyText').value.length }} /
+        {{ bodyTxtLength }}
+      </mat-hint>
+
+      <mat-error *ngIf="retentionForm.get('offerBodyText').hasError('required')"
+        >Please enter an offer body text
+      </mat-error>
+
+      <mat-error *ngIf="retentionForm.get('offerBodyText').hasError('pattern')"
+        >{{ generalTextFieldPatternErrMsg }}
+      </mat-error>
+
+      <span
+        class="material-icons info-container"
+        (click)="openInfoModal('retentionOfferBodyText', $event)"
+      >
+        info
+      </span>
+    </mat-form-field>
+  </div>
+
+  <!-- OFFER BOLDED TEXT -->
+  <div
+    class="form-component-container-form-container-form-field-large form-component-container-form-container-form-field"
+  >
+    <mat-form-field appearance="fill" class="example-full-width">
+      <mat-label>OFFER BOLDED TEXT</mat-label>
+      <input
+        matInput
+        maxlength="{{ boldedTxtLength }}"
+        autocomplete="off"
+        formControlName="offerBoldedText"
+        (focus)="offerBoldedCounter.hidden = false"
+        (blur)="offerBoldedCounter.hidden = true"
+        (paste)="removeNewlines($event, retentionForm.controls.offerBoldedText)"
+      />
+
+      <mat-hint #offerBoldedCounter class="char-counter" align="end" hidden>
+        {{ retentionForm.get('offerBoldedText').value.length }} /
+        {{ boldedTxtLength }}
+      </mat-hint>
+
+      <mat-error
+        *ngIf="retentionForm.get('offerBoldedText').hasError('pattern')"
+        >{{ generalTextFieldPatternErrMsg }}
+      </mat-error>
+
+      <span
+        class="material-icons info-container"
+        (click)="openInfoModal('retentionOfferBoldedText', $event)"
+      >
+        info
+      </span>
+    </mat-form-field>
+  </div>
+
+  <!-- OFFER APPLIED BANNER TEXT -->
+  <div
+    class="form-component-container-form-container-form-field-large form-component-container-form-container-form-field"
+  >
+    <mat-form-field appearance="fill" class="example-full-width">
+      <mat-label>OFFER APPLIED BANNER TEXT</mat-label>
+      <input
+        matInput
+        required
+        maxlength="{{ bannerTxtLength }}"
+        autocomplete="off"
+        formControlName="offerAppliedBannerText"
+        (focus)="offerBannerCounter.hidden = false"
+        (blur)="offerBannerCounter.hidden = true"
+        (paste)="
+          removeNewlines($event, retentionForm.controls.offerAppliedBannerText)
+        "
+      />
+
+      <mat-hint #offerBannerCounter class="char-counter" align="end" hidden>
+        {{ retentionForm.get('offerAppliedBannerText').value.length }} /
+        {{ bannerTxtLength }}
+      </mat-hint>
+
+      <mat-error
+        *ngIf="retentionForm.get('offerAppliedBannerText').hasError('required')"
+        >Please enter an offer applied banner text
+      </mat-error>
+
+      <mat-error
+        *ngIf="retentionForm.get('offerAppliedBannerText').hasError('pattern')"
+        >{{ generalTextFieldPatternErrMsg }}
+      </mat-error>
+
+      <span
+        class="material-icons info-container"
+        (click)="openInfoModal('retentionOfferAppliedBannerText', $event)"
+      >
+        info
+      </span>
+    </mat-form-field>
+  </div>
+
+  <!-- LEGAL DISCLAIMER -->
+  <div
+    class="form-component-container-form-container-form-field-text form-component-container-form-container-form-field"
+  >
+    <mat-form-field appearance="fill" class="example-full-width">
+      <mat-label>LEGAL DISCLAIMER</mat-label>
+      <textarea
+        matInput
+        required
+        maxlength="{{ disclaimerLength }}"
+        cdkTextareaAutosize
+        cdkAutosizeMinRows="1"
+        cdkAutosizeMaxRows="2"
+        #autosize="cdkTextareaAutosize"
+        formControlName="legalDisclaimer"
+        (focus)="disclaimerlCounter.hidden = false"
+        (blur)="disclaimerlCounter.hidden = true"
+        (paste)="removeNewlines($event, retentionForm.controls.legalDisclaimer)"
+      ></textarea>
+
+      <mat-hint #disclaimerlCounter class="char-counter" align="end" hidden>
+        {{ retentionForm.get('legalDisclaimer').value.length }} /
+        {{ disclaimerLength }}
+      </mat-hint>
+
+      <mat-error
+        *ngIf="retentionForm.get('legalDisclaimer').hasError('required')"
+        >Please enter a legal disclaimer
+      </mat-error>
+
+      <mat-error
+        *ngIf="retentionForm.get('legalDisclaimer').hasError('pattern')"
+        >{{ generalTextFieldPatternErrMsg }}
+      </mat-error>
+
+      <span
+        class="material-icons info-container"
+        (click)="openInfoModal('retentionLegalDisclaimer', $event)"
+      >
+        info
+      </span>
+    </mat-form-field>
+  </div>
+
+  <!-- CLAIM OFFER TERMS -->
+  <div
+    class="form-component-container-form-container-form-field-text form-component-container-form-container-form-field"
+  >
+    <mat-form-field appearance="fill" class="example-full-width">
+      <mat-label>CLAIM OFFER TERMS</mat-label>
+      <textarea
+        matInput
+        required
+        maxlength="{{ claimOfferTermsLength }}"
+        cdkTextareaAutosize
+        cdkAutosizeMinRows="1"
+        cdkAutosizeMaxRows="2"
+        #autosize="cdkTextareaAutosize"
+        formControlName="claimOfferTerms"
+        (focus)="claimOfferTermsCounter.hidden = false"
+        (blur)="claimOfferTermsCounter.hidden = true"
+        (paste)="removeNewlines($event, retentionForm.controls.claimOfferTerms)"
+      ></textarea>
+
+      <mat-hint #claimOfferTermsCounter class="char-counter" align="end" hidden>
+        {{ retentionForm.get('claimOfferTerms').value.length }} /
+        {{ claimOfferTermsLength }}
+      </mat-hint>
+
+      <mat-error
+        *ngIf="retentionForm.get('claimOfferTerms').hasError('required')"
+        >Please enter claim offer terms
+      </mat-error>
+
+      <mat-error
+        *ngIf="retentionForm.get('claimOfferTerms').hasError('pattern')"
+        >{{ generalTextFieldPatternErrMsg }}
+      </mat-error>
+    </mat-form-field>
+  </div>
+
+  <!-- WELCOME EMAIL TEXT -->
+  <div
+    class="form-component-container-form-container-form-field-text form-component-container-form-container-form-field"
+  >
+    <mat-form-field appearance="fill" class="example-full-width">
+      <mat-label>WELCOME EMAIL TEXT</mat-label>
+
+      <textarea
+        matInput
+        required
+        maxlength="{{ emailTxtLength }}"
+        cdkTextareaAutosize
+        cdkAutosizeMinRows="1"
+        cdkAutosizeMaxRows="2"
+        #autosize="cdkTextareaAutosize"
+        formControlName="welcomeText"
+        (focus)="emailCounter.hidden = false"
+        (blur)="emailCounter.hidden = true"
+        (paste)="removeNewlines($event, retentionForm.controls.welcomeText)"
+      ></textarea>
+
+      <mat-hint #emailCounter class="char-counter" align="end" hidden>
+        {{ retentionForm.get('welcomeText').value?.length }} /
+        {{ emailTxtLength }}
+      </mat-hint>
+
+      <mat-error *ngIf="retentionForm.get('welcomeText').hasError('required')"
+        >Please enter a welcome email text
+      </mat-error>
+
+      <mat-error *ngIf="retentionForm.get('welcomeText').hasError('pattern')"
+        >{{ generalTextFieldPatternErrMsg }}
+      </mat-error>
+    </mat-form-field>
+  </div>
+
+  <!-- >OFFER BUSINESS OWNER -->
+  <div
+    class="form-component-container-form-container-form-field-medium form-component-container-form-container-form-field"
+  >
+    <mat-form-field appearance="fill" class="example-full-width">
+      <mat-label>OFFER BUSINESS OWNER</mat-label>
+      <input
+        matInput
+        required
+        maxlength="{{ ownerLength }}"
+        autocomplete="off"
+        formControlName="offerBusinessOwner"
+        (focus)="offerOwnerCounter.hidden = false"
+        (blur)="offerOwnerCounter.hidden = true"
+        (paste)="
+          removeNewlines($event, retentionForm.controls.offerBusinessOwner)
+        "
+      />
+
+      <mat-hint #offerOwnerCounter class="char-counter" align="end" hidden>
+        {{ retentionForm.get('offerBusinessOwner').value.length }} /
+        {{ ownerLength }}
+      </mat-hint>
+
+      <mat-error
+        *ngIf="retentionForm.get('offerBusinessOwner').hasError('required')"
+        >Please enter an offer business owner
+      </mat-error>
+
+      <mat-error
+        *ngIf="retentionForm.get('offerBusinessOwner').hasError('pattern')"
+        >{{ generalTextFieldPatternErrMsg }}
+      </mat-error>
+    </mat-form-field>
+  </div>
+
+  <!-- END DATE & END TIME-->
+  <div
+    *ngIf="!retentionForm.get('noEndDate').value"
+    class="form-component-container-form-container-subform"
+  >
+    <div
+      class="form-component-container-form-container-form-field-small form-component-container-form-container-form-field"
+    >
+      <mat-form-field appearance="fill">
+        <mat-label>END DATE</mat-label>
+        <input
+          #endDateRef
+          [matDatepicker]="endDate"
+          class="pointer-cursor-cls"
+          matInput
+          autocomplete="off"
+          onkeydown="return false"
+          formControlName="endDate"
+        />
+        <i
+          *ngIf="endDateRef.value.length != 0"
+          (click)="retentionForm.get('endDate').reset()"
+          class="material-icons md-light md-inactive table-component-container-icon clear-enddate-icon show-pointer"
+          >close</i
+        >
+        <mat-datepicker-toggle
+          [for]="endDate"
+          matSuffix
+        ></mat-datepicker-toggle>
+        <mat-datepicker #endDate></mat-datepicker>
+
+        <mat-error
+          *ngIf="retentionForm.get('endDate').hasError('todayOrEarlierErr')"
+          >{{ retentionForm.get('endDate').getError('todayOrEarlierErr') }}
+        </mat-error>
+
+        <mat-error *ngIf="retentionForm.get('endDate').hasError('required')">
+          Please select an end date or remove end time
+        </mat-error>
+      </mat-form-field>
+    </div>
+
+    <div
+      class="form-component-container-form-container-form-field-time form-component-container-form-container-form-field"
+      matTooltip="Expire time is always 11:59pm MST."
+      matTooltipClass="custom-tooltip-endtime"
+      matTooltipPosition="above"
+    >
+      <mat-form-field appearance="fill" class="example-full-width">
+        <mat-label>END TIME</mat-label>
+        <input
+          [ngClass]="'disabled-field'"
+          [ngxTimepicker]="picker"
+          aria-label="disabled time picker"
+          class="pointer-cursor-cls"
+          matInput
+          placeholder="11:59 PM"
+          formControlName="endTime"
+        />
+
+        <ngx-material-timepicker #picker timepicker> </ngx-material-timepicker>
+      </mat-form-field>
+      <span> ({{ tzName }})</span>
+    </div>
+  </div>
+
+  <!-- No End Date -->
+  <div
+    class="form-component-container-form-container-form-field-small form-component-container-form-container-form-field"
+  >
+    <mat-checkbox
+      formControlName="noEndDate"
+      (click)="retentionForm.get('endDate').reset()"
+      >No End Date
+    </mat-checkbox>
+  </div>
+</ng-container>

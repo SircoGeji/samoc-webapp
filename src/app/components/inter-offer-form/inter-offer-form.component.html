@@ -1,0 +1,1704 @@
+<app-header></app-header>
+
+<app-spinner></app-spinner>
+
+<div class="inter-form-component-container inter-offer-form" *ngIf="showForm">
+  <div class="inter-form-component-container-header">
+    <span (click)="openBackDialog()" class="backbtn material-icons md-light md-36">keyboard_arrow_left</span>
+    <h1 class="inter-form-component-container-header-title">{{ heading }}</h1>
+  </div>
+
+  <div class="inter-form-component-container-form-container">
+    <form [formGroup]="offerForm" class="inter-form-component-container-form-container-form">
+      <mat-tab-group [(selectedIndex)]="selectedIndex">
+
+        <!-- SETTINGS TAB -->
+        <mat-tab label="SETTINGS">
+
+          <!-- TAB TITLE BLOCK -->
+          <div class="tab-content-title-container">
+            <span class="tab-content-title" *ngIf="currentOfferType">{{ getOfferTypeViewValue() }} Settings</span>
+            <button [disabled]="!isRegionsMasterBlockValid() || regionsData.length === 0"
+              [class.button-disabled]="!isRegionsMasterBlockValid() || regionsData.length === 0"
+              (click)="onNextTabClick()" class="button-primary" type="button"
+              style="position: absolute; top: 0; right: 6px;">
+              NEXT
+            </button>
+          </div>
+
+          <div class="tab-content-main">
+            <!-- RECURLY DATA BLOCK -->
+            <div class="tab-content-block-container settings-tab-grid">
+              <div class="grid-container">
+
+                <div class="tab-content-inner-block-container">
+                  <span class="tab-content-block-title">{{ settingsTabMasterTitle }}</span>
+                  <span class="tab-content-block-description">{{ settingsTabMasterDescr }}</span>
+                </div>
+
+                <div class="tab-content-block-column-container" *ngIf="!isRetention">
+                  <!-- PLAN -->
+                  <div
+                    class="inter-form-component-container-form-container-form-field-medium inter-form-component-container-form-container-form-field">
+                    <mat-form-field appearance="fill" (click)="changeRegionsMasterValues()">
+                      <mat-label>PLAN</mat-label>
+                      <mat-select required formControlName="plan" disableOptionCentering
+                        panelClass="inter-offer-form-select-list">
+                        <div class="custom-panel">
+                          <mat-option *ngFor="let plan of masterPlans" [value]="plan.planCode">
+                            {{ plan['planDetails'] }}
+                          </mat-option>
+                        </div>
+                      </mat-select>
+                    </mat-form-field>
+                    <mat-error *ngIf="offerForm.get('plan').touched && offerForm.get('plan').hasError('required')">
+                      Please select a plan
+                    </mat-error>
+                  </div>
+                </div>
+
+                <div class="tab-content-block-column-container" *ngIf="isRetention">
+                  <!-- ELIGIBLE PLANS -->
+                  <div
+                    class="inter-form-component-container-form-container-form-field-medium inter-form-component-container-form-container-form-field">
+                    <mat-form-field appearance="fill" (click)="changeRegionsMasterValues()">
+                      <mat-label>ELIGIBLE PLANS</mat-label>
+                      <mat-select required multiple formControlName="eligiblePlans" disableOptionCentering
+                        panelClass="inter-offer-form-select-list">
+                        <mat-select-trigger>
+                          {{ formatSelectedPlans(offerForm.controls.eligiblePlans, false) }}
+                        </mat-select-trigger>
+                        <div class="custom-panel">
+                          <mat-option *ngFor="let plan of masterPlans" [value]="plan.planCode"
+                            [disabled]="!isPlanAvailable(plan.planCode)">
+                            {{ plan['planDetails'] }}
+                          </mat-option>
+                        </div>
+                      </mat-select>
+                    </mat-form-field>
+                    <mat-error
+                      *ngIf="offerForm.get('eligiblePlans').touched && offerForm.get('eligiblePlans').hasError('required')">
+                      Please select at least one eligible plan
+                    </mat-error>
+                  </div>
+                </div>
+
+                <div *ngIf="showCreateUpgradeOffer" class="tab-content-block-column-container">
+                  <!-- CREATE UPGRADE CAMPAIGN -->
+                  <div class="tab-content-block-flex-container">
+                    <div
+                      class="inter-form-component-container-form-container-form-field-medium inter-form-component-container-form-container-form-field"
+                      style="width: 350px;">
+                      <mat-checkbox formControlName="createUpgradeOffer"
+                        (click)="changeRegionsMasterValues('createUpgradeOffer')">
+                        Create Upgrade Campaign
+                      </mat-checkbox>
+                      <div *ngIf="getOfferCode()" style="font-size: 80%">
+                        <mat-hint class="mat-hint-validation-success">
+                          Upgrade offer code is<br />
+                          <b>'{{ getUpgradeOfferCode() }}'</b>
+                        </mat-hint>
+                      </div>
+                    </div>
+
+                    <div *ngIf="getControlValue('createUpgradeOffer')"
+                      class="inter-form-component-container-form-container-form-field-medium inter-form-component-container-form-container-form-field">
+                      <!-- SWITCH TO PLAN -->
+                      <mat-form-field appearance="fill" (click)="changeRegionsMasterValues()">
+                        <mat-label>SWITCH TO PLAN</mat-label>
+                        <mat-select formControlName="upgradePlan" required>
+                          <div class="custom-panel">
+                            <mat-option *ngFor="let plan of listOfUpgradePlans()" [value]="plan.planCode">
+                              {{ plan['planDetails'] }}
+                            </mat-option>
+                          </div>
+                        </mat-select>
+                        <mat-error *ngIf="offerForm.controls.upgradePlan.hasError('required')">Please select an upgrade
+                          plan</mat-error>
+                      </mat-form-field>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="tab-content-block-column-container" *ngIf="getControlValue('createUpgradeOffer')">
+                  <div
+                    class="inter-form-component-container-form-container-form-field-medium inter-form-component-container-form-container-form-field">
+                    <!-- UPGRADE USERS ON PLANS -->
+                    <mat-form-field appearance="fill" (click)="changeRegionsMasterValues()">
+                      <mat-label>UPGRADE USERS ON PLANS</mat-label>
+                      <mat-select formControlName="usersOnPlans" multiple required>
+                        <mat-select-trigger>
+                          {{ getSelectedPlansDetails(offerForm.controls.usersOnPlans) }}
+                        </mat-select-trigger>
+                        <div class="custom-panel">
+                          <mat-option value="-" (click)="selectAllUserPlans()">All Plans</mat-option>
+                          <mat-option *ngFor="let plan of upgradeUsersPlan" [value]="plan.planCode"
+                            (click)="selectUserPlan()">
+                            {{ plan['planDetails'] }}
+                          </mat-option>
+                        </div>
+                      </mat-select>
+                    </mat-form-field>
+                  </div>
+                </div>
+
+                <div class="tab-content-block-column-container">
+                  <!-- OFFER CODE TYPE & TOTAL UNIQUE CODES -->
+                  <div class="tab-content-block-flex-container">
+                    <!-- OFFER CODE TYPE -->
+                    <div
+                      class="inter-form-component-container-form-container-form-field-medium inter-form-component-container-form-container-form-field">
+                      <mat-form-field appearance="fill" (click)="changeRegionsMasterValues()">
+                        <mat-label>OFFER CODE TYPE</mat-label>
+                        <mat-select formControlName="offerCodeType" required disableOptionCentering
+                          panelClass="inter-offer-form-select-list">
+                          <div class="custom-panel">
+                            <mat-option *ngFor="let offerCodeType of offerCodeTypes" [value]="offerCodeType.value">
+                              {{ offerCodeType.viewValue }}
+                            </mat-option>
+                          </div>
+                        </mat-select>
+                      </mat-form-field>
+                      <mat-error
+                        *ngIf="offerForm.get('offerCodeType').touched && offerForm.get('offerCodeType').hasError('required')">
+                        Please select an offer code type
+                      </mat-error>
+                    </div>
+
+                    <!-- TOTAL UNIQUE CODES -->
+                    <div *ngIf="isOfferCodeTypeBulk()"
+                      class="inter-form-component-container-form-container-form-field-xsmall inter-form-component-container-form-container-form-field">
+                      <span class="tab-content-block-label">UNIQUE CODES*</span>
+                      <mat-form-field appearance="fill" (click)="changeRegionsMasterValues()">
+                        <input #uniqueCodesInput type="number" min="1" matInput required autocomplete="off"
+                          (keypress)="keyPressNumbersIntOnly($event)" formControlName="totalUniqueCodes"
+                          (keydown.arrowup)="(false)" (keydown.arrowdown)="(false)" />
+                        <span class="offer-form-tooltip-button" matTooltip="Max redemption is unlimited"
+                          matTooltipPosition="above">&nbsp;</span>
+                        <div class="step-arrow-wrapper">
+                          <div (mousedown)="$event.preventDefault()"
+                            (click)="arrowUpChangeRegionsMasterValues('totalUniqueCodes', 1)" class="step-up-arrow">
+                          </div>
+                          <div (mousedown)="$event.preventDefault()"
+                            (click)="arrowDownChangeRegionsMasterValues('totalUniqueCodes', 1)" class="step-down-arrow">
+                          </div>
+                        </div>
+                      </mat-form-field>
+                      <mat-error
+                        *ngIf="offerForm.get('totalUniqueCodes').touched && offerForm.get('totalUniqueCodes').hasError('required')">
+                        Please enter a value for total unique codes
+                      </mat-error>
+                      <mat-error *ngIf="
+                          offerForm.get('totalUniqueCodes').hasError('min') ||
+                          offerForm.get('totalUniqueCodes').hasError('max')
+                        ">Please enter an integer from 1 to 99999
+                      </mat-error>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="tab-content-block-column-container">
+                  <!--  DISCOUNT TYPE & DISCOUNT DURATION & PROMO PRICE (USD) -->
+                  <div class="tab-content-block-flex-container">
+                    <!-- DISCOUNT TYPE -->
+                    <div
+                      class="inter-form-component-container-form-container-form-field-medium inter-form-component-container-form-container-form-field">
+                      <mat-form-field appearance="fill" (click)="changeRegionsMasterValues()">
+                        <mat-label>DISCOUNT TYPE</mat-label>
+                        <mat-select required formControlName="discountType" disableOptionCentering
+                          panelClass="inter-offer-form-select-list">
+                          <div class="custom-panel">
+                            <mat-option *ngFor="let type of discountTypes" [value]="type.value">
+                              {{ type.viewValue }}
+                            </mat-option>
+                          </div>
+                        </mat-select>
+                      </mat-form-field>
+                      <mat-error
+                        *ngIf="offerForm.get('discountType').touched && offerForm.get('discountType').hasError('required')">
+                        Please select a discount type
+                      </mat-error>
+                    </div>
+
+                    <!-- DISCOUNT DURATION -->
+                    <div
+                      class="inter-form-component-container-form-container-form-field-small inter-form-component-container-form-container-form-field">
+                      <mat-form-field appearance="fill" (click)="changeRegionsMasterValues()">
+                        <mat-label>DURATION</mat-label>
+                        <mat-select required formControlName="discountDurationType" disableOptionCentering
+                          panelClass="inter-offer-form-select-list">
+                          <div class="custom-panel">
+                            <mat-option *ngFor="let type of durationTypes" [value]="type.value">
+                              {{ type.viewValue }}
+                            </mat-option>
+                          </div>
+                        </mat-select>
+                      </mat-form-field>
+                      <mat-error
+                        *ngIf="offerForm.get('discountDurationType').touched && offerForm.get('discountDurationType').hasError('required')">
+                        Please select a discount duration
+                      </mat-error>
+                    </div>
+
+                    <!-- PERCENTAGE -->
+                    <div *ngIf="offerForm.controls.discountType.value === 'percent'"
+                      class="inter-form-component-container-form-container-form-field-small inter-form-component-container-form-container-form-field">
+                      <mat-form-field appearance="fill" (click)="changeRegionsMasterValues()">
+                        <mat-label>PERCENTAGE (%)</mat-label>
+                        <input type="number" min="1" max="100" (keypress)="keyPressNumbersIntOnly($event)"
+                          autocomplete="off" formControlName="discountPercents" matInput required
+                          (keydown.arrowup)="(false)" (keydown.arrowdown)="(false)" />
+                        <div class="step-arrow-wrapper">
+                          <div (mousedown)="$event.preventDefault()"
+                            (click)="arrowUpChangeRegionsMasterValues('discountPercents', 1)" class="step-up-arrow">
+                          </div>
+                          <div (mousedown)="$event.preventDefault()"
+                            (click)="arrowDownChangeRegionsMasterValues('discountPercents', 1)" class="step-down-arrow">
+                          </div>
+                        </div>
+                        <mat-error
+                          *ngIf="offerForm.get('discountPercents').touched && offerForm.get('discountPercents').hasError('required')">
+                          Please enter the promo percentage
+                        </mat-error>
+                        <mat-error *ngIf="
+                            offerForm.get('discountPercents').hasError('min') ||
+                            offerForm.get('discountPercents').hasError('max')
+                          ">
+                          Percentage should be greater or equal to 1 and less or equal to 100
+                        </mat-error>
+                      </mat-form-field>
+                    </div>
+
+                    <!-- PROMO PRICE (USD) -->
+                    <div *ngIf="offerForm.controls.discountType.value !== 'percent'"
+                      class="inter-form-component-container-form-container-form-field-small inter-form-component-container-form-container-form-field">
+                      <mat-form-field appearance="fill" (click)="changeRegionsMasterValues()">
+                        <mat-label>PRICE</mat-label>
+                        <input #discountAmountInput min="0" matInput required autocomplete="off"
+                          (keypress)="keyPressNumbersWithDecimal($event); replaceComma('discountAmount', $event)"
+                          onPaste="return false" formControlName="discountAmount" (keydown.arrowup)="(false)"
+                          (keydown.arrowdown)="(false)" />
+                        <span class="offer-form-tooltip-button"
+                          matTooltip="Selected plan price is $ {{ planPrice }} USD"
+                          matTooltipPosition="above">&nbsp;</span>
+                        <div class="step-arrow-wrapper">
+                          <div (mousedown)="$event.preventDefault()"
+                            (click)="arrowUpChangeRegionsMasterValues('discountAmount', 0.01)" class="step-up-arrow">
+                          </div>
+                          <div (mousedown)="$event.preventDefault()"
+                            (click)="arrowDownChangeRegionsMasterValues('discountAmount', 0.01)"
+                            class="step-down-arrow"></div>
+                        </div>
+                      </mat-form-field>
+                      <mat-error
+                        *ngIf="offerForm.get('discountAmount').touched && offerForm.get('discountAmount').hasError('required')">
+                        Please enter the promo price
+                      </mat-error>
+
+                      <mat-error
+                        *ngIf="offerForm.get('discountAmount').touched && offerForm.get('discountAmount').hasError('pattern')">
+                        Price should be greater or equal to 0 with maximum 2 decimals
+                      </mat-error>
+
+                      <mat-error
+                        *ngIf="offerForm.get('discountAmount').touched && offerForm.get('discountAmount').hasError('validatePromoPriceError')">
+                        Please enter a promo price smaller than or equal to the plan price
+                      </mat-error>
+                    </div>
+                  </div>
+                </div>
+
+                <div *ngIf="checkControlValue('discountDurationType', 'customize')"
+                  class="tab-content-block-column-container">
+                  <!-- DURATION VALUE & DISCOUNT UNIT -->
+                  <div class="tab-content-block-flex-container">
+                    <div style="width: 370px; height: 50px;"></div>
+                    <!-- DURATION VALUE -->
+                    <div
+                      class="inter-form-component-container-form-container-form-field-small inter-form-component-container-form-container-form-field">
+                      <mat-form-field appearance="fill" (click)="changeRegionsMasterValues()">
+                        <mat-label>DURATION VALUE</mat-label>
+                        <input type="number" min="1" step="1" matInput required autocomplete="off"
+                          formControlName="discountDurationValue" (keypress)="keyPressNumbersIntOnly($event)"
+                          (keydown.arrowup)="(false)" (keydown.arrowdown)="(false)" />
+                      </mat-form-field>
+                      <mat-error
+                        *ngIf="offerForm.get('discountDurationValue').touched && offerForm.get('discountDurationValue').hasError('required')">
+                        Please enter a duration value
+                      </mat-error>
+
+                      <mat-error *ngIf="
+                        offerForm.get('discountDurationValue').touched && (
+                          offerForm.get('discountDurationValue').hasError('min') ||
+                          offerForm.get('discountDurationValue').hasError('max')
+                        )
+                        ">{{ durationValueError }}
+                      </mat-error>
+
+                      <mat-error *ngIf="offerForm.get('discountDurationValue').touched &&
+                          offerForm.get('discountDurationValue').hasError('durationError')
+                        ">{{
+                        offerForm.get('discountDurationValue').getError('durationError')
+                        }}
+                      </mat-error>
+                    </div>
+
+                    <!-- DISCOUNT UNIT -->
+                    <!-- <div class="inter-form-component-container-form-container-form-field-small inter-form-component-container-form-container-form-field">
+                      <mat-form-field
+                        appearance="fill"
+                      >
+                        <mat-label>DISCOUNT UNIT</mat-label>
+                        <mat-select
+                          required
+                          formControlName="discountDurationUnit"
+                          disableOptionCentering
+                          panelClass="inter-offer-form-select-list"
+                        >
+                          <mat-option *ngFor="let unit of durationUnits" [value]="unit.value">
+                            {{ unit.viewValue }}
+                          </mat-option>
+                        </mat-select>
+                      </mat-form-field>
+                      <mat-error
+                          *ngIf="offerForm.get('discountDurationUnit').touched && offerForm.get('discountDurationUnit').hasError('required')"
+                          >Please select a discount unit
+                        </mat-error>
+                    </div> -->
+                  </div>
+                </div>
+
+                <div class="tab-content-block-column-container">
+                  <div class="tab-content-block-flex-container">
+                    <!-- OFFER NAME -->
+                    <div
+                      class="inter-form-component-container-form-container-form-field-medium inter-form-component-container-form-container-form-field">
+                      <mat-form-field appearance="fill" (click)="changeRegionsMasterValues()">
+                        <mat-label>OFFER NAME</mat-label>
+                        <input matInput required maxlength="{{ offerNameLength }}" autocomplete="off"
+                          formControlName="offerName" (focus)="offerNameCounter.hidden = false"
+                          (blur)="offerNameCounter.hidden = true"
+                          (paste)="removeNewlines($event, offerForm.controls.offerName)" />
+
+                        <mat-hint #offerNameCounter class="char-counter" align="end" hidden>
+                          {{ offerForm.get('offerName').value.length }} / {{ offerNameLength }}
+                        </mat-hint>
+                      </mat-form-field>
+                      <mat-error
+                        *ngIf="offerForm.get('offerName').touched && offerForm.get('offerName').hasError('required')">
+                        Please enter an offer name
+                      </mat-error>
+
+                      <mat-error
+                        *ngIf="offerForm.get('offerName').touched && offerForm.get('offerName').hasError('pattern')">{{
+                        generalTextFieldPatternErrMsg }}
+                      </mat-error>
+                    </div>
+
+                    <!-- END DATE & END TIME-->
+                    <div *ngIf="!offerForm.get('noEndDate').value">
+                      <div
+                        class="inter-form-component-container-form-container-form-field-end-date inter-form-component-container-form-container-form-field">
+                        <mat-form-field appearance="fill">
+                          <mat-label>END DATE</mat-label>
+                          <input #endDateRef [matDatepicker]="endDate" class="pointer-cursor-cls" matInput
+                            autocomplete="off" formControlName="endDate" placeholder="MM/DD/YYYY" />
+                          <i *ngIf="endDateRef.value.length !== 0 && offerForm.controls.endDate.enabled"
+                            (click)="offerForm.get('endDate').reset()"
+                            class="material-icons md-light md-inactive table-component-container-icon clear-enddate-icon show-pointer">close</i>
+                          <mat-datepicker-toggle [for]="endDate" matSuffix></mat-datepicker-toggle>
+                          <mat-datepicker #endDate></mat-datepicker>
+                        </mat-form-field>
+                        <mat-error *ngIf="offerForm.get('endDate').hasError('todayOrEarlierErr')">{{
+                          offerForm.get('endDate').getError('todayOrEarlierErr') }}
+                        </mat-error>
+                      </div>
+                    </div>
+
+                    <!-- No End Date -->
+                    <div
+                      class="inter-form-component-container-form-container-form-field-xsmall inter-form-component-container-form-container-form-field">
+                      <mat-checkbox formControlName="noEndDate" (click)="offerForm.get('endDate').reset()">No End Date
+                      </mat-checkbox>
+                    </div>
+                  </div>
+                </div>
+
+              </div>
+              <div class="grid-container">
+
+                <div class="tab-content-inner-block-container">
+                  <span class="tab-content-block-title">Campaign settings</span>
+                </div>
+
+                <div class="tab-content-block-column-container">
+                  <!-- >OFFER BUSINESS OWNER -->
+                  <div
+                    class="inter-form-component-container-form-container-form-field-medium inter-form-component-container-form-container-form-field">
+                    <mat-form-field appearance="fill">
+                      <mat-label>BUSINESS OWNER EMAIL</mat-label>
+                      <input matInput required maxlength="{{ offerBusinessOwnerLength }}" autocomplete="off"
+                        formControlName="offerBusinessOwner" (focus)="offerOwnerCounter.hidden = false"
+                        (blur)="offerOwnerCounter.hidden = true"
+                        (paste)="removeNewlines($event, offerForm.controls.offerBusinessOwner)" />
+
+                      <mat-hint #offerOwnerCounter class="char-counter" align="end" hidden>
+                        {{ offerForm.get('offerBusinessOwner').value.length }} /
+                        {{ offerBusinessOwnerLength }}
+                      </mat-hint>
+                    </mat-form-field>
+                    <mat-error *ngIf="offerForm.get('offerBusinessOwner').hasError('required')">Please enter an offer
+                      business owner
+                    </mat-error>
+
+                    <mat-error *ngIf="offerForm.get('offerBusinessOwner').hasError('pattern')">{{
+                      generalTextFieldPatternErrMsg }}
+                    </mat-error>
+                  </div>
+                </div>
+
+                <div class="tab-content-block-column-container">
+                  <!-- > DPTRM LINK -->
+                  <div
+                    class="inter-form-component-container-form-container-form-field-medium inter-form-component-container-form-container-form-field">
+                    <mat-form-field appearance="fill">
+                      <mat-label>DPTRM LINK</mat-label>
+                      <input matInput maxlength="{{ dptrmLinkLength }}" autocomplete="off" formControlName="dptrmLink"
+                        (focus)="dptrmLinkCounter.hidden = false" (blur)="dptrmLinkCounter.hidden = true"
+                        (paste)="removeNewlines($event, offerForm.controls.dptrmLink)" />
+
+                      <mat-hint #dptrmLinkCounter class="char-counter" align="end" hidden>
+                        {{ offerForm.get('dptrmLink').value?.length }} /
+                        {{ dptrmLinkLength }}
+                      </mat-hint>
+                    </mat-form-field>
+                    <mat-error *ngIf="offerForm.get('dptrmLink').hasError('pattern')">{{ generalTextFieldPatternErrMsg
+                      }}
+                    </mat-error>
+                  </div>
+                </div>
+
+                <div class="tab-content-block-column-container">
+                  <!-- CAMPAIGN NAME -->
+                  <div
+                    class="inter-form-component-container-form-container-form-field-medium inter-form-component-container-form-container-form-field">
+                    <mat-form-field appearance="fill">
+                      <mat-label>CAMPAIGN NAME</mat-label>
+                      <input matInput maxlength="{{ campaignNameLength }}" autocomplete="off"
+                        formControlName="campaignName" (focus)="campaignNameCounter.hidden = false"
+                        (blur)="campaignNameCounter.hidden = true"
+                        (paste)="removeNewlines($event, offerForm.controls.campaignName)" />
+
+                      <mat-hint #campaignNameCounter class="char-counter" align="end" hidden>
+                        {{ offerForm.get('campaignName').value.length }} / {{ campaignNameLength }}
+                      </mat-hint>
+                    </mat-form-field>
+                    <mat-error *ngIf="offerForm.get('campaignName').hasError('pattern')">{{
+                      generalTextFieldPatternErrMsg }}
+                    </mat-error>
+                  </div>
+                </div>
+
+                <div class="tab-content-block-column-container">
+                  <!-- > TARGET LAUNCH DATE -->
+                  <div
+                    class="inter-form-component-container-form-container-form-field-launch-date inter-form-component-container-form-container-form-field">
+                    <mat-form-field appearance="fill">
+                      <mat-label>TARGET LAUNCH DATE</mat-label>
+                      <input #targetLaunchDateRef [matDatepicker]="targetLaunchDate" class="pointer-cursor-cls" matInput
+                        autocomplete="off" formControlName="targetLaunchDate" placeholder="MM/DD/YYYY" />
+                      <i *ngIf="targetLaunchDateRef.value.length != 0 && offerForm.controls.targetLaunchDate.enabled"
+                        (click)="offerForm.get('targetLaunchDate').reset()"
+                        class="material-icons md-light md-inactive table-component-container-icon clear-enddate-icon show-pointer">close</i>
+                      <mat-datepicker-toggle [for]="targetLaunchDate" matSuffix></mat-datepicker-toggle>
+                      <mat-datepicker #targetLaunchDate></mat-datepicker>
+                    </mat-form-field>
+                    <mat-error *ngIf="offerForm.get('targetLaunchDate').hasError('todayOrEarlierErr')">{{
+                      offerForm.get('targetLaunchDate').getError('todayOrEarlierErr') }}
+                    </mat-error>
+                  </div>
+                </div>
+
+              </div>
+            </div>
+
+            <!-- REGIONS SELECTION BLOCK -->
+            <div class="tab-content-block-container form-select-white-arrow-button">
+              <div class="select-button-container" [class.select-button-disabled]="!isRegionsMasterBlockValid() || isAnyFieldNotUpdated()">
+                <span>PUSH TO SELECTED</span>
+                <mat-select #regionsSelect class="select-button" disableOptionCentering
+                  panelClass="inter-offer-form-select-list" multiple formControlName="regionsSelectControl"
+                  [disabled]="!isRegionsMasterBlockValid() || isAnyFieldNotUpdated()">
+                  <div class="custom-panel">
+                    <mat-option value="-"
+                      (click)="
+                        (isAllRegionsChecked() && isAnySelectedLanguageIsActive())
+                            ? askUserOfRemovingRegion('-', false)
+                            : toggleAllRegions();
+                        checkAllRegionsSelected()"
+                      [disabled]="!allRegionsStatusesAreDFT()">
+                      Select All
+                    </mat-option>
+                    <mat-option *ngFor="let regionsOption of regionsOptions"
+                      (click)="checkAllRegionsSelected(); checkActiveLanguages(regionsOption)"
+                      [value]="regionsOption.code" [disabled]="isRegionsOptionDisabled(regionsOption)">
+                      {{regionsOption.name}}
+                    </mat-option>
+                  </div>
+                  <footer>
+                    <button type="button" class="button-primary select-action-button" (click)="onReset('regions')"
+                      [disabled]="resetButtonDisabled()" [class.button-disabled]="resetButtonDisabled()">RESET</button>
+                    <button type="button" class="button-secondary select-action-button"
+                      (click)="onSubmit('regions')">SUBMIT</button>
+                  </footer>
+                </mat-select>
+              </div>
+            </div>
+
+            <!-- REGIONS INFO BLOCK -->
+            <div class="tab-content-block-container">
+
+              <div class="tab-content-inner-block-container">
+                <span class="tab-content-block-title">{{ settingsTabRegionsTitle }}</span>
+                <span class="tab-content-block-description">{{ settingsTabRegionsDescr }}</span>
+              </div>
+
+              <div *ngIf="regionsData.length === 0">
+                <div class="empty-placeholder-container">
+                  <div class="regions-empty-state-container">
+                    <div class="regions-empty-state-icon-container">
+                      <mat-icon [inline]="true">blur_circular</mat-icon>
+                    </div>
+                    <span>{{ settingsTabRegionsPlaceholderText }}</span>
+                  </div>
+                </div>
+              </div>
+
+              <div [hidden]="regionsData.length === 0">
+                <div class="tab-content-regions-table-container">
+                  <div class="tab-content-block-column-container">
+                    <div
+                      class="inter-form-component-container-form-container-form-field-small inter-form-component-container-form-container-form-field">
+                      <mat-form-field appearance="fill">
+                        <mat-label>COLUMNS FILTER</mat-label>
+                        <input #regionInputRef (keyup)="applyRegionFilter($event.currentTarget.value)"
+                          autocomplete="off" matInput>
+                        <i (click)="clearSearchInput(regionInputRef)" *ngIf="regionInputRef.value.length !== 0"
+                          class="material-icons md-light md-inactive table-filter-icon clear-icon">close</i>
+                      </mat-form-field>
+                    </div>
+                  </div>
+                  <table [dataSource]="regionsTableData" mat-table matSort>
+                    <ng-container *ngFor="let column of regionsTableDataKeys; index as i" [matColumnDef]="column">
+                      <th *matHeaderCellDef [disabled]="column == 'ellipsis'" mat-header-cell mat-sort-header>
+                        {{regionsTableHeaders[i]}}</th>
+                      <td *matCellDef="let element; index as j" [ngSwitch]="column"
+                        [ngClass]="{ 'odd-element': !(j % 2), 'edit-mode': element.editting }" mat-cell>
+                        <div class="table-cell-left" *ngSwitchCase="'region'">
+                          <span class="region-name">{{ element.name }}</span>
+                        </div>
+                        <div class="table-cell-left" *ngSwitchCase="'price'">
+                          <span>
+                            {{ getPriceInLocalEnglishFormat(element) }}
+                          </span>
+                          <span *ngIf="getControlValue('discountType') !== 'percent'">&nbsp;</span>
+                          <div *ngIf="element.editting">
+                            <!-- REGION PRICE -->
+                            <div *ngIf="getControlValue('discountType') !== 'percent'"
+                              class="inter-form-component-container-form-container-form-field-xsmall inter-form-component-container-form-container-form-field"
+                              style="margin-right: 5px">
+                              <mat-form-field appearance="fill">
+                                <input [id]="getRegionPriceId(element.code)" matInput required type="text" min="0"
+                                  autocomplete="off" formControlName="{{ element.code + '-price' }}"
+                                  (keypress)="keyPressNumbersWithDecimal($event); replaceComma(element.code + '-price', $event)"
+                                  onPaste="return false" (keydown.arrowup)="(false)" (keydown.arrowdown)="(false)" />
+                                <div class="step-arrow-wrapper">
+                                  <div (mousedown)="$event.preventDefault()"
+                                    (click)="stepUp(element.code + '-price', 0.01)" class="step-up-arrow"></div>
+                                  <div (mousedown)="$event.preventDefault()"
+                                    (click)="stepDown(element.code + '-price', 0.01)" class="step-down-arrow"></div>
+                                </div>
+                              </mat-form-field>
+                              <mat-error *ngIf="offerForm.get(element.code + '-price').hasError('required')">Please
+                                enter the promo price
+                              </mat-error>
+
+                              <mat-error *ngIf="offerForm.get(element.code + '-price').hasError('pattern')">
+                                Price should be greater or equal to 0 with maximum 2 decimals
+                              </mat-error>
+
+                              <mat-error
+                                *ngIf="offerForm.get(element.code + '-price').hasError('validatePromoPriceError')">
+                                Please enter a promo price smaller than or equal to the plan price
+                              </mat-error>
+                            </div>
+                            <!-- REGION PRICE (PERCENTAGE) -->
+                            <div *ngIf="getControlValue('discountType') === 'percent'"
+                              class="inter-form-component-container-form-container-form-field-xsmall inter-form-component-container-form-container-form-field"
+                              style="margin-right: 5px">
+                              <mat-form-field appearance="fill">
+                                <input [id]="getRegionPriceId(element.code)" matInput required type="text" min="1"
+                                  max="100" autocomplete="off" formControlName="{{ element.code + '-price' }}"
+                                  (keypress)="keyPressNumbersIntOnly($event)" onPaste="return false"
+                                  (keydown.arrowup)="(false)" (keydown.arrowdown)="(false)" />
+                                <div class="step-arrow-wrapper">
+                                  <div (mousedown)="$event.preventDefault()"
+                                    (click)="stepUp(element.code + '-price', 1)" class="step-up-arrow"></div>
+                                  <div (mousedown)="$event.preventDefault()"
+                                    (click)="stepDown(element.code + '-price', 1)" class="step-down-arrow"></div>
+                                </div>
+                              </mat-form-field>
+                              <mat-error *ngIf="offerForm.get(element.code + '-price').hasError('required')">Please
+                                enter the percentage value
+                              </mat-error>
+
+                              <mat-error *ngIf="
+                                  offerForm.get(element.code + '-price').hasError('min') ||
+                                  offerForm.get(element.code + '-price').hasError('max')
+                                ">
+                                Percentage value should be between 1 and 100
+                              </mat-error>
+                            </div>
+                          </div>
+                          <span *ngIf="getControlValue('discountType') === 'percent'">&nbsp;%</span>
+                        </div>
+
+                        <div class="table-cell-left" *ngSwitchCase="'price-translation'">
+                          {{ getPriceInTranslationFormat(element) }}
+                        </div>
+
+                        <div class="table-cell-left" *ngSwitchCase="'duration'">
+                          <span *ngIf="!element.editting">{{ getDiscountDurationViewValue(element.duration) }}</span>
+                          <div *ngIf="element.editting">
+                            <!-- REGION DURATION -->
+                            <div *ngIf="getControlValue('discountDurationType') !== 'customize'"
+                              class="inter-form-component-container-form-container-form-field-small inter-form-component-container-form-container-form-field"
+                              style="margin-right: 5px">
+                              <mat-form-field appearance="fill">
+                                <mat-select required formControlName="{{ element.code + '-duration' }}"
+                                  disableOptionCentering panelClass="inter-offer-form-select-list">
+                                  <div class="custom-panel">
+                                    <mat-option *ngFor="let type of regionDurationTypes" [value]="type.value">
+                                      {{ type.viewValue }}
+                                    </mat-option>
+                                  </div>
+                                </mat-select>
+                              </mat-form-field>
+                              <mat-error *ngIf="offerForm.get(element.code + '-duration').hasError('required')">Please
+                                select a discount duration
+                              </mat-error>
+                            </div>
+                            <!-- REGION DURATION VALUE -->
+                            <div *ngIf="getControlValue('discountDurationType') === 'customize'"
+                              class="inter-form-component-container-form-container-form-field-small inter-form-component-container-form-container-form-field"
+                              style="margin-right: 5px">
+                              <mat-form-field appearance="fill">
+                                <input type="number" min="1" matInput required autocomplete="off"
+                                  formControlName="{{ element.code + '-durationValue' }}"
+                                  (keypress)="keyPressNumbersIntOnly($event)" (keydown.arrowup)="(false)"
+                                  (keydown.arrowdown)="(false)" />
+                                <div class="step-arrow-wrapper">
+                                  <div (mousedown)="$event.preventDefault()"
+                                    (click)="stepUp(element.code + '-durationValue', 1)" class="step-up-arrow"></div>
+                                  <div (mousedown)="$event.preventDefault()"
+                                    (click)="stepDown(element.code + '-durationValue', 1)" class="step-down-arrow">
+                                  </div>
+                                </div>
+                              </mat-form-field>
+                              <mat-error *ngIf="offerForm.get(element.code + '-durationValue').hasError('required')">
+                                Please enter a duration value
+                              </mat-error>
+
+                              <mat-error *ngIf="
+                                  offerForm.get(element.code + '-durationValue').hasError('min') ||
+                                  offerForm.get(element.code + '-durationValue').hasError('max')
+                                ">{{ durationValueError }}
+                              </mat-error>
+
+                              <mat-error
+                                *ngIf="offerForm.get(element.code + '-durationValue').hasError('durationError')">{{
+                                offerForm.get(element.code + '-durationValue').getError('durationError')
+                                }}
+                              </mat-error>
+                            </div>
+                          </div>
+                        </div>
+                        <div class="table-cell-left" *ngSwitchCase="'plan'">
+                          <div *ngIf="!element.editting && !isRetention">
+                            <span>{{ element.planViewValue }}</span>
+                          </div>
+                          <div *ngIf="!element.editting && isRetention" style="display: flex; flex-direction: column;">
+                            <span *ngFor="let planView of element.planViewValue">{{ planView }}
+                            </span>
+                          </div>
+                          <div *ngIf="element.editting">
+                            <!-- REGION PLAN -->
+                            <div
+                              class="inter-form-component-container-form-container-form-field-medium inter-form-component-container-form-container-form-field"
+                              style="margin-right: 5px" *ngIf="!isRetention">
+                              <mat-form-field appearance="fill">
+                                <mat-select required formControlName="{{ element.code + '-plan' }}"
+                                  disableOptionCentering panelClass="inter-offer-form-select-list">
+                                  <div class="custom-panel">
+                                    <mat-option *ngFor="let plan of getRegionPlans(element.code)"
+                                      [value]="plan.planCode">
+                                      {{ plan.planCode }} - {{ plan['planDetails'] }}
+                                    </mat-option>
+                                  </div>
+                                </mat-select>
+                              </mat-form-field>
+                              <mat-error *ngIf="offerForm.get(element.code + '-plan').hasError('required')">Please
+                                select a plan
+                              </mat-error>
+                            </div>
+                            <!-- REGION ELIGIBLE PLANS -->
+                            <div
+                              class="inter-form-component-container-form-container-form-field-medium inter-form-component-container-form-container-form-field"
+                              style="margin-right: 5px; margin-top: 5px;" *ngIf="isRetention">
+                              <mat-form-field appearance="fill">
+                                <mat-select required multiple formControlName="{{ element.code + '-eligiblePlans' }}"
+                                  disableOptionCentering panelClass="inter-offer-form-select-list">
+                                  <mat-select-trigger>
+                                    {{ formatSelectedPlans(offerForm.get(element.code + '-eligiblePlans'), true) }}
+                                  </mat-select-trigger>
+                                  <div class="custom-panel">
+                                    <mat-option *ngFor="let plan of getRegionPlans(element.code)"
+                                      [value]="plan.planCode"
+                                      [disabled]="!isPlanAvailable(plan.planCode, element.code)">
+                                      {{ plan.planCode }} - {{ plan['planDetails'] }}
+                                    </mat-option>
+                                  </div>
+                                </mat-select>
+                              </mat-form-field>
+                              <mat-error *ngIf="offerForm.get(element.code + '-eligiblePlans').hasError('required')">
+                                Please select at least one eligible plan
+                              </mat-error>
+                            </div>
+                            <!-- REGION CREATE UPGRADE CAMPAIGN -->
+                            <div
+                              class="inter-form-component-container-form-container-form-field-medium inter-form-component-container-form-container-form-field"
+                              style="width: 350px; margin-right: 5px; margin-top: 5px;"
+                              *ngIf="isRetention && getControlValue('createUpgradeOffer')">
+                              <mat-checkbox formControlName="{{ element.code + '-createUpgradeOffer' }}">Create Upgrade
+                                Region Offer</mat-checkbox>
+                            </div>
+
+                          </div>
+                        </div>
+                        <div class="table-cell-left" *ngSwitchCase="'offerCode'">
+                          <div *ngIf="!element.editting && !element.createUpgradeOffer">
+                            <span>{{ element[column] }}</span>
+                          </div>
+                          <div *ngIf="!element.editting && element.createUpgradeOffer"
+                            style="display: flex; flex-direction: column;">
+                            <span>{{ element[column] }}</span>
+                            <span>{{ element[column] + '_upgrade' }}</span>
+                          </div>
+                          <div *ngIf="element.editting">
+                            <!-- REGION OFFER CODE -->
+                            <div
+                              class="inter-form-component-container-form-container-form-field-medium inter-form-component-container-form-container-form-field"
+                              style="margin-right: 5px; margin-top: 5px;">
+                              <mat-form-field appearance="fill">
+                                <input matInput required maxlength="{{ getRegionOfferCodeLength(element.code) }}"
+                                  autocomplete="off" formControlName="{{ element.code + '-offerCode' }}"
+                                  (paste)="removeNewlines($event, offerForm.controls[element.code + '-offerCode'])" />
+                              </mat-form-field>
+                              <mat-error *ngIf="
+                                getRegionOfferCodeLength(element.code) < 50 &&
+                                offerForm.get(element.code + '-offerCode').hasError('maxlength')
+                                ">
+                                Maximum <b>{{ getRegionOfferCodeLength(element.code) }}</b> characters allowed for
+                                upgrade offers
+                              </mat-error>
+                              <mat-error *ngIf="
+                              getRegionOfferCodeLength(element.code) == 50 &&
+                              offerForm.get(element.code + '-offerCode').hasError('maxlength')
+                              ">
+                                Maximum <b>{{ getRegionOfferCodeLength(element.code) }}</b> characters allowed
+                              </mat-error>
+
+                              <mat-error *ngIf="offerForm.get(element.code + '-offerCode').hasError('required')">Please
+                                enter an offer code
+                              </mat-error>
+
+                              <mat-error *ngIf="offerForm.get(element.code + '-offerCode').hasError('pattern')">{{
+                                offerCodeErrorMsg }}
+                              </mat-error>
+
+                              <mat-error *ngIf="offerForm.get(element.code + '-offerCode').hasError('badOfferCode')">{{
+                                offerForm.get(element.code + '-offerCode').getError('badOfferCode') }}
+                              </mat-error>
+                            </div>
+                            <!-- REGION SWITCH TO PLAN -->
+                            <div
+                              class="inter-form-component-container-form-container-form-field-medium inter-form-component-container-form-container-form-field"
+                              style="margin-right: 5px; margin-top: 5px;" *ngIf="
+                                offerForm.controls[element.code + '-createUpgradeOffer'] &&
+                                offerForm.controls[element.code + '-createUpgradeOffer'].value
+                              ">
+                              <mat-form-field appearance="fill">
+                                <mat-label>SWITCH TO PLAN</mat-label>
+                                <mat-select formControlName="{{ element.code + '-upgradePlan' }}" required>
+                                  <div class="custom-panel">
+                                    <mat-option *ngFor="let plan of getRegionUpgradePlansDropdown(element.code)"
+                                      [value]="plan.planCode">
+                                      {{ plan['planCode'] }} - {{ plan['planDetails'] }}
+                                    </mat-option>
+                                  </div>
+                                </mat-select>
+                              </mat-form-field>
+                              <mat-error *ngIf="offerForm.controls[element.code + '-upgradePlan'].hasError('required')">
+                                Please select an upgrade plan
+                              </mat-error>
+                            </div>
+                          </div>
+                          <div *ngIf="!element.editting" class="offer-code-loader">
+                            <div *ngIf="element['offerCodeStatus'] === 'pending'" class="offer-code-field-spinner">
+                              <mat-spinner></mat-spinner>
+                            </div>
+                            <mat-icon *ngIf="element['offerCodeStatus'] === 'valid'"
+                              class="offer-code-validation-icon valid-icon" matTooltip="Offer code is valid to use!"
+                              matTooltipPosition='above'>check</mat-icon>
+                            <mat-icon *ngIf="element['offerCodeStatus'] === 'invalid'"
+                              class="offer-code-validation-icon invalid-icon"
+                              matTooltip="{{ element.offerCodeErrorMessage }}" matTooltipPosition='above'>close
+                            </mat-icon>
+                          </div>
+                        </div>
+                        <div class="table-cell-left" *ngSwitchCase="'offerName'">
+                          <span *ngIf="!element.editting">{{ element[column] }}</span>
+                          <div *ngIf="element.editting">
+                            <!-- REGION OFFER NAME -->
+                            <div
+                              class="inter-form-component-container-form-container-form-field-medium inter-form-component-container-form-container-form-field"
+                              style="margin-right: 5px; margin-top: 5px;">
+                              <mat-form-field appearance="fill">
+                                <input matInput required maxlength="{{ campaignNameLength }}" autocomplete="off"
+                                  formControlName="{{ element.code + '-offerName' }}"
+                                  (paste)="removeNewlines($event, offerForm.controls[element.code + '-offerName'])" />
+                              </mat-form-field>
+                              <mat-error *ngIf="offerForm.get(element.code + '-offerName').hasError('required')">Please
+                                enter an offer name
+                              </mat-error>
+
+                              <mat-error *ngIf="offerForm.get(element.code + '-offerName').hasError('pattern')">{{
+                                generalTextFieldPatternErrMsg }}
+                              </mat-error>
+                            </div>
+                            <!-- REGION UPGRADE USERS ON PLANS -->
+                            <div
+                              class="inter-form-component-container-form-container-form-field-medium inter-form-component-container-form-container-form-field"
+                              style="margin-right: 5px; margin-top: 5px;" *ngIf="
+                                offerForm.controls[element.code + '-createUpgradeOffer'] &&
+                                offerForm.controls[element.code + '-createUpgradeOffer'].value
+                              ">
+                              <mat-form-field appearance="fill">
+                                <mat-label>UPGRADE USERS ON PLANS</mat-label>
+                                <mat-select formControlName="{{ element.code + '-usersOnPlans' }}" multiple required>
+                                  <mat-select-trigger>
+                                    {{
+                                    offerForm.controls[element.code + '-usersOnPlans'].value
+                                    ? formatSelectedPlans(offerForm.controls[element.code + '-usersOnPlans'], true)
+                                    : null
+                                    }}
+                                  </mat-select-trigger>
+                                  <div class="custom-panel">
+                                    <mat-option value="-" (click)="selectAllUserPlans(element.code)">All Plans
+                                    </mat-option>
+                                    <mat-option *ngFor="let plan of getRegionUpgradeUsersPlansDropdown(element.code)"
+                                      [value]="plan.planCode" (click)="selectUserPlan(element.code)">
+                                      {{ plan['planCode'] }} - {{ plan['planDetails'] }}
+                                    </mat-option>
+                                  </div>
+                                </mat-select>
+                              </mat-form-field>
+                              <mat-error
+                                *ngIf="offerForm.controls[element.code + '-usersOnPlans'].hasError('required')">Please
+                                select an upgrade plan
+                              </mat-error>
+                            </div>
+                          </div>
+                        </div>
+                        <div *ngSwitchCase="'actions'" class="regions-table-actions-container">
+                          <div class="action-container">
+                            <button class="action-button" type='button' (click)="
+                                isRegionHasActiveLanguages(element.code) ?
+                                  askUserOfRemovingRegion(element, true) :
+                                  removeAndSubmitRegion(element)
+                              " [disabled]="isRegionsOptionDisabled(element) || element.offerCodeStatus === 'pending'">
+                              <mat-icon>close</mat-icon>
+                              <span>Remove</span>
+                            </button>
+                          </div>
+                          <div class="action-container">
+                            <button *ngIf="!element.editting" class="action-button" type='button'
+                              (click)="editRegionToggle(element)"
+                              [disabled]="isRegionsOptionDisabled(element) || element.offerCodeStatus === 'pending'">
+                              <mat-icon>edit</mat-icon>
+                              <span>Edit</span>
+                            </button>
+                            <button *ngIf="element.editting" class="action-button" type='button'
+                              (click)="editRegionToggle(element)" [disabled]="isRegionHasInvalidFields(element.code)">
+                              <mat-icon class="active-edit">edit</mat-icon>
+                              <span>Update</span>
+                            </button>
+                          </div>
+                        </div>
+                      </td>
+                    </ng-container>
+                    <tr *matHeaderRowDef="regionsTableDataKeys; sticky: true" mat-header-row></tr>
+                    <tr *matRowDef="let row; columns: regionsTableDataKeys;" mat-row></tr>
+                  </table>
+                  <mat-paginator #regionsTablePaginator [pageSize]="regionsTablePageSize" (page)="pageEvent = $event"
+                    [length]="regionsLength"></mat-paginator>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </mat-tab>
+
+        <!-- CONTENT TAB -->
+        <mat-tab label="CONTENT">
+
+          <!-- TAB TITLE BLOCK -->
+          <div class="tab-content-title-container">
+            <span class="tab-content-title" *ngIf="currentOfferType">{{ getOfferTypeViewValue() }} Content</span>
+            <button [disabled]="false" [class.button-disabled]="false" (click)="onPreviousTabClick()"
+              class="button-primary" type="button">
+              PREVIOUS
+            </button>
+          </div>
+
+          <div class="tab-content-main">
+            <!-- CONTENTFUL DATA BLOCK -->
+            <div class="tab-content-block-container settings-grid">
+
+              <div class="tab-content-inner-block-container"
+                style="display: flex; flex-direction: row; align-items: center; justify-content: space-between;">
+                <div>
+                  <span class="tab-content-block-title">{{ contentTabMasterTitle }}</span>
+                  <span class="tab-content-block-description">{{ contentTabMasterDescr }}</span>
+                </div>
+                <div style="display: flex; flex-direction: row; align-items: center; justify-content: space-between;">
+                  <span class="info-container" (click)="openInfoModal('offerExample', $event)">
+                    <mat-icon>info</mat-icon>
+                    <span class="info-label">Offer Example</span>
+                  </span>
+                  <span class="info-container" (click)="openInfoModal('bannerExample', $event)">
+                    <mat-icon>info</mat-icon>
+                    <span class="info-label">Banner Example</span>
+                  </span>
+                </div>
+              </div>
+
+              <div class="content-tab-grid"
+                [ngStyle]="{ 'grid-template-columns': isRetention ? '1fr 1fr 1fr' : '3fr 3fr 4fr' }">
+                <div class="grid-container">
+                  <div class="tab-content-block-column-container">
+                    <!-- OFFER HEADER -->
+                    <div
+                      class="inter-form-component-container-form-container-form-field-full inter-form-component-container-form-container-form-field">
+                      <mat-form-field appearance="fill" (click)="changeLanguagesMasterValues()">
+                        <mat-label>OFFER HEADER</mat-label>
+                        <input matInput required maxlength="{{ marketingHeadlineLength }}" autocomplete="off"
+                          formControlName="marketingHeadline" (focus)="marketingHeadlineCounter.hidden = false"
+                          (blur)="marketingHeadlineCounter.hidden = true"
+                          (paste)="removeNewlines($event, offerForm.controls.marketingHeadline)" />
+                        <mat-hint #marketingHeadlineCounter class="char-counter" align="end" hidden>
+                          {{ offerForm.get('marketingHeadline').value.length }} / {{ marketingHeadlineLength }}
+                        </mat-hint>
+                      </mat-form-field>
+                      <mat-error
+                        *ngIf="offerForm.get('marketingHeadline').touched && offerForm.get('marketingHeadline').hasError('required')">
+                        Please enter an offer header
+                      </mat-error>
+
+                      <mat-error
+                        *ngIf="offerForm.get('marketingHeadline').touched && offerForm.get('marketingHeadline').hasError('pattern')">
+                        {{ generalTextFieldPatternErrMsg }}
+                      </mat-error>
+                    </div>
+                  </div>
+
+                  <div class="tab-content-block-column-container">
+                    <!-- OFFER BODY TEXT -->
+                    <div
+                      class="inter-form-component-container-form-container-form-field-full inter-form-component-container-form-container-form-field">
+                      <mat-form-field appearance="fill" (click)="changeLanguagesMasterValues()">
+                        <mat-label>OFFER BODY TEXT</mat-label>
+                        <input matInput required maxlength="{{ offerHeadlineLength }}" autocomplete="off"
+                          formControlName="offerHeadline" (focus)="offerHeadlineCounter.hidden = false"
+                          (blur)="offerHeadlineCounter.hidden = true"
+                          (paste)="removeNewlines($event, offerForm.controls.offerHeadline)" />
+                        <mat-hint #offerHeadlineCounter class="char-counter" align="end" hidden>
+                          {{ offerForm.get('offerHeadline').value.length }} / {{ offerHeadlineLength }}
+                        </mat-hint>
+                      </mat-form-field>
+                      <mat-error
+                        *ngIf="offerForm.get('offerHeadline').touched && offerForm.get('offerHeadline').hasError('required')">
+                        Please enter an offer body text
+                      </mat-error>
+
+                      <mat-error
+                        *ngIf="offerForm.get('offerHeadline').touched && offerForm.get('offerHeadline').hasError('pattern')">
+                        {{ generalTextFieldPatternErrMsg }}
+                      </mat-error>
+                    </div>
+                  </div>
+
+                  <div class="tab-content-block-column-container">
+                    <!-- OFFER BOLDED TEXT -->
+                    <div
+                      class="inter-form-component-container-form-container-form-field-full inter-form-component-container-form-container-form-field">
+                      <mat-form-field appearance="fill" (click)="changeLanguagesMasterValues()">
+                        <mat-label>OFFER BOLDED TEXT</mat-label>
+                        <input matInput required maxlength="{{ subheadLength }}" autocomplete="off"
+                          formControlName="subhead" (focus)="subheadCounter.hidden = false"
+                          (blur)="subheadCounter.hidden = true"
+                          (paste)="removeNewlines($event, offerForm.controls.subhead)" />
+                        <mat-hint #subheadCounter class="char-counter" align="end" hidden>
+                          {{ offerForm.get('subhead').value.length }} / {{ subheadLength }}
+                        </mat-hint>
+                      </mat-form-field>
+                      <mat-error
+                        *ngIf="offerForm.get('subhead').touched && offerForm.get('subhead').hasError('required')">Please
+                        enter a offer bolded text
+                      </mat-error>
+
+                      <mat-error
+                        *ngIf="offerForm.get('subhead').touched && offerForm.get('subhead').hasError('pattern')">{{
+                        generalTextFieldPatternErrMsg }}
+                      </mat-error>
+                    </div>
+                  </div>
+
+                  <div class="tab-content-block-column-container tab-content-block-last-row">
+                    <!-- OFFER APPLIED BANNER -->
+                    <div
+                      class="inter-form-component-container-form-container-form-field-full inter-form-component-container-form-container-form-field">
+                      <mat-form-field appearance="fill" (click)="changeLanguagesMasterValues()">
+                        <mat-label>OFFER APPLIED BANNER</mat-label>
+                        <input matInput required maxlength="{{ offerAppliedBannerLength }}" autocomplete="off"
+                          formControlName="offerAppliedBanner" (focus)="offerAppliedBannerCounter.hidden = false"
+                          (blur)="offerAppliedBannerCounter.hidden = true"
+                          (paste)="removeNewlines($event, offerForm.controls.offerAppliedBanner)" />
+                        <mat-hint #offerAppliedBannerCounter class="char-counter" align="end" hidden>
+                          {{ offerForm.get('offerAppliedBanner').value.length }} / {{ offerAppliedBannerLength }}
+                        </mat-hint>
+                      </mat-form-field>
+                      <mat-error
+                        *ngIf="offerForm.get('offerAppliedBanner').touched && offerForm.get('offerAppliedBanner').hasError('required')">
+                        Please enter an offer applied banner
+                      </mat-error>
+
+                      <mat-error
+                        *ngIf="offerForm.get('offerAppliedBanner').touched && offerForm.get('offerAppliedBanner').hasError('pattern')">
+                        {{ generalTextFieldPatternErrMsg }}
+                      </mat-error>
+                    </div>
+                  </div>
+
+                </div>
+
+                <div class="grid-container">
+                  <div class="tab-content-block-column-container">
+                    <!-- OFFER TERMS -->
+                    <div
+                      class="inter-form-component-container-form-container-form-field-textarea inter-form-component-container-form-container-form-field">
+                      <mat-form-field appearance="fill" (click)="changeLanguagesMasterValues()">
+                        <mat-label>OFFER TERMS</mat-label>
+                        <textarea matInput required maxlength="{{ offerTermsLength }}" formControlName="offerTerms"
+                          (focus)="offerTermsCounter.hidden = false" (blur)="offerTermsCounter.hidden = true"
+                          (paste)="removeNewlines($event, offerForm.controls.offerTerms)"></textarea>
+                        <mat-hint #offerTermsCounter class="char-counter" align="end" hidden>
+                          {{ offerForm.get('offerTerms').value.length }} / {{ offerTermsLength }}
+                        </mat-hint>
+                      </mat-form-field>
+                      <mat-error
+                        *ngIf="offerForm.get('offerTerms').touched && offerForm.get('offerTerms').hasError('required')">
+                        Please enter offer terms
+                      </mat-error>
+
+                      <mat-error
+                        *ngIf="offerForm.get('offerTerms').touched && offerForm.get('offerTerms').hasError('pattern')">
+                        {{ generalTextFieldPatternErrMsg }}
+                      </mat-error>
+                    </div>
+                  </div>
+
+                  <div *ngIf="offerForm.get('discountType').value !== 'trial'"
+                    class="tab-content-block-column-container tab-content-block-last-row">
+                    <!-- WELCOME EMAIL TEXT -->
+                    <div
+                      class="inter-form-component-container-form-container-form-field-textarea inter-form-component-container-form-container-form-field">
+                      <mat-form-field appearance="fill" (click)="changeLanguagesMasterValues()">
+                        <mat-label>WELCOME EMAIL TEXT</mat-label>
+                        <textarea matInput required maxlength="{{ welcomeEmailTextLength }}"
+                          formControlName="welcomeEmailText" (focus)="welcomeEmailTextCounter.hidden = false"
+                          (blur)="welcomeEmailTextCounter.hidden = true"
+                          (paste)="removeNewlines($event, offerForm.controls.welcomeEmailText)"></textarea>
+                        <mat-hint #welcomeEmailTextCounter class="char-counter" align="end" hidden>
+                          {{ offerForm.get('welcomeEmailText').value.length }} / {{ welcomeEmailTextLength }}
+                        </mat-hint>
+                      </mat-form-field>
+                      <mat-error
+                        *ngIf="offerForm.get('welcomeEmailText').touched && offerForm.get('welcomeEmailText').hasError('required')">
+                        Please enter welcome email text
+                      </mat-error>
+
+                      <mat-error
+                        *ngIf="offerForm.get('welcomeEmailText').touched && offerForm.get('welcomeEmailText').hasError('pattern')">
+                        {{ generalTextFieldPatternErrMsg }}
+                      </mat-error>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="grid-container" *ngIf="!isRetention">
+                  <div class="tab-content-block-column-container">
+                    <!-- OFFER BACKGROUND IMAGE -->
+                    <div
+                      class="inter-form-component-container-form-container-form-field-full inter-form-component-container-form-container-form-field">
+                      <mat-form-field appearance="fill" (click)="changeLanguagesMasterValues()">
+                        <mat-label>BACKGROUND IMAGE</mat-label>
+                        <input matInput required maxlength="{{ bgImageUrlLength }}" autocomplete="off"
+                          formControlName="offerBgImageUrl" (focus)="offerImageCounter.hidden = false"
+                          (blur)="offerImageCounter.hidden = true"
+                          (paste)="removeNewlines($event, offerForm.controls.offerBgImageUrl)" />
+
+                        <mat-hint #offerImageCounter class="char-counter" align="end" hidden>
+                          {{ offerForm.get('offerBgImageUrl').value.length }} /
+                          {{ bgImageUrlLength }}
+                        </mat-hint>
+
+                        <mat-hint *ngIf="offerForm.get('offerBgImageUrl').valid" class="mat-hint-validation-success">
+                          Background image URL is valid.
+                        </mat-hint>
+
+                        <mat-error *ngIf="offerForm.get('offerBgImageUrl').hasError('required')">Please enter a
+                          background image URL
+                        </mat-error>
+
+                        <mat-error *ngIf="offerForm.get('offerBgImageUrl').hasError('httpInvalid')">{{
+                          offerForm.get('offerBgImageUrl').getError('httpInvalid')
+                          }}
+                        </mat-error>
+
+                        <mat-error *ngIf="offerForm.get('offerBgImageUrl').hasError('urlInvalid')">{{
+                          offerForm.get('offerBgImageUrl').getError('urlInvalid')
+                          }}</mat-error>
+
+                        <mat-error *ngIf="offerForm.get('offerBgImageUrl').hasError('badDims')">{{
+                          offerForm.get('offerBgImageUrl').getError('badDims') }}</mat-error>
+
+                        <mat-error *ngIf="offerForm.get('offerBgImageUrl').hasError('badUrl')">{{
+                          offerForm.get('offerBgImageUrl').getError('badUrl') }}</mat-error>
+                      </mat-form-field>
+                    </div>
+                  </div>
+
+                  <div class="tab-content-block-column-container tab-content-block-last-row">
+                    <!-- DRAG & DROP -->
+                    <div class="tab-content-block-large tab-content-dnd-block-container">
+                      <span class="tab-content-block-label">OR</span>
+                      <app-dnd (dndCompleted)="setBgImgUrl($event)" [imgSrc]="bgImgUrl" [editableDnd]="true"></app-dnd>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="grid-container" *ngIf="isRetention">
+                  <div class="tab-content-block-column-container">
+                    <!-- CLAIM OFFER TERMS -->
+                    <div
+                      class="inter-form-component-container-form-container-form-field-textarea-full inter-form-component-container-form-container-form-field">
+                      <mat-form-field appearance="fill">
+                        <mat-label>CLAIM OFFER TERMS</mat-label>
+                        <textarea
+                          matInput
+                          formControlName="claimOfferTerms"
+                          (focus)="claimOfferTermsCounter.hidden = false"
+                          (blur)="claimOfferTermsCounter.hidden = true"
+                          (paste)="removeNewlines($event, offerForm.controls.claimOfferTerms)"
+                        ></textarea>
+                        <mat-hint #claimOfferTermsCounter class="char-counter" align="end" hidden>
+                          {{ offerForm.get('claimOfferTerms').value.length }} / {{ claimOfferTermsLength }}
+                        </mat-hint>
+                      </mat-form-field>
+                      <mat-error *ngIf="offerForm.get('claimOfferTerms').touched && offerForm.get('claimOfferTerms').hasError('required')"
+                        >Please enter claim offer terms
+                      </mat-error>
+
+                      <mat-error *ngIf="offerForm.get('claimOfferTerms').touched && offerForm.get('claimOfferTerms').hasError('pattern')"
+                        >{{ generalTextFieldPatternErrMsg }}
+                      </mat-error>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- LANGUAGES SELECTION BLOCK -->
+            <div class="tab-content-block-container form-select-white-arrow-button">
+              <div
+                class="select-button-container"
+                [class.select-button-disabled]="
+                  !isRegionsMasterBlockValid() ||
+                  !isLanguagesMasterBlockValid() ||
+                  regionsData.length === 0 ||
+                  isAnyFieldNotUpdated()"
+                >
+                <span>PUSH TO SELECTED</span>
+                <mat-select #languagesSelect class="select-button" disableOptionCentering
+                  panelClass="inter-offer-form-select-list" multiple formControlName="languagesSelectControl"
+                  [disabled]="
+                    !isRegionsMasterBlockValid() ||
+                    !isLanguagesMasterBlockValid() ||
+                    regionsData.length === 0 ||
+                    isAnyFieldNotUpdated()"
+                  >
+                  <div class="custom-panel">
+                    <mat-option value="-" (click)="toggleAllLanguages(); checkAllLanguagesSelected();"
+                      [disabled]="isLanguagesOptionDisabled('-')">
+                      Select All
+                    </mat-option>
+                    <mat-option *ngFor="let languagesOption of languagesOptions" (click)="checkAllLanguagesSelected()"
+                      [value]="languagesOption.code" [disabled]="isLanguagesOptionDisabled(languagesOption.code)">
+                      {{languagesOption.name}}
+                    </mat-option>
+                  </div>
+                  <footer>
+                    <button type="button" class="button-primary select-action-button" (click)="onReset('languages')"
+                      [disabled]="resetButtonDisabled()" [class.button-disabled]="resetButtonDisabled()">RESET</button>
+                    <button type="button" class="button-secondary select-action-button"
+                      (click)="onSubmit('languages')">SUBMIT</button>
+                  </footer>
+                </mat-select>
+              </div>
+            </div>
+
+            <!-- LANGUAGES INFO BLOCK -->
+            <div class="tab-content-block-container">
+
+              <div class="tab-content-inner-block-container">
+                <span class="tab-content-block-title">{{ contentTabLanguagesTitle }}</span>
+                <span class="tab-content-block-description">{{ contentTabLanguagesDescr }}</span>
+              </div>
+
+              <div *ngIf="languagesData.length === 0">
+                <div class="empty-placeholder-container">
+                  <div class="regions-empty-state-container">
+                    <div class="regions-empty-state-icon-container">
+                      <mat-icon [inline]="true">blur_circular</mat-icon>
+                    </div>
+                    <span>{{ contentTabLanguagesPlaceholderText }}</span>
+                  </div>
+                </div>
+              </div>
+
+              <div *ngIf="languagesData.length !== 0">
+                <div class="tab-content-languages-container">
+                  <div *ngFor="let element of languagesData; index as k" [ngClass]="{ 'odd-element': !(k % 2) }"
+                    class="tab-content-languages-item-container">
+                    <div class="language-item-title-container">
+                      <span class="language-item-title">{{ element.name }}</span>
+                      <div class="action-container">
+                        <button *ngIf="!element.editting" class="action-button" type='button'
+                          (click)="editLanguageToggle(element)">
+                          <mat-icon>edit</mat-icon>
+                          <span>Edit</span>
+                        </button>
+                        <button *ngIf="element.editting" class="action-button" type='button'
+                          (click)="editLanguageToggle(element)" [disabled]="isLanguageHasInvalidFields(element.code)">
+                          <mat-icon class="active-edit">edit</mat-icon>
+                          <span>Update</span>
+                        </button>
+                        <!-- <button
+                          class="action-button"
+                          type='button'
+                          (click)="editLanguageToggle(element)"
+                          [disabled]="isLanguagesOptionDisabled(element.code)"
+                          >
+                          <mat-icon *ngIf="!element.editting">edit</mat-icon>
+                          <mat-icon *ngIf="element.editting" class="active-edit">edit</mat-icon>
+                          <span>Edit</span>
+                        </button> -->
+                      </div>
+                    </div>
+
+                    <div class="language-item-content-container"
+                      [ngStyle]="{ 'grid-template-columns': isRetention ? '1fr 1fr 1fr' : '2fr 2fr 3fr' }">
+                      <div class="grid-container">
+                        <div class="tab-content-block-column-container">
+                          <div *ngIf="!element.editting">
+                            <span class="language-item-content-block-label">OFFER HEADER</span>
+                            <span class="language-item-content-block-data"
+                              [ngStyle]="{ 'max-width': isRetention ? '700px' : '295px' }">{{ element.marketingHeadline
+                              }}</span>
+                          </div>
+                          <div *ngIf="element.editting">
+                            <!-- LANGUAGE OFFER HEADER -->
+                            <div
+                              class="inter-form-component-container-form-container-form-field-full inter-form-component-container-form-container-form-field">
+                              <mat-form-field appearance="fill">
+                                <mat-label>OFFER HEADER</mat-label>
+                                <input matInput required maxlength="{{ marketingHeadlineLength }}" autocomplete="off"
+                                  formControlName="{{ element.code + '-marketingHeadline' }}"
+                                  (paste)="removeNewlines($event, offerForm.controls[element.code + '-marketingHeadline'])" />
+                              </mat-form-field>
+                              <mat-error
+                                *ngIf="offerForm.get(element.code + '-marketingHeadline').hasError('required')">Please
+                                enter an offer header
+                              </mat-error>
+                              <mat-error *ngIf="offerForm.get(element.code + '-marketingHeadline').hasError('pattern')">
+                                {{
+                                generalTextFieldPatternErrMsg }}
+                              </mat-error>
+                            </div>
+                          </div>
+                        </div>
+                        <div class="tab-content-block-column-container">
+                          <div *ngIf="!element.editting">
+                            <span class="language-item-content-block-label">OFFER BODY TEXT</span>
+                            <span class="language-item-content-block-data"
+                              [ngStyle]="{ 'max-width': isRetention ? '700px' : '295px' }">{{ element.offerHeadline
+                              }}</span>
+                          </div>
+                          <div *ngIf="element.editting">
+                            <!-- LANGUAGE OFFER BODY TEXT -->
+                            <div
+                              class="inter-form-component-container-form-container-form-field-full inter-form-component-container-form-container-form-field">
+                              <mat-form-field appearance="fill">
+                                <mat-label>OFFER BODY TEXT</mat-label>
+                                <input matInput required maxlength="{{ offerHeadlineLength }}" autocomplete="off"
+                                  formControlName="{{ element.code + '-offerHeadline' }}"
+                                  (paste)="removeNewlines($event, offerForm.controls[element.code + '-offerHeadline'])" />
+                              </mat-form-field>
+                              <mat-error *ngIf="offerForm.get(element.code + '-offerHeadline').hasError('required')">
+                                Please enter an offer body text
+                              </mat-error>
+                              <mat-error *ngIf="offerForm.get(element.code + '-offerHeadline').hasError('pattern')">{{
+                                generalTextFieldPatternErrMsg }}
+                              </mat-error>
+                            </div>
+                          </div>
+                        </div>
+                        <div class="tab-content-block-column-container">
+                          <div *ngIf="!element.editting">
+                            <span class="language-item-content-block-label">OFFER BOLDED TEXT</span>
+                            <span class="language-item-content-block-data"
+                              [ngStyle]="{ 'max-width': isRetention ? '700px' : '295px' }">{{ element.subhead }}</span>
+                          </div>
+                          <div *ngIf="element.editting">
+                            <!-- LANGUAGE OFFER BOLDED TEXT -->
+                            <div
+                              class="inter-form-component-container-form-container-form-field-full inter-form-component-container-form-container-form-field">
+                              <mat-form-field appearance="fill">
+                                <mat-label>OFFER BOLDED TEXT</mat-label>
+                                <input matInput required maxlength="{{ subheadLength }}" autocomplete="off"
+                                  formControlName="{{ element.code + '-subhead' }}"
+                                  (paste)="removeNewlines($event, offerForm.controls[element.code + '-subhead'])" />
+                              </mat-form-field>
+                              <mat-error *ngIf="offerForm.get(element.code + '-subhead').hasError('required')">Please
+                                enter an offer bolded text
+                              </mat-error>
+                              <mat-error *ngIf="offerForm.get(element.code + '-subhead').hasError('pattern')">{{
+                                generalTextFieldPatternErrMsg }}
+                              </mat-error>
+                            </div>
+                          </div>
+                        </div>
+                        <div class="tab-content-block-column-container">
+                          <div *ngIf="!element.editting">
+                            <span class="language-item-content-block-label">OFFER APPLIED BANNER</span>
+                            <span class="language-item-content-block-data"
+                              [ngStyle]="{ 'max-width': isRetention ? '700px' : '295px' }">{{ element.offerAppliedBanner
+                              }}</span>
+                          </div>
+                          <div *ngIf="element.editting">
+                            <!-- LANGUAGE OFFER APPLIED BANNER -->
+                            <div
+                              class="inter-form-component-container-form-container-form-field-full inter-form-component-container-form-container-form-field">
+                              <mat-form-field appearance="fill">
+                                <mat-label>OFFER APPLIED BANNER</mat-label>
+                                <input matInput required maxlength="{{ offerAppliedBannerLength }}" autocomplete="off"
+                                  formControlName="{{ element.code + '-offerAppliedBanner' }}"
+                                  (paste)="removeNewlines($event, offerForm.controls[element.code + '-offerAppliedBanner'])" />
+                              </mat-form-field>
+                              <mat-error
+                                *ngIf="offerForm.get(element.code + '-offerAppliedBanner').hasError('required')">
+                                Please enter an offer applied banner
+                              </mat-error>
+                              <mat-error
+                                *ngIf="offerForm.get(element.code + '-offerAppliedBanner').hasError('pattern')">{{
+                                generalTextFieldPatternErrMsg }}
+                              </mat-error>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="grid-container">
+                        <div class="tab-content-block-column-container">
+                          <div *ngIf="!element.editting">
+                            <span class="language-item-content-block-label">OFFER TERMS</span>
+                            <span class="language-item-content-block-data"
+                              [ngStyle]="{ 'max-width': isRetention ? '700px' : '295px' }">{{ element.offerTerms
+                              }}</span>
+                          </div>
+                          <div *ngIf="element.editting">
+                            <!-- LANGUAGE OFFER TERMS -->
+                            <div
+                              class="inter-form-component-container-form-container-form-field-textarea inter-form-component-container-form-container-form-field">
+                              <mat-form-field appearance="fill">
+                                <mat-label>OFFER TERMS</mat-label>
+                                <textarea matInput required maxlength="{{ offerTermsLength }}"
+                                  formControlName="{{ element.code + '-offerTerms' }}"
+                                  (paste)="removeNewlines($event, offerForm.controls[element.code + '-offerTerms'])"></textarea>
+                              </mat-form-field>
+                              <mat-error *ngIf="offerForm.get(element.code + '-offerTerms').hasError('required')">
+                                Please enter offer terms
+                              </mat-error>
+                              <mat-error *ngIf="offerForm.get(element.code + '-offerTerms').hasError('pattern')">{{
+                                generalTextFieldPatternErrMsg }}
+                              </mat-error>
+                            </div>
+                          </div>
+                        </div>
+                        <div *ngIf="this.hasWelcomeEmailText()" class="tab-content-block-column-container">
+                          <div *ngIf="!element.editting">
+                            <span class="language-item-content-block-label">WELCOME EMAIL TEXT</span>
+                            <span class="language-item-content-block-data"
+                              [ngStyle]="{ 'max-width': isRetention ? '700px' : '295px' }">{{ element.welcomeEmailText
+                              }}</span>
+                          </div>
+                          <div *ngIf="element.editting">
+                            <!-- LANGUAGE WELCOME EMAIL TEXT -->
+                            <div
+                              class="inter-form-component-container-form-container-form-field-textarea inter-form-component-container-form-container-form-field">
+                              <mat-form-field appearance="fill">
+                                <mat-label>WELCOME EMAIL TEXT</mat-label>
+                                <textarea matInput required maxlength="{{ welcomeEmailTextLength }}"
+                                  formControlName="{{ element.code + '-welcomeEmailText' }}"
+                                  (paste)="removeNewlines($event, offerForm.controls[element.code + '-welcomeEmailText'])"></textarea>
+                                <mat-hint #welcomeEmailTextCounter class="char-counter" align="end" hidden>
+                                  {{ offerForm.get(element.code + '-welcomeEmailText').value.length }} / {{
+                                  welcomeEmailTextLength }}
+                                </mat-hint>
+                              </mat-form-field>
+                              <mat-error *ngIf="offerForm.get(element.code + '-welcomeEmailText').hasError('required')">
+                                Please enter welcome email text
+                              </mat-error>
+
+                              <mat-error *ngIf="offerForm.get(element.code + '-welcomeEmailText').hasError('pattern')">
+                                {{ generalTextFieldPatternErrMsg }}
+                              </mat-error>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div class="grid-container" *ngIf="!isRetention">
+                        <div class="tab-content-block-column-container">
+                          <div *ngIf="!element.editting">
+                            <span class="language-item-content-block-label">BACKGROUND IMAGE</span>
+                            <app-dnd (dndCompleted)="setBgImgUrl($event)" [imgSrc]="element.offerBgImageUrl"
+                              [editableDnd]="false"></app-dnd>
+                          </div>
+                          <div *ngIf="element.editting">
+                            <div class="tab-content-block-column-container">
+                              <!-- LANGUAGE BACKGROUND IMAGE -->
+                              <div
+                                class="inter-form-component-container-form-container-form-field-full inter-form-component-container-form-container-form-field">
+                                <mat-form-field appearance="fill">
+                                  <mat-label>BACKGROUND IMAGE</mat-label>
+                                  <input matInput required maxlength="{{ bgImageUrlLength }}" autocomplete="off"
+                                    formControlName="{{ element.code + '-offerBgImageUrl' }}"
+                                    (focus)="offerImageCounter.hidden = false" (blur)="offerImageCounter.hidden = true"
+                                    (paste)="removeNewlines($event, offerForm.controls[element.code + '-offerBgImageUrl'])" />
+                                  <mat-hint #offerImageCounter class="char-counter" align="end" hidden>
+                                    {{ offerForm.get(element.code + '-offerBgImageUrl').value.length }} /
+                                    {{ bgImageUrlLength }}
+                                  </mat-hint>
+                                  <mat-hint *ngIf="offerForm.get(element.code + '-offerBgImageUrl').valid"
+                                    class="mat-hint-validation-success">Background image URL is valid.
+                                  </mat-hint>
+                                  <mat-error
+                                    *ngIf="offerForm.get(element.code + '-offerBgImageUrl').hasError('required')">Please
+                                    enter a background image URL
+                                  </mat-error>
+                                  <mat-error
+                                    *ngIf="offerForm.get(element.code + '-offerBgImageUrl').hasError('httpInvalid')">{{
+                                    offerForm.get(element.code + '-offerBgImageUrl').getError('httpInvalid')
+                                    }}</mat-error>
+                                  <mat-error
+                                    *ngIf="offerForm.get(element.code + '-offerBgImageUrl').hasError('urlInvalid')">{{
+                                    offerForm.get(element.code + '-offerBgImageUrl').getError('urlInvalid')
+                                    }}</mat-error>
+                                  <mat-error
+                                    *ngIf="offerForm.get(element.code + '-offerBgImageUrl').hasError('badDims')">{{
+                                    offerForm.get(element.code + '-offerBgImageUrl').getError('badDims') }}</mat-error>
+                                  <mat-error
+                                    *ngIf="offerForm.get(element.code + '-offerBgImageUrl').hasError('badUrl')">{{
+                                    offerForm.get(element.code + '-offerBgImageUrl').getError('badUrl') }}</mat-error>
+                                </mat-form-field>
+                              </div>
+                            </div>
+                            <div class="tab-content-block-column-container tab-content-block-last-row">
+                              <!-- DRAG & DROP -->
+                              <div class="tab-content-block-large tab-content-dnd-block-container">
+                                <span class="tab-content-block-label">OR</span>
+                                <app-dnd (dndCompleted)="setBgImgUrl($event)" [imgSrc]="element.offerBgImageUrl"
+                                  [editableDnd]="true"></app-dnd>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div class="grid-container" *ngIf="isRetention">
+                        <div class="tab-content-block-column-container">
+                          <div *ngIf="!element.editting">
+                            <span class="language-item-content-block-label">CLAIM OFFER TERMS</span>
+                            <span class="language-item-content-block-data"
+                              [ngStyle]="{ 'max-width': isRetention ? '700px' : '295px' }">{{ element.claimOfferTerms
+                              }}</span>
+                          </div>
+                          <div *ngIf="element.editting">
+                            <!-- LANGUAGE CLAIM OFFER TERMS -->
+                            <div
+                              class="inter-form-component-container-form-container-form-field-textarea-full inter-form-component-container-form-container-form-field">
+                              <mat-form-field appearance="fill">
+                                <mat-label>CLAIM OFFER TERMS</mat-label>
+                                <textarea matInput
+                                  formControlName="{{ element.code + '-claimOfferTerms' }}"
+                                  maxlength="{{ claimOfferTermsLength }}"
+                                  (focus)="claimOfferTermsCounter.hidden = false"
+                                  (blur)="claimOfferTermsCounter.hidden = true"
+                                  (paste)="removeNewlines($event, offerForm.controls[element.code + '-claimOfferTerms'])"
+                                  ></textarea>
+                                  <mat-hint #claimOfferTermsCounter class="char-counter" align="end" hidden>
+                                    {{ offerForm.get(element.code + '-claimOfferTerms').value.length }} / {{ claimOfferTermsLength }}
+                                  </mat-hint>
+                              </mat-form-field>
+                              <mat-error *ngIf="offerForm.get(element.code + '-claimOfferTerms').hasError('required')"
+                                >Please enter claim offer terms
+                              </mat-error>
+
+                              <mat-error *ngIf="offerForm.get(element.code + '-claimOfferTerms').hasError('pattern')"
+                                >{{ generalTextFieldPatternErrMsg }}
+                              </mat-error>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+
+            <!-- REVERT ALL TO DEFAULT BUTTON BLOCK -->
+            <div class="tab-content-block-container" *ngIf="languagesData.length !== 0">
+              <button
+                (click)="revertAllLanguagesToDefault()"
+                class="button-primary"
+                type="button"
+                style="width: 200px"
+                [disabled]="
+                  !offerForm.valid ||
+                  !offerForm.dirty ||
+                  regionsData.length === 0 ||
+                  languagesData.length === 0 ||
+                  isAnyFieldNotUpdated()"
+                [class.button-disabled]="
+                  !offerForm.valid ||
+                  !offerForm.dirty ||
+                  regionsData.length === 0 ||
+                  languagesData.length === 0 ||
+                  isAnyFieldNotUpdated()"
+              >
+                REVERT ALL TO DEFAULT
+              </button>
+              <!-- <button
+                (click)="updateLanguagesData()"
+                class="button-primary"
+                type="button"
+                style="width: 200px"
+                [disabled]="isUpdateRoute"
+                [class.button-disabled]="isUpdateRoute"
+              >
+                REVERT ALL TO DEFAULT
+              </button> -->
+            </div>
+          </div>
+
+        </mat-tab>
+      </mat-tab-group>
+
+      <div class="button-group">
+        <button *ngIf="showSaveBtn()" [disabled]="
+            !offerForm.valid ||
+            !offerForm.dirty ||
+            regionsData.length === 0 ||
+            languagesData.length === 0 ||
+            isAnyRegionOfferCodeInvalid()
+          " [class.button-disabled]="
+            !offerForm.valid ||
+            !offerForm.dirty ||
+            regionsData.length === 0 ||
+            languagesData.length === 0 ||
+            isAnyRegionOfferCodeInvalid() ||
+            isAnyFieldNotUpdated()
+          " (click)="save()" class="button-primary" style="margin-left: 30px" type="button">
+          SAVE
+        </button>
+        <button *ngIf="showUpdateBtn()" [disabled]="
+            !offerForm.valid ||
+            !offerForm.dirty ||
+            regionsData.length === 0 ||
+            languagesData.length === 0 ||
+            isAnyRegionOfferCodeInvalid()
+          " [class.button-disabled]="
+            !offerForm.valid ||
+            !offerForm.dirty ||
+            regionsData.length === 0 ||
+            languagesData.length === 0 ||
+            isAnyRegionOfferCodeInvalid() ||
+            isAnyFieldNotUpdated()
+          " (click)="update()" class="button-secondary" style="margin-left: 30px" type="button">
+          UPDATE
+        </button>
+        <button *ngIf="showCreateBtn()" [disabled]="
+            !offerForm.valid ||
+            !offerForm.dirty ||
+            regionsData.length === 0 ||
+            languagesData.length === 0 ||
+            isAnyRegionOfferCodeInvalid()
+          " [class.button-disabled]="
+            !offerForm.valid ||
+            !offerForm.dirty ||
+            regionsData.length === 0 ||
+            languagesData.length === 0 ||
+            isAnyRegionOfferCodeInvalid() ||
+            isAnyFieldNotUpdated()
+          " (click)="create()" class="button-secondary" style="margin-left: 30px" type="button">
+          CREATE
+        </button>
+        <!-- <button
+          *ngIf="showPublishBtn()"
+          [disabled]="!offerForm.valid || !offerForm.dirty"
+          [class.button-disabled]="!offerForm.valid || !offerForm.dirty"
+          (click)="publish()"
+          class="button-secondary"
+          style="margin-left: 30px"
+          type="button"
+        >
+          PUBLISH
+        </button> -->
+      </div>
+
+    </form>
+  </div>
+</div>

@@ -1,0 +1,633 @@
+<app-header></app-header>
+
+<app-spinner></app-spinner>
+
+<div class="campaigns-component-container">
+  <div
+    *ngIf="selectedTab.value === 0"
+    class="campaigns-filters-container"
+    [ngClass]="
+      showFiltersBlock ? 'filters-block-shown' : 'filters-block-hidden'
+    "
+  >
+    <div
+      class="filter-clear-all-button-container"
+      [ngClass]="
+        showFiltersBlock
+          ? 'filter-clear-all-button-container-shown'
+          : 'filter-clear-all-button-container-hidden'
+      "
+    >
+      <button
+        class="filter-clear-all-button"
+        (click)="clearAllCampaignFilters()"
+        matTooltip="Clear all filters"
+      >
+        <mat-icon class="filter-clear-all-button-icon">clear</mat-icon>
+      </button>
+    </div>
+    <div class="filter-accordion-container">
+      <!-- FILTERS: NAME -->
+      <mat-accordion class="filters-accordion" multi>
+        <mat-expansion-panel style="margin-top: 10px">
+          <mat-expansion-panel-header>
+            <mat-panel-title style="font-weight: bold">
+              {{ campaignsFiltersHeaders[0] }}
+            </mat-panel-title>
+          </mat-expansion-panel-header>
+
+          <div class="filters-accordion-content">
+            <div matInput class="accordion-filter-container">
+              <input
+                matInput
+                #campaignsNameSearchInputRef
+                (keyup)="editFilterValue($event, 'name')"
+                [(ngModel)]="campaignsNameSearchFilter"
+                autocomplete="off"
+                placeholder="Enter Campaign Name"
+              />
+              <i
+                *ngIf="campaignsNameSearchInputRef.value.length == 0"
+                class="material-icons md-dark md-inactive inter-table-component-container-icon"
+                >search</i
+              >
+              <i
+                (click)="
+                  clearSearchInput(
+                    'campaignsNameSearchFilter',
+                    campaignsNameSearchInputRef
+                  )
+                "
+                *ngIf="campaignsNameSearchInputRef.value.length != 0"
+                class="material-icons md-dark md-inactive inter-table-component-container-icon clear-icon"
+                >close</i
+              >
+            </div>
+          </div>
+        </mat-expansion-panel>
+      </mat-accordion>
+      <!-- FILTERS: START DATE -->
+      <mat-accordion class="filters-accordion" multi>
+        <mat-expansion-panel style="margin-top: 10px">
+          <mat-expansion-panel-header>
+            <mat-panel-title style="font-weight: bold">
+              {{ campaignsFiltersHeaders[1] }}
+            </mat-panel-title>
+          </mat-expansion-panel-header>
+
+          <div class="filters-accordion-content">
+            <div matInput class="accordion-filter-container">
+              <input
+                matInput
+                #campaignsStartDateSearchInputRef
+                (keyup)="editFilterValue($event, 'startDate')"
+                [(ngModel)]="campaignsStartDateSearchFilter"
+                autocomplete="off"
+                placeholder="Enter Start Date"
+              />
+              <i
+                *ngIf="campaignsStartDateSearchInputRef.value.length == 0"
+                class="material-icons md-dark md-inactive inter-table-component-container-icon"
+                >search</i
+              >
+              <i
+                (click)="
+                  clearSearchInput(
+                    'campaignsStartDateSearchFilter',
+                    campaignsStartDateSearchInputRef
+                  )
+                "
+                *ngIf="campaignsStartDateSearchInputRef.value.length != 0"
+                class="material-icons md-dark md-inactive inter-table-component-container-icon clear-icon"
+                >close</i
+              >
+            </div>
+          </div>
+        </mat-expansion-panel>
+      </mat-accordion>
+      <!-- FILTERS: END DATE -->
+      <mat-accordion class="filters-accordion" multi>
+        <mat-expansion-panel style="margin-top: 10px">
+          <mat-expansion-panel-header>
+            <mat-panel-title style="font-weight: bold">
+              {{ campaignsFiltersHeaders[2] }}
+            </mat-panel-title>
+          </mat-expansion-panel-header>
+
+          <div class="filters-accordion-content">
+            <div matInput class="accordion-filter-container">
+              <input
+                matInput
+                #campaignsEndDateSearchInputRef
+                (keyup)="editFilterValue($event, 'endDate')"
+                [(ngModel)]="campaignsEndDateSearchFilter"
+                autocomplete="off"
+                placeholder="Enter End Date"
+              />
+              <i
+                *ngIf="campaignsEndDateSearchInputRef.value.length == 0"
+                class="material-icons md-dark md-inactive inter-table-component-container-icon"
+                >search</i
+              >
+              <i
+                (click)="
+                  clearSearchInput(
+                    'campaignsEndDateSearchFilter',
+                    campaignsEndDateSearchInputRef
+                  )
+                "
+                *ngIf="campaignsEndDateSearchInputRef.value.length != 0"
+                class="material-icons md-dark md-inactive inter-table-component-container-icon clear-icon"
+                >close</i
+              >
+            </div>
+          </div>
+        </mat-expansion-panel>
+      </mat-accordion>
+      <!-- FILTERS: STATUS -->
+      <mat-accordion class="filters-accordion" multi>
+        <mat-expansion-panel
+          style="margin-top: 10px"
+          [disabled]="
+            !campaignsStatusCheckboxesValues.length ||
+            campaignsStatusCheckboxesValues.length === 1
+          "
+        >
+          <mat-expansion-panel-header>
+            <mat-panel-title style="font-weight: bold">
+              {{ campaignsFiltersHeaders[3] }}
+            </mat-panel-title>
+          </mat-expansion-panel-header>
+
+          <div class="filters-accordion-content">
+            <div
+              matInput
+              class="accordion-filter-container"
+              *ngFor="let status of campaignsStatusCheckboxesValues"
+            >
+              <mat-checkbox
+                (change)="editFilterValue($event, 'campaignsStatus', status)"
+                [checked]="
+                  isElementChecked(status, campaignsStatusCheckedValues)
+                "
+                >{{ status }}</mat-checkbox
+              >
+            </div>
+          </div>
+        </mat-expansion-panel>
+      </mat-accordion>
+      <!-- FILTERS: SCHEDULED REGIONS -->
+      <mat-accordion class="filters-accordion" multi>
+        <mat-expansion-panel
+          style="margin-top: 10px"
+          [disabled]="
+            !campaignsScheduledRegionsCheckboxesValues.length ||
+            campaignsScheduledRegionsCheckboxesValues.length === 1
+          "
+        >
+          <mat-expansion-panel-header>
+            <mat-panel-title style="font-weight: bold">
+              {{ campaignsFiltersHeaders[4] }}
+            </mat-panel-title>
+          </mat-expansion-panel-header>
+
+          <div class="filters-accordion-content">
+            <div
+              matInput
+              class="accordion-filter-container"
+              *ngFor="let region of campaignsScheduledRegionsCheckboxesValues"
+            >
+              <mat-checkbox
+                (change)="
+                  editFilterValue($event, 'campaignsScheduledRegions', region)
+                "
+                [checked]="
+                  isElementChecked(
+                    region,
+                    campaignsScheduledRegionsCheckedValues
+                  )
+                "
+                >{{ region }}
+              </mat-checkbox>
+            </div>
+          </div>
+        </mat-expansion-panel>
+      </mat-accordion>
+    </div>
+  </div>
+  <div
+    *ngIf="selectedTab.value === 1"
+    class="campaigns-filters-container"
+    [ngClass]="
+      showFiltersBlock ? 'filters-block-shown' : 'filters-block-hidden'
+    "
+  >
+    <div
+      class="filter-clear-all-button-container"
+      [ngClass]="
+        showFiltersBlock
+          ? 'filter-clear-all-button-container-shown'
+          : 'filter-clear-all-button-container-hidden'
+      "
+    >
+      <button
+        class="filter-clear-all-button"
+        (click)="clearAllCampaignHistoryFilters()"
+        matTooltip="Clear all filters"
+      >
+        <mat-icon class="filter-clear-all-button-icon">clear</mat-icon>
+      </button>
+    </div>
+    <div class="filter-accordion-container">
+      <!-- FILTERS: NAME -->
+      <mat-accordion class="filters-accordion" multi>
+        <mat-expansion-panel style="margin-top: 10px">
+          <mat-expansion-panel-header>
+            <mat-panel-title style="font-weight: bold">
+              {{ campaignsHistoryFiltersHeaders[0] }}
+            </mat-panel-title>
+          </mat-expansion-panel-header>
+
+          <div class="filters-accordion-content">
+            <div matInput class="accordion-filter-container">
+              <input
+                matInput
+                #campaignsHistoryNameSearchInputRef
+                (keyup)="editFilterValue($event, 'name')"
+                [(ngModel)]="campaignsHistoryNameSearchFilter"
+                autocomplete="off"
+                placeholder="Enter Campaign Name"
+              />
+              <i
+                *ngIf="campaignsHistoryNameSearchInputRef.value.length == 0"
+                class="material-icons md-dark md-inactive inter-table-component-container-icon"
+                >search</i
+              >
+              <i
+                (click)="
+                  clearSearchInput(
+                    'campaignsHistoryNameSearchFilter',
+                    campaignsHistoryNameSearchInputRef
+                  )
+                "
+                *ngIf="campaignsHistoryNameSearchInputRef.value.length != 0"
+                class="material-icons md-dark md-inactive inter-table-component-container-icon clear-icon"
+                >close</i
+              >
+            </div>
+          </div>
+        </mat-expansion-panel>
+      </mat-accordion>
+      <!-- FILTERS: SCHEDULED REGIONS -->
+      <mat-accordion class="filters-accordion" multi>
+        <mat-expansion-panel
+          style="margin-top: 10px"
+          [disabled]="
+            !campaignsHistoryScheduledRegionsCheckboxesValues.length ||
+            campaignsHistoryScheduledRegionsCheckboxesValues.length === 1
+          "
+        >
+          <mat-expansion-panel-header>
+            <mat-panel-title style="font-weight: bold">
+              {{ campaignsHistoryFiltersHeaders[1] }}
+            </mat-panel-title>
+          </mat-expansion-panel-header>
+
+          <div class="filters-accordion-content">
+            <div
+              matInput
+              class="accordion-filter-container"
+              *ngFor="
+                let region of campaignsHistoryScheduledRegionsCheckboxesValues
+              "
+            >
+              <mat-checkbox
+                (change)="
+                  editFilterValue(
+                    $event,
+                    'campaignsHistoryScheduledRegions',
+                    region
+                  )
+                "
+                [checked]="
+                  isElementChecked(
+                    region,
+                    campaignsHistoryScheduledRegionsCheckedValues
+                  )
+                "
+                >{{ region }}
+              </mat-checkbox>
+            </div>
+          </div>
+        </mat-expansion-panel>
+      </mat-accordion>
+      <!-- FILTERS: START DATE -->
+      <mat-accordion class="filters-accordion" multi>
+        <mat-expansion-panel style="margin-top: 10px">
+          <mat-expansion-panel-header>
+            <mat-panel-title style="font-weight: bold">
+              {{ campaignsHistoryFiltersHeaders[2] }}
+            </mat-panel-title>
+          </mat-expansion-panel-header>
+
+          <div class="filters-accordion-content">
+            <div matInput class="accordion-filter-container">
+              <input
+                matInput
+                #campaignsHistoryStartDateSearchInputRef
+                (keyup)="editFilterValue($event, 'startDate')"
+                [(ngModel)]="campaignsHistoryStartDateSearchFilter"
+                autocomplete="off"
+                placeholder="Enter Start Date"
+              />
+              <i
+                *ngIf="
+                  campaignsHistoryStartDateSearchInputRef.value.length == 0
+                "
+                class="material-icons md-dark md-inactive inter-table-component-container-icon"
+                >search</i
+              >
+              <i
+                (click)="
+                  clearSearchInput(
+                    'campaignsHistoryStartDateSearchFilter',
+                    campaignsHistoryStartDateSearchInputRef
+                  )
+                "
+                *ngIf="
+                  campaignsHistoryStartDateSearchInputRef.value.length != 0
+                "
+                class="material-icons md-dark md-inactive inter-table-component-container-icon clear-icon"
+                >close</i
+              >
+            </div>
+          </div>
+        </mat-expansion-panel>
+      </mat-accordion>
+      <!-- FILTERS: END DATE -->
+      <mat-accordion class="filters-accordion" multi>
+        <mat-expansion-panel style="margin-top: 10px">
+          <mat-expansion-panel-header>
+            <mat-panel-title style="font-weight: bold">
+              {{ campaignsHistoryFiltersHeaders[3] }}
+            </mat-panel-title>
+          </mat-expansion-panel-header>
+
+          <div class="filters-accordion-content">
+            <div matInput class="accordion-filter-container">
+              <input
+                matInput
+                #campaignsHistoryEndDateSearchInputRef
+                (keyup)="editFilterValue($event, 'endDate')"
+                [(ngModel)]="campaignsHistoryEndDateSearchFilter"
+                autocomplete="off"
+                placeholder="Enter End Date"
+              />
+              <i
+                *ngIf="campaignsHistoryEndDateSearchInputRef.value.length == 0"
+                class="material-icons md-dark md-inactive inter-table-component-container-icon"
+                >search</i
+              >
+              <i
+                (click)="
+                  clearSearchInput(
+                    'campaignsHistoryEndDateSearchFilter',
+                    campaignsHistoryEndDateSearchInputRef
+                  )
+                "
+                *ngIf="campaignsHistoryEndDateSearchInputRef.value.length != 0"
+                class="material-icons md-dark md-inactive inter-table-component-container-icon clear-icon"
+                >close</i
+              >
+            </div>
+          </div>
+        </mat-expansion-panel>
+      </mat-accordion>
+    </div>
+  </div>
+
+  <div class="campaigns-tab-group-container">
+    <mat-tab-group
+      [selectedIndex]="selectedTab.value"
+      (selectedIndexChange)="changeTab($event)"
+    >
+      <!-- CAMPAIGNS TAB -->
+      <mat-tab label="CAMPAIGNS">
+        <div class="campaigns-grid-container">
+          <div class="campaigns-buttons-container">
+            <button class="button-primary" (click)="toggleFiltersBlock()">
+              FILTERS
+            </button>
+            <button class="button-primary" (click)="createNewCampaign()">
+              CREATE NEW CAMPAIGN
+            </button>
+          </div>
+          <div class="campaigns-table-container">
+            <table
+              [dataSource]="campaignsData"
+              class="mat-elevation-z8"
+              mat-table
+              matSort
+              #campaignsTable
+            >
+              <ng-container
+                *ngFor="let column of campaignsDataKeys; index as i"
+                [matColumnDef]="column"
+              >
+                <th
+                  class="table-header-row"
+                  *matHeaderCellDef
+                  mat-header-cell
+                  mat-sort-header
+                  [disabled]="campaignsTableHeaders[i] === ''"
+                >
+                  {{ campaignsTableHeaders[i] }}
+                </th>
+                <td
+                  *matCellDef="let element; index as j"
+                  [ngSwitch]="column"
+                  mat-cell
+                >
+                  <div
+                    *ngSwitchCase="'name'"
+                    [ngClass]="{ 'default-module': element.isDefault }"
+                  >
+                    <a href="{{ getEditHRef(element) }}">{{
+                      element[column]
+                    }}</a>
+                  </div>
+                  <div *ngSwitchCase="'startDate'">
+                    {{ element[column] }}
+                  </div>
+                  <div *ngSwitchCase="'endDate'">
+                    {{ element[column] }}
+                  </div>
+                  <div *ngSwitchCase="'statusTitle'">
+                    <p>{{ element[column] }}{{ element.environments }}</p>
+                    <p>{{ element.endedOn ? element.endedOn : '' }}</p>
+                  </div>
+                  <div *ngSwitchCase="'scheduledRegions'">
+                    {{ element[column] }}
+                  </div>
+                  <div *ngSwitchCase="'actions'">
+                    <button
+                      class="table-menu-action-button"
+                      mat-icon-button
+                      [matMenuTriggerFor]="menu"
+                    >
+                      <mat-icon>more_horiz</mat-icon>
+                    </button>
+                    <mat-menu #menu="matMenu">
+                      <button
+                        mat-menu-item
+                        (click)="menuAction('DUPLICATE', element)"
+                      >
+                        <span>Duplicate</span>
+                      </button>
+                      <button
+                        mat-menu-item
+                        (click)="menuAction('DEFAULT', element)"
+                        *ngIf="canSetDefaultModule(element)"
+                      >
+                        <span>Set as Default</span>
+                      </button>
+                      <button
+                        mat-menu-item
+                        (click)="menuAction('VIEW', element)"
+                        *ngIf="canEditModule(element)"
+                      >
+                        <span>Edit</span>
+                      </button>
+                      <button
+                        mat-menu-item
+                        (click)="menuAction('PUBLISH', element)"
+                        *ngIf="canPublishModule(element)"
+                      >
+                        <span>Publish</span>
+                      </button>
+                      <button
+                        mat-menu-item
+                        (click)="menuAction('DELETE', element)"
+                        *ngIf="canDeleteModule(element)"
+                      >
+                        <span>Delete</span>
+                      </button>
+                    </mat-menu>
+                  </div>
+                </td>
+              </ng-container>
+              <tr
+                *matHeaderRowDef="campaignsDataKeys; sticky: true"
+                mat-header-row
+              ></tr>
+              <tr *matRowDef="let row; columns: campaignsDataKeys" mat-row></tr>
+            </table>
+            <mat-paginator
+              #campaignsListViewPaginator
+              (page)="setPageSize($event, 'Campaign')"
+              [pageSize]="getPageSize('Campaign')"
+              [pageSizeOptions]="getPageSizeOptions()"
+              showFirstLastButtons
+            ></mat-paginator>
+          </div>
+        </div>
+      </mat-tab>
+
+      <!-- HISTORY TAB -->
+      <mat-tab label="HISTORY">
+        <div class="campaigns-grid-container">
+          <div class="campaigns-buttons-container">
+            <button class="button-primary" (click)="toggleFiltersBlock()">
+              FILTERS
+            </button>
+          </div>
+          <div class="campaigns-table-container">
+            <table
+              [dataSource]="campaignsHistoryData"
+              class="mat-elevation-z8"
+              mat-table
+              matSort
+              #campaignsHistoryTable
+            >
+              <ng-container
+                *ngFor="let column of campaignsHistoryDataKeys; index as i"
+                [matColumnDef]="column"
+              >
+                <th
+                  class="table-header-row"
+                  *matHeaderCellDef
+                  mat-header-cell
+                  mat-sort-header
+                  [disabled]="campaignsHistoryTableHeaders[i] === ''"
+                >
+                  {{ campaignsHistoryTableHeaders[i] }}
+                </th>
+                <td
+                  *matCellDef="let element; index as j"
+                  [ngSwitch]="column"
+                  mat-cell
+                >
+                  <div
+                    *ngSwitchCase="'name'"
+                    [ngClass]="{ 'default-module': element.isDefault }"
+                  >
+                    <a href="{{ getEditHRef(element) }}">{{
+                      element[column]
+                    }}</a>
+                  </div>
+                  <div *ngSwitchCase="'scheduledRegions'">
+                    {{ element[column] }}
+                  </div>
+                  <div *ngSwitchCase="'startDate'">
+                    {{ element[column] }}
+                  </div>
+                  <div *ngSwitchCase="'endDate'">
+                    {{ element[column] }}
+                  </div>
+                  <div *ngSwitchCase="'actions'">
+                    <button
+                      class="table-menu-action-button"
+                      mat-icon-button
+                      [matMenuTriggerFor]="menu"
+                    >
+                      <mat-icon>more_horiz</mat-icon>
+                    </button>
+                    <mat-menu #menu="matMenu">
+                      <button
+                        mat-menu-item
+                        (click)="menuAction('DUPLICATE', element)"
+                      >
+                        <span>Duplicate</span>
+                      </button>
+                      <button
+                        mat-menu-item
+                        (click)="menuAction('VIEW', element)"
+                      >
+                        <span>View</span>
+                      </button>
+                    </mat-menu>
+                  </div>
+                </td>
+              </ng-container>
+              <tr
+                *matHeaderRowDef="campaignsHistoryDataKeys; sticky: true"
+                mat-header-row
+              ></tr>
+              <tr
+                *matRowDef="let row; columns: campaignsHistoryDataKeys"
+                mat-row
+              ></tr>
+            </table>
+            <mat-paginator
+              #campaignsHistoryListViewPaginator
+              (page)="setPageSize($event, 'CampaignHistory')"
+              [pageSize]="getPageSize('CampaignHistory')"
+              [pageSizeOptions]="getPageSizeOptions()"
+              showFirstLastButtons
+            ></mat-paginator>
+          </div>
+        </div>
+      </mat-tab>
+    </mat-tab-group>
+  </div>
+</div>

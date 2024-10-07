@@ -1,0 +1,198 @@
+@import '../../../../../base/_variables.scss';
+@import '../../../../../base/_mixin.scss';
+
+@include custom-scrollbar();
+@include hyperlink();
+
+.default-copy:after {
+  content: '*';
+}
+
+.filters-block-hidden,
+.filters-block-shown {
+  transition: all 0.3s ease-in-out;
+}
+
+.filters-block-shown {
+  width: 400px;
+}
+
+.filters-block-hidden {
+  width: 0;
+}
+
+.app-copy-component-container {
+  display: flex;
+
+  .app-copy-filters-container {
+    background: #2f2f2f;
+    overflow-y: auto;
+    height: calc(100vh - 72px);
+
+    .filter-accordion-container {
+      margin: 10px;
+
+      .filters-accordion-content {
+        max-height: 200px;
+        min-height: 0;
+        overflow-y: auto;
+
+        .accordion-filter-container {
+          display: flex;
+          align-items: center;
+          justify-content: flex-start;
+
+          label {
+            padding: 10px 0 10px 16px;
+          }
+
+          input {
+            margin-top: 5px;
+            border: solid 1px grey;
+            padding-left: 5px;
+            width: 100%;
+          }
+
+          i.material-icons {
+            cursor: pointer;
+          }
+        }
+      }
+    }
+  }
+
+  .app-copy-container {
+    width: 100%;
+    margin: 28px 40px;
+    position: relative;
+
+    .filter-clear-all-button-container {
+      position: absolute;
+      top: -28px;
+      z-index: 0;
+      &-hidden {
+        left: -80px;
+      }
+      &-shown {
+        left: -40px;
+      }
+      &-hidden,
+      &-shown {
+        transition: all 0.3s ease-in-out;
+      }
+      .filter-clear-all-button {
+        cursor: pointer;
+        border-radius: 5px;
+        .filter-clear-all-button-icon {
+          display: block;
+        }
+      }
+    }
+
+    .app-copy-buttons-container {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .app-copy-table-container {
+      height: calc(100vh - 320px);
+      overflow: auto;
+      margin-top: 20px;
+
+      .promote-module-icon-container {
+        position: relative;
+        margin-left: 3px;
+        .module-icon {
+          position: absolute;
+          top: -3px;
+          width: 20px;
+          height: 20px;
+          font-size: 20px;
+        }
+        .icon-background {
+          position: absolute;
+          top: 0;
+          left: 3px;
+          background: #000;
+          width: 14px;
+          height: 14px;
+          border-radius: 50%;
+        }
+        .promoted {
+          color: #0b0;
+        }
+        .need-promote {
+          color: #f60;
+          cursor: pointer;
+        }
+        .changes {
+          color: #f60;
+          cursor: pointer;
+        }
+        .disabled {
+          color: #888;
+        }
+        .deleted {
+          width: 22px;
+          color: #ff0;
+          background: #000;
+          clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
+          padding-left: 2px;
+        }
+      }
+
+      .env-checkbox {
+        display: flex;
+        flex-direction: column;
+        mat-checkbox {
+          label {
+            padding: 10px 0;
+          }
+        }
+      }
+
+      .table-header-row {
+        font-weight: bold;
+        color: #000;
+        font-size: 1em;
+        .table-header-flex-row {
+          display: flex;
+          flex-direction: column;
+        }
+      }
+
+      td.mat-column-copyPackageName {
+        white-space: nowrap;
+      }
+
+      td.mat-column-supportedRegions {
+        max-width: calc(100vw - 1400px);
+
+        .ellipsis-container {
+          overflow: hidden;
+          white-space: nowrap;
+          text-overflow: ellipsis;
+        }
+      }
+
+      tr.mat-row:hover,
+      tr.mat-footer-row:hover {
+        background: inherit;
+        cursor: default;
+      }
+
+      .table-menu-action-button {
+        background: none;
+        border: none;
+        cursor: pointer;
+      }
+
+      mat-paginator {
+        position: sticky;
+        bottom: 0;
+        z-index: 10;
+      }
+    }
+  }
+}

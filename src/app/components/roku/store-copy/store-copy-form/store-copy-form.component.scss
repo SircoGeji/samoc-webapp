@@ -1,0 +1,139 @@
+@import '../../../../../base/_variables.scss';
+@import '../../../../../base/_mixin.scss';
+
+@include custom-scrollbar();
+
+$grey: rgb(120,120,120);
+
+.store-copy-styles-container {
+  * {
+    box-sizing: border-box;
+  }
+  @include region-button();
+  @include mat-container();
+
+  .form-header {
+    position: relative;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    margin: 40px 20px 60px 20px;
+  }
+
+  .back-arrow {
+    position: relative;
+    left: 15px;
+  }
+
+  .publish-button {
+    position: absolute;
+    top: 60px;
+    right: 0;
+  }
+
+  .save-button {
+    position: absolute;
+    right: 0;
+  }
+
+  .clear-button {
+    position: absolute;
+    right: 180px;
+  }
+
+  .arrow-drop-down {
+    position: absolute;
+    top: 5px;
+    right: 8px;
+  }
+
+  .button-disabled {
+    cursor: not-allowed;
+  }
+
+  .store-copy-mat-container {
+    position: absolute;
+    left: 100px;
+    max-width: 330px;
+  }
+
+  .store-copy-form-container {
+    margin: 80px 23px 0 50px;
+  }
+
+  .switch-container {
+    position: relative;
+    border: solid $grey 1px;
+    padding: 70px 0 0 0;
+    overflow: auto;
+    max-height: calc(100vh - 300px);
+  }
+
+  .store-name {
+    position: absolute;
+    left: 15px;
+    top: -10px;
+    font-weight: 100;
+    color: $grey;
+    font-size: 25px;
+    font-style: normal;
+    font-stretch: normal;
+    letter-spacing: 0.72px;
+  }
+
+  .copy-paste-buttons-container {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    display: flex;
+    gap: 25px;
+  }
+
+  .copy-button, .paste-button {
+    width: 110px;
+    height: 32px;
+    font-size: 16px;
+    border-radius: 5px;
+    background-color: rgb(80,80,80);
+    color: white;
+    cursor: pointer;
+    border: none;
+  }
+
+  .store-copy-boolean-container {
+    .mat-checkbox-frame {
+      border-color: gray;
+    }
+  }
+
+  .store-copy-text-area {
+    display: block;
+    background-color: rgb(48,48,48);
+
+    .mat-form-field-flex {
+      padding-top: 2px;
+      padding-left: 6px;
+    }
+
+    mat-label {
+      color: $label-grey;
+      font-size: 20px;
+    }
+    textarea {
+      margin-left: 12px;
+      margin-top: 10px;
+      width: calc(100% - 10px);
+    }
+    .mat-form-field-subscript-wrapper {
+      margin-top: 4px;
+    }
+    mat-hint {
+      font-size: 14px;
+      color: lightcoral;
+    }
+  }
+
+  .store-copy-number-input {
+    margin: 10px 0 0 12px;
+  }
+}

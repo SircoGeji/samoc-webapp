@@ -1,0 +1,200 @@
+<app-header></app-header>
+
+<app-spinner></app-spinner>
+
+<div class="selector-config-form-styles-container"
+     [formGroup]="formGroup"
+     *ngIf="isFormVisible">
+  <header class="selector-config-form-header">
+  <span (click)="navigateBack()"
+        class="backbtn back-arrow material-icons md-light md-36">
+    keyboard_arrow_left
+  </span>
+    <div class="mat-container selector-config-title">
+      <mat-form-field  appearance="fill">
+        <mat-label>Selector Config Name*</mat-label>
+        <input
+          matInput type="text"
+          placeholder="Add text"
+          autocomplete="off"
+          formControlName="selectorConfigName">
+      </mat-form-field>
+      <div
+        class="error-container"
+        *ngIf="!formGroup.controls.selectorConfigName.valid">
+        {{
+        getSelectorConfigNameErrorMessage()
+        }}
+      </div>
+    </div>
+    <button
+      class="save-button button-secondary"
+      [matMenuTriggerFor]="saveMenu"
+      [ngClass]="{'button-disabled': isOuterSaveButtonDisabled()}"
+      [disabled]="isOuterSaveButtonDisabled()">
+      {{
+      pageQuery==='view' ? 'UPDATE' : 'SAVE'
+      }}
+      <mat-icon class="arrow-drop-down">arrow_drop_down</mat-icon>
+    </button>
+    <mat-menu #saveMenu="matMenu">
+      <button
+        mat-menu-item
+        (click)="saveAll()"
+        [disabled]="isSaveAllButtonDisabled()"
+        [ngClass]="{'button-disabled': isSaveAllButtonDisabled()}">
+        {{
+        pageQuery==='view' ? 'UPDATE ALL' : 'SAVE ALL'
+        }}
+      </button>
+      <button
+        mat-menu-item
+        *ngIf="pageQuery==='view'"
+        (click)="updateRegion()"
+        [disabled]="isUpdateSelectedRegionButtonDisabled()"
+        [ngClass]="{'button-disabled': isUpdateSelectedRegionButtonDisabled()}">
+        {{
+        pageQuery==='view' ? 'UPDATE SELECTED REGION' : 'SAVE SELECTED REGION'
+        }}
+      </button>
+    </mat-menu>
+    <button
+      class="clear-button button-primary"
+      [matMenuTriggerFor]="clearMenu"
+      [disabled]="isClearAllDisabled()"
+      [ngClass]="{'button-disabled': isClearAllDisabled()}">
+      CLEAR
+      <mat-icon class="arrow-drop-down">arrow_drop_down</mat-icon>
+    </button>
+    <mat-menu #clearMenu="matMenu">
+      <button
+        mat-menu-item
+        (click)="clearAll()">
+        CLEAR ALL
+      </button>
+      <button
+        mat-menu-item
+        (click)="clearRegion()"
+        [disabled]="isClearRegionDisabled()"
+        [ngClass]="{'button-disabled': isClearRegionDisabled()}">
+        CLEAR SELECTED REGION
+      </button>
+    </mat-menu>
+    <button
+      *ngIf="showPublishButton()"
+      (click)="publish()"
+      class="publish-button button-primary"
+      [ngClass]="{'button-disabled': isPublishButtonDisabled()}"
+      [disabled]="isPublishButtonDisabled()">
+      PUBLISH
+    </button>
+  </header>
+  <div class="selector-config-form-container">
+  <div class="region-buttons-container">
+    <div
+      class="region-button"
+      *ngFor="let region of regionsLanguagesBinding; let i = index"
+      (click)="regionButtonClick(i)"
+      [ngClass]="getClassArray(region, i)">
+      {{ region.code }}
+    </div>
+  </div>
+    <div
+      formGroupName="regions"
+      class="switch-container"
+      [ngSwitch]="regionPosition">
+      <ng-template
+        *ngFor="let region of regionsLanguagesBinding; let i = index"
+        [ngSwitchCase]="i"
+        [formGroupName]="region['code']">
+       <div
+         *ngIf="regionHasSkus(region); else noSKUs"
+         class="table-container">
+         <div class="table-header">
+           <div class="table-header-field">
+             ORDER
+           </div>
+           <div class="table-header-field">
+             SKU NAME
+           </div>
+           <div class="table-header-field">
+             PRICE
+           </div>
+           <div class="table-header-field">
+             SHOW IN SELECTOR
+           </div>
+           <div class="table-header-field">
+             DEFAULT
+           </div>
+           <div class="table-header-field">
+             DEFAULT IN SELECTOR
+           </div>
+           <div class="table-header-field">
+             SHOW SETTINGS
+           </div>
+         </div>
+         <div class="rows-container"
+              cdkDropList
+              (cdkDropListDropped)="drop($event, region.code)">
+           <div
+             class="selector-config-form-table-row"
+             *ngFor="let sku of rowsOrderObject[region.code]"
+             [formGroupName]="sku">
+             <div class="selector-config-form-cell-container">
+               <mat-icon cdkDrag class="order-icon"> format_line_spacing</mat-icon>
+             </div>
+             <div class="selector-config-form-cell-container"
+                  [ngClass]="{'red-color': getSkuBySkuId(sku)['status'] === 'draft'}">
+               {{ getSkuBySkuId(sku).name }}
+             </div>
+             <div class="selector-config-form-cell-container">
+               <input
+                 class="selector-config-form-custom-input"
+                 (change)="changeRegionStatus()"
+                 type="text"
+                 formControlName="price">
+             </div>
+             <div class="selector-config-form-cell-container">
+               <input
+                 class="selector-config-form-custom-checkbox"
+                 (change)="changeRegionStatus()"
+                 type="checkbox"
+                 formControlName="showInSelector">
+             </div>
+             <div class="selector-config-form-cell-container">
+               <input
+                 class="selector-config-form-custom-checkbox"
+                 (change)="changeRegionStatus();
+                 disableColumn(region.code,'isDefault')"
+                 type="checkbox"
+                 formControlName="isDefault">
+             </div>
+             <div class="selector-config-form-cell-container">
+               <input
+                 class="selector-config-form-custom-checkbox"
+                 (change)="changeRegionStatus();
+                 disableColumn(region.code,'defaultInSelector')"
+                 type="checkbox"
+                 formControlName="defaultInSelector">
+             </div>
+             <div class="selector-config-form-cell-container">
+               <input
+                 class="selector-config-form-custom-checkbox"
+                 (change)="changeRegionStatus()"
+                 type="checkbox"
+                 formControlName="showInSettings">
+             </div>
+           </div>
+         </div>
+       </div>
+        <ng-template #noSKUs>
+         <p class="no-SKUs">
+           {{
+           'No SKUs available for ' +  region.code + ' region'
+           }}
+         </p>
+        </ng-template>
+      </ng-template>
+    </div>
+</div>
+</div>

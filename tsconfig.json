@@ -1,0 +1,37 @@
+{
+  "compileOnSave": false,
+  "compilerOptions": {
+    "baseUrl": "./",
+    "outDir": "./dist/out-tsc",
+    "sourceMap": true,
+    "declaration": false,
+    "downlevelIteration": true,
+    "experimentalDecorators": true,
+    "module": "esnext",
+    "moduleResolution": "node",
+    "importHelpers": true,
+    "target": "es2015",
+    "resolveJsonModule": true,
+    "lib": [
+      "es2018",
+      "dom",
+      "esnext.bigint"
+    ],
+    "types": [
+      "cypress",
+      "cypress-wait-until",
+      "cypress-real-events",
+      "cypress-xpath",
+      "node"
+    ]
+  },
+  "include": [
+    "node_modules/cypress",
+    "cypress/**/*.ts",
+  ],
+  "angularCompilerOptions": {
+    "fullTemplateTypeCheck": true,
+    "strictInjectionParameters": true,
+    "resolveJsonModule": true,
+  }
+}

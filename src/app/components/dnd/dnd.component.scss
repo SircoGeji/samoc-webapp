@@ -1,0 +1,68 @@
+@import '../../../base/_variables.scss';
+
+.dnd-container {
+  display: table;
+  height: 190px;
+
+  &-text-wrapper {
+    display: table-cell;
+    vertical-align: middle;
+
+    &-centered {
+      font-weight: bold;
+      font-size: 1.3em;
+      font-family: sans-serif;
+      text-align: center;
+    }
+
+    &-file-list > ul {
+      width: 100%;
+      list-style: none;
+    }
+
+    &-file-list > ul > li::before {
+      color: $red;
+      content: '-';
+    }
+
+    &-file-list > ul > li {
+      padding-bottom: 5px;
+      padding-left: 10px;
+    }
+  }
+
+  .nested-container {
+    position: relative;
+    height: 100%;
+    text-align: center;
+
+    .dnd-preview {
+      width: 100%;
+      max-height: 190px;
+    }
+
+    .dnd-placeholder-text {
+      position: absolute;
+      bottom: 2.5rem;
+      left: 50%;
+      width: 100%;
+      font-weight: bold;
+      font-size: 1em;
+      font-family: sans-serif;
+      text-align: center;
+      transform: translate(-50%, -50%);
+    }
+
+    .dnd-placeholder-hint-text {
+      position: absolute;
+      bottom: 2em;
+      left: 50%;
+      width: 100%;
+      font-weight: normal;
+      font-size: 10px;
+      font-family: sans-serif;
+      text-align: center;
+      transform: translate(-50%, -50%);
+    }
+  }
+}

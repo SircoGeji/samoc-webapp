@@ -1,0 +1,356 @@
+<div class="plan-adjustment-wrapper" cdkDropListGroup>
+  <div class="left-column">
+    <div *ngIf="isDefault">
+      <p class="default-rule">Default</p>
+    </div>
+
+    <div *ngIf="!isDefault" class="rule-form-fields">
+      <div class="rule-form-field-container">
+        <mat-form-field appearance="fill" class="rule-form-field">
+          <mat-label>Rule name</mat-label>
+          <input
+            matInput
+            [disabled]="!canChangeRules()"
+            type="text"
+            [(ngModel)]="name"
+            (change)="updateRule()"
+          />
+        </mat-form-field>
+      </div>
+
+      <div class="rule-form-field-container">
+        <mat-form-field
+          appearance="fill"
+          class="rule-form-field"
+          matTooltip='Select "--" if you want rule to ignore this field'
+          matTooltipPosition="right"
+        >
+          <mat-label>Plan Term</mat-label>
+          <mat-select
+            [disabled]="!canChangeRules()"
+            [(ngModel)]="term"
+            (selectionChange)="updateRule()"
+          >
+            <mat-option
+              *ngFor="
+                let term of [
+                  [0, '--'],
+                  [1, '1 mo'],
+                  [3, '3 mo'],
+                  [6, '6 mo'],
+                  [12, '12 mo']
+                ]
+              "
+              [value]="term[0]"
+            >
+              {{ term[1] }}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+      </div>
+
+      <div class="rule-form-field-container">
+        <mat-form-field
+          appearance="fill"
+          class="rule-form-field"
+          matTooltip='Select "--" if you want rule to ignore this field'
+          matTooltipPosition="right"
+        >
+          <mat-label>Free Trial</mat-label>
+          <mat-select
+            [disabled]="!canChangeRules()"
+            [(ngModel)]="isFreeTrial"
+            (selectionChange)="updateRule()"
+          >
+            <mat-option
+              *ngFor="
+                let ft of [
+                  ['', '--'],
+                  [true, 'Yes'],
+                  [false, 'No']
+                ]
+              "
+              [value]="ft[0]"
+            >
+              {{ ft[1] }}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+        <span
+          class="material-icons rule-info-container"
+          (click)="openInfoModal('freeTrialInfo', $event)"
+        >
+          info
+        </span>
+      </div>
+
+      <div class="rule-form-field-container">
+        <mat-form-field appearance="fill" class="rule-form-field">
+          <mat-label>Active Offers</mat-label>
+          <textarea
+            [disabled]="!canChangeRules()"
+            matInput
+            cdkTextareaAutosize
+            #autosize="cdkTextareaAutosize"
+            cdkAutosizeMinRows="2"
+            cdkAutosizeMaxRows="8"
+            [(ngModel)]="activeOffers"
+            (change)="updateRule()"
+          ></textarea>
+        </mat-form-field>
+        <span
+          class="material-icons rule-info-container"
+          (click)="openInfoModal('activeOffersInfo', $event)"
+        >
+          info
+        </span>
+      </div>
+
+      <div class="rule-form-field-container">
+        <mat-form-field appearance="fill" class="rule-form-field">
+          <mat-label>Inactive Offers</mat-label>
+          <textarea
+            [disabled]="!canChangeRules()"
+            matInput
+            cdkTextareaAutosize
+            #autosize="cdkTextareaAutosize"
+            cdkAutosizeMinRows="2"
+            cdkAutosizeMaxRows="8"
+            [(ngModel)]="inactiveOffers"
+            (change)="updateRule()"
+          ></textarea>
+        </mat-form-field>
+        <span
+          class="material-icons rule-info-container"
+          (click)="openInfoModal('inactiveOffersInfo', $event)"
+        >
+          info
+        </span>
+      </div>
+    </div>
+  </div>
+
+  <div class="center-column">
+    <div class="rule-offers-list">
+      <div class="search">
+        <input
+          type="text"
+          aria-describedby="search-text"
+          placeholder="Enter offer code to search"
+          [(ngModel)]="searchText"
+        />
+        <mat-icon *ngIf="searchText" (click)="resetSearch()">clear</mat-icon>
+      </div>
+
+      <div class="grid-row-main">
+        <span>Offers</span>
+        <span class="align-center"></span>
+      </div>
+      <div
+        class="all-offers-list scrollable-center-list"
+        cdkDropList
+        cdkDropListSortingDisabled
+        id="all-offers-list"
+        [cdkDropListData]="allOffers | offersFilter: searchText"
+      >
+        <div
+          *ngFor="
+            let offer of allOffers | offersFilter: searchText;
+            let i = index
+          "
+          class="grid-row-main all-offers-element"
+          [ngClass]="{ 'odd-element': !(i % 2) }"
+          cdkDrag
+          [cdkDragDisabled]="
+            !canChangeRules() || offer.couponState === 'expired'
+          "
+        >
+          <div
+            class="rule-offer-container"
+            matTooltip="{{ getTooltipText(offer) }}"
+            matTooltipPosition="above"
+          >
+            <span class="three-dots">{{ offer.offerName }}</span>
+            <a
+              *ngIf="hasOfferDetailPage(offer.offerCode); else linklessOffer"
+              href="{{ getOfferLinkUrl(offer) }}"
+              target="_blank"
+              class="rule-offer-code three-dots"
+              >{{ offer.offerCode }}</a
+            >
+            <ng-template #linklessOffer>
+              <span class="rule-offer-code three-dots">{{
+                offer.offerCode
+              }}</span>
+            </ng-template>
+          </div>
+          <div class="drag-handle" cdkDragHandle>
+            <mat-icon>reorder</mat-icon>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="right-column">
+    <div>
+      <div class="rules-legend-container">
+        <div class="rules-legend-row">
+          <div class="rules-legend-item">
+            <span class="legend-active">{{ legendExampleStringName }}</span> -
+            active offer
+          </div>
+          <div class="rules-legend-item">
+            <span class="legend-link">{{ legendExampleStringCode }}</span> -
+            active offer with detail page link
+          </div>
+        </div>
+        <div class="rules-legend-row">
+          <!-- <div class="rules-legend-item">
+              <span class="legend-expired">{{ legendExampleStringName }}</span> - expired offer
+            </div> -->
+          <div class="rules-legend-item">
+            <span class="legend-absent">{{ legendExampleStringName }}</span> -
+            unavailable with current rule configuration offer
+          </div>
+        </div>
+      </div>
+      <div class="grid-row-secondary">
+        <div class="rule-primary-list">
+          <p class="title">PRIMARY LISTS</p>
+          <div class="plan-adjustment-errors">
+            <mat-error *ngIf="weightSumError1Handle"
+              >Lists weight values sum is greater than 100
+            </mat-error>
+            <!-- <mat-error *ngIf="absentOffersError1Handle"
+                >There are absent coupons in list
+              </mat-error> -->
+          </div>
+          <div
+            *ngIf="primaryLists"
+            class="primary-weight-lists scrollable-right-list"
+          >
+            <app-weight-list
+              *ngFor="let list of primaryLists; let index = index"
+              [listName]="primaryString"
+              [status]="status"
+              [list]="list"
+              [index]="index"
+              [rule]="rule"
+              [allOffers]="allOffers"
+              [plans]="plans"
+              (changeWeightListDataEvent)="
+                changeWeightListData('primary', index, $event)
+              "
+              (changeAnotherWeightListDataEvent)="
+                changeAnotherWeightListData($event)
+              "
+              (weightListRemoveEvent)="
+                removeWeightList('primary', $event, list.name)
+              "
+            ></app-weight-list>
+            <button
+              (click)="addWeightList('primary')"
+              class="button-primary add-selected-list-button"
+              type="button"
+              [disabled]="!canChangeRules()"
+            >
+              Add List
+            </button>
+          </div>
+        </div>
+
+        <div>
+          <p class="title">SECONDARY LISTS</p>
+          <div class="plan-adjustment-errors">
+            <mat-error *ngIf="weightSumError2Handle"
+              >Lists weight values sum is greater than 100
+            </mat-error>
+            <!-- <mat-error *ngIf="absentOffersError2Handle"
+              >There are absent coupons in list
+            </mat-error> -->
+          </div>
+          <div
+            *ngIf="secondaryLists"
+            class="primary-weight-lists scrollable-right-list"
+          >
+            <app-weight-list
+              *ngFor="let list of secondaryLists; let index = index"
+              [listName]="secondaryString"
+              [status]="status"
+              [list]="list"
+              [index]="index"
+              [rule]="rule"
+              [allOffers]="allOffers"
+              [plans]="plans"
+              (changeWeightListDataEvent)="
+                changeWeightListData('secondary', index, $event)
+              "
+              (changeAnotherWeightListDataEvent)="
+                changeAnotherWeightListData($event)
+              "
+              (weightListRemoveEvent)="
+                removeWeightList('secondary', $event, list.name)
+              "
+            ></app-weight-list>
+            <button
+              (click)="addWeightList('secondary')"
+              class="button-primary add-selected-list-button"
+              type="button"
+              [disabled]="!canChangeRules()"
+            >
+              Add List
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div style="margin-left: 20px">
+      <p class="title">EXCLUSIVE OFFERS</p>
+      <div style="height: 100px; width: 100%">
+        <div
+          class="rule-form-field-container"
+          style="display: inline-block; margin-right: 50px"
+          *ngIf="currentRegion === 'US'"
+        >
+          <mat-form-field appearance="fill" class="rule-form-field">
+            <mat-label>State</mat-label>
+            <mat-select
+              [(ngModel)]="exclusiveState"
+              (selectionChange)="emitListInfo()"
+              [disabled]="statesList.length <= 1"
+            >
+              <div class="custom-panel">
+                <mat-option
+                  *ngFor="let state of statesList"
+                  [value]="state.stateCode"
+                  >{{ state.stateName }}
+                </mat-option>
+              </div>
+            </mat-select>
+          </mat-form-field>
+        </div>
+        <div class="rule-form-field-container">
+          <mat-form-field appearance="fill" class="rule-form-field">
+            <mat-label>Exclusive Overrides</mat-label>
+            <mat-select
+              [(ngModel)]="exclusiveOffer"
+              (selectionChange)="emitListInfo()"
+              [disabled]="exclusiveOffersList.length <= 1"
+            >
+              <div class="custom-panel">
+                <mat-option
+                  *ngFor="let offer of exclusiveOffersList"
+                  [value]="offer"
+                >
+                  {{ offer }}
+                </mat-option>
+              </div>
+            </mat-select>
+          </mat-form-field>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,548 @@
+<mat-dialog-content class="mat-typography" style="overflow: hidden">
+  <p style="text-align: center">{{ data.message }}</p>
+  <p *ngIf="data.footNote" class="modal-dialog-footnote">{{ data.footNote }}</p>
+  <div *ngIf="errors.length !== 0">
+    <li *ngFor="let error of errors">{{ error }}</li>
+  </div>
+  <div *ngIf="data.warningMessage">
+    <p class="warning-message">{{ data.warningMessage }}</p>
+  </div>
+  <div *ngIf="campaignName">
+    <p class="warning-message">
+      Warning: Overwriting Campaign module "{{ campaignName }}"
+    </p>
+  </div>
+  <div
+    *ngIf="
+      overwriting.warningNames.length &&
+      overwriting.warningLists.length &&
+      overwriting.warningListName
+    "
+  >
+    <p
+      class="warning-message"
+      *ngFor="let name of overwriting.warningNames; let i = index"
+    >
+      Warning: Overwriting
+      <span
+        *ngIf="overwriting.warningLists[i].length > 1"
+        class="warning-message message-list"
+        matTooltip="{{ overwriting.warningLists }}"
+        matTooltipPosition="above"
+        >{{ overwriting.warningLists[i].length }}
+        {{ overwriting.warningListName }}</span
+      >
+      <span
+        *ngIf="overwriting.warningLists[i].length === 1"
+        class="warning-message"
+      >
+        {{ overwriting.warningLists[i] }}
+      </span>
+      for "{{ name }}"
+    </p>
+  </div>
+  <div *ngIf="deleting.warningNames.length">
+    <p
+      class="warning-message"
+      *ngFor="let name of deleting.warningNames; let i = index"
+    >
+      Warning:
+      {{
+        action === 'androidArchive' || action === 'rokuArchive'
+          ? 'Archiving'
+          : 'Deleting'
+      }}
+      module from "{{ name }}" campaign
+    </p>
+  </div>
+  <div
+    *ngIf="
+      action === 'androidPublish' ||
+      action === 'androidActivate' ||
+      (action === 'androidDefault' && data.env === 'prod')
+    "
+    class="modal-dialog-publish-container"
+  >
+    <p>Environment</p>
+    <div matInput class="modal-dialog-publish" *ngFor="let env of envArr">
+      <mat-radio-button
+        [checked]="androidEnv === env"
+        (change)="androidEnvChange(env)"
+        [disabled]="data.env"
+      >
+        {{ getFirstCharUpperCaseString(env.code) }}
+      </mat-radio-button>
+    </div>
+  </div>
+  <div
+    *ngIf="
+      action === 'rokuPublish' ||
+      action === 'rokuActivate' ||
+      (action === 'rokuDefault' && data.env === 'prod')
+    "
+    class="modal-dialog-publish-container"
+  >
+    <p>Environment</p>
+    <div matInput class="modal-dialog-publish" *ngFor="let env of envArr">
+      <mat-radio-button
+        [checked]="rokuEnv === env"
+        (change)="rokuEnvChange(env)"
+        [disabled]="data.env"
+      >
+        {{ getFirstCharUpperCaseString(env) }}
+      </mat-radio-button>
+    </div>
+  </div>
+  <div
+    *ngIf="androidEnv === 'prod' || rokuEnv === 'prod' || !!showPasswordField"
+  >
+    <div class="modal-dialog-publish-container">
+      <label>Password: </label>
+      <input
+        type="password"
+        style="padding-left: '5px'"
+        [(ngModel)]="password"
+      />
+    </div>
+    <p class="password-error">{{ passwordError }}</p>
+  </div>
+  <div *ngIf="action === 'androidListPublish' && !!spanChanges">
+    <div style="font-weight: bold">{{ data.envTitle }}</div>
+    <div
+      *ngIf="
+        (!!spanChanges.added && !!spanChanges.added.length) ||
+        (!!spanChanges.removed && !!spanChanges.removed.length)
+      "
+      class="publish-change-container scrollable-large-container"
+    >
+      <span
+        class="publish-change-span publish-change-span-green"
+        *ngFor="let module of spanChanges.added"
+        ><span class="publish-change-symbol">+</span>{{ module }}
+      </span>
+      <span
+        class="publish-change-span publish-change-span-red"
+        *ngFor="let module of spanChanges.removed"
+        ><span class="publish-change-symbol">-</span>{{ module }}
+      </span>
+    </div>
+    <div
+      class="publish-change-container publish-change-span"
+      *ngIf="
+        (!spanChanges.added || !spanChanges.added.length) &&
+        (!spanChanges.removed || !spanChanges.removed.length)
+      "
+    >
+      No changes
+    </div>
+  </div>
+  <div *ngIf="action === 'rokuListPublish' && !!spanChanges">
+    <div style="font-weight: bold">{{ data.envTitle }}</div>
+    <div
+      *ngIf="
+        (!!spanChanges.added && !!spanChanges.added.length) ||
+        (!!spanChanges.removed && !!spanChanges.removed.length)
+      "
+      class="publish-change-container scrollable-large-container"
+    >
+      <span
+        class="publish-change-span publish-change-span-green"
+        *ngFor="let module of spanChanges.added"
+        ><span class="publish-change-symbol">+</span>{{ module }}
+      </span>
+      <span
+        class="publish-change-span publish-change-span-red"
+        *ngFor="let module of spanChanges.removed"
+        ><span class="publish-change-symbol">-</span>{{ module }}
+      </span>
+    </div>
+    <div
+      class="publish-change-container publish-change-span"
+      *ngIf="
+        (!spanChanges.added || !spanChanges.added.length) &&
+        (!spanChanges.removed || !spanChanges.removed.length)
+      "
+    >
+      No changes
+    </div>
+  </div>
+  <div *ngIf="action === 'androidUploadImage'">
+    <div class="dnd-container" *ngIf="!uploadUrl">
+      <images-drop
+        platform="android"
+        [store]="getCurrentAndroidStore()"
+        [product]="getCurrentAndroidProduct()"
+        [galleryNames]="data.galleryNames"
+        [uploadMultipleImages]="uploadMultipleImages"
+        [dimensions]="dimensions"
+        [maxSizeStr]="maxSizeStr"
+        [maxSize]="maxSize"
+        (selectedFiles)="onFilesSelected($event)"
+      ></images-drop>
+    </div>
+  </div>
+  <div *ngIf="action === 'rokuUploadImage'">
+    <div class="dnd-container" *ngIf="!uploadUrl">
+      <roku-images-drop
+        platform="roku"
+        [store]="getCurrentRokuStore()"
+        [product]="getCurrentRokuProduct()"
+        [galleryNames]="data.galleryNames"
+        [uploadMultipleImages]="uploadMultipleImages"
+        [dimensions]="dimensions"
+        [maxSizeStr]="maxSizeStr"
+        [maxSize]="maxSize"
+        (selectedFiles)="onFilesSelected($event)"
+      ></roku-images-drop>
+    </div>
+  </div>
+</mat-dialog-content>
+<mat-dialog-actions align="end" style="padding: 0">
+  <button
+    *ngIf="action == 'back'"
+    class="button-dialog-secondary"
+    mat-button
+    mat-dialog-close
+  >
+    CANCEL
+  </button>
+  <button
+    *ngIf="action == 'back'"
+    [mat-dialog-close]="true"
+    cdkFocusInitial
+    class="button-dialog-primary"
+    mat-button
+  >
+    OK
+  </button>
+
+  <button
+    *ngIf="action == 'complete'"
+    [mat-dialog-close]="true"
+    cdkFocusInitial
+    class="button-dialog-primary"
+    mat-button
+  >
+    OK
+  </button>
+
+  <button
+    *ngIf="action == 'download'"
+    class="button-dialog-secondary"
+    mat-button
+    mat-dialog-close
+  >
+    CANCEL
+  </button>
+  <button
+    *ngIf="action == 'download'"
+    class="button-dialog-primary"
+    mat-button
+    mat-dialog-close="export"
+  >
+    EXPORT
+  </button>
+  <button
+    *ngIf="action == 'download'"
+    cdkFocusInitial
+    class="button-dialog-primary"
+    mat-button
+    mat-dialog-close="download"
+  >
+    DOWNLOAD
+  </button>
+
+  <button
+    *ngIf="action == 'error'"
+    cdkFocusInitial
+    class="button-dialog-primary"
+    mat-button
+    mat-dialog-close
+  >
+    OK
+  </button>
+
+  <button
+    *ngIf="
+      action == 'prompt' ||
+      action === 'androidDelete' ||
+      action === 'androidArchive' ||
+      action === 'rokuDelete' ||
+      action === 'rokuArchive'
+    "
+    class="button-dialog-secondary"
+    mat-button
+    mat-dialog-close
+  >
+    CANCEL
+  </button>
+  <button
+    *ngIf="
+      (action == 'prompt' && androidEnv !== 'prod') ||
+      action === 'androidDelete' ||
+      action === 'androidArchive' ||
+      (action == 'prompt' && rokuEnv !== 'prod') ||
+      action === 'rokuDelete' ||
+      action === 'rokuArchive'
+    "
+    [mat-dialog-close]="true"
+    cdkFocusInitial
+    class="button-dialog-primary"
+    mat-button
+  >
+    OK
+  </button>
+  <button
+    *ngIf="
+      action == 'androidPublish' ||
+      action === 'androidListPublish' ||
+      action === 'androidActivate' ||
+      action === 'androidDefault'
+    "
+    class="button-dialog-secondary"
+    mat-button
+    mat-dialog-close
+  >
+    CLOSE
+  </button>
+  <button
+    *ngIf="action == 'androidPublish' || action == 'androidListPublish'"
+    (click)="androidSendEnv()"
+    cdkFocusInitial
+    class="button-dialog-primary"
+    mat-button
+  >
+    PUBLISH
+  </button>
+  <button
+    *ngIf="action == 'androidActivate'"
+    (click)="androidSendEnv()"
+    cdkFocusInitial
+    class="button-dialog-primary"
+    mat-button
+  >
+    ACTIVATE
+  </button>
+  <button
+    *ngIf="action == 'androidDefault'"
+    (click)="androidSendEnv()"
+    cdkFocusInitial
+    class="button-dialog-primary"
+    mat-button
+  >
+    SET AS DEFAULT
+  </button>
+  <button
+    *ngIf="action == 'prompt' && androidEnv === 'prod'"
+    (click)="androidSendEnv()"
+    cdkFocusInitial
+    class="button-dialog-primary"
+    mat-button
+  >
+    EDIT
+  </button>
+
+  <button
+    *ngIf="
+      action == 'rokuPublish' ||
+      action == 'rokuListPublish' ||
+      action === 'rokuActivate' ||
+      action === 'rokuDefault'
+    "
+    class="button-dialog-secondary"
+    mat-button
+    mat-dialog-close
+  >
+    CLOSE
+  </button>
+  <button
+    *ngIf="action == 'rokuPublish' || action == 'rokuListPublish'"
+    (click)="rokuSendEnv()"
+    cdkFocusInitial
+    class="button-dialog-primary"
+    mat-button
+  >
+    PUBLISH
+  </button>
+  <button
+    *ngIf="action == 'rokuActivate'"
+    (click)="rokuSendEnv()"
+    cdkFocusInitial
+    class="button-dialog-primary"
+    mat-button
+  >
+    ACTIVATE
+  </button>
+  <button
+    *ngIf="action == 'rokuDefault'"
+    (click)="rokuSendEnv()"
+    cdkFocusInitial
+    class="button-dialog-primary"
+    mat-button
+  >
+    SET AS DEFAULT
+  </button>
+  <button
+    *ngIf="action == 'prompt' && rokuEnv === 'prod'"
+    (click)="rokuSendEnv()"
+    cdkFocusInitial
+    class="button-dialog-primary"
+    mat-button
+  >
+    EDIT
+  </button>
+
+  <button
+    *ngIf="action == 'update' || action == 'rokuUpdate'"
+    class="button-dialog-secondary"
+    mat-button
+    mat-dialog-close
+  >
+    CANCEL
+  </button>
+  <button
+    *ngIf="action == 'update' && androidEnv === 'prod'"
+    (click)="androidSendEnv()"
+    cdkFocusInitial
+    class="button-dialog-primary"
+    mat-button
+  >
+    UPDATE
+  </button>
+
+  <button
+    *ngIf="action === 'androidSave'"
+    (click)="closeDialog()"
+    class="button-dialog-secondary"
+    mat-button
+  >
+    CANCEL
+  </button>
+  <button
+    *ngIf="action == 'androidSave'"
+    (click)="leavePage()"
+    class="button-dialog-secondary"
+    mat-button
+  >
+    LEAVE
+  </button>
+  <button
+    *ngIf="action == 'androidSave'"
+    (click)="androidSave()"
+    cdkFocusInitial
+    class="button-dialog-primary"
+    mat-button
+  >
+    SAVE
+  </button>
+  <button
+    *ngIf="action == 'androidUploadImage'"
+    [disabled]="uploadPending"
+    [class.button-disabled]="uploadPending"
+    class="button-dialog-secondary"
+    mat-button
+    mat-dialog-close
+  >
+    CANCEL
+  </button>
+  <button
+    *ngIf="action == 'androidUploadImage'"
+    [disabled]="uploadButtonDisabled"
+    [class.button-disabled]="uploadButtonDisabled"
+    (click)="androidUploadImage()"
+    cdkFocusInitial
+    class="button-dialog-primary"
+    mat-button
+  >
+    UPLOAD
+  </button>
+
+  <button
+    *ngIf="action == 'rokuUpdate' && rokuEnv === 'prod'"
+    (click)="rokuSendEnv()"
+    cdkFocusInitial
+    class="button-dialog-primary"
+    mat-button
+  >
+    UPDATE
+  </button>
+
+  <button
+    *ngIf="action === 'rokuSave'"
+    (click)="closeDialog()"
+    class="button-dialog-secondary"
+    mat-button
+  >
+    CANCEL
+  </button>
+  <button
+    *ngIf="action == 'rokuSave'"
+    (click)="leavePage()"
+    class="button-dialog-secondary"
+    mat-button
+  >
+    LEAVE
+  </button>
+  <button
+    *ngIf="action == 'rokuSave'"
+    (click)="rokuSave()"
+    cdkFocusInitial
+    class="button-dialog-primary"
+    mat-button
+  >
+    SAVE
+  </button>
+  <button
+    *ngIf="action == 'rokuUploadImage'"
+    [disabled]="uploadPending"
+    [class.button-disabled]="uploadPending"
+    class="button-dialog-secondary"
+    mat-button
+    mat-dialog-close
+  >
+    CANCEL
+  </button>
+  <button
+    *ngIf="action == 'rokuUploadImage'"
+    [disabled]="uploadButtonDisabled"
+    [class.button-disabled]="uploadButtonDisabled"
+    (click)="rokuUploadImage()"
+    cdkFocusInitial
+    class="button-dialog-primary"
+    mat-button
+  >
+    UPLOAD
+  </button>
+  <button
+    *ngIf="action === 'androidPullPromotionModule'"
+    (click)="pullPromotionModule('false')"
+    class="button-dialog-secondary"
+    mat-button
+  >
+    DISCARD
+  </button>
+  <button
+    *ngIf="action === 'androidPullPromotionModule'"
+    (click)="pullPromotionModule('true')"
+    class="button-dialog-primary"
+    mat-button
+  >
+    ACCEPT
+  </button>
+  <button
+    *ngIf="action === 'rokuPullPromotionModule'"
+    (click)="pullPromotionModule('false')"
+    class="button-dialog-secondary"
+    mat-button
+  >
+    DISCARD
+  </button>
+  <button
+    *ngIf="action === 'rokuPullPromotionModule'"
+    (click)="pullPromotionModule('true')"
+    class="button-dialog-primary"
+    mat-button
+  >
+    ACCEPT
+  </button>
+</mat-dialog-actions>

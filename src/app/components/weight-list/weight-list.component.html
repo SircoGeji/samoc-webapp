@@ -1,0 +1,113 @@
+<div class="weight-list-wrapper">
+  <div class="weight-list-border">
+    <span class="delete-list-button">
+      <button
+        class="mat-icon-button"
+        mat-icon-button
+        (click)="deleteWeightList()"
+        (change)="emitListData()"
+        [disabled]="!canChangeRules()"
+      >
+        <mat-icon class="mat-icon-remove-list">remove_circle_outline</mat-icon>
+      </button>
+    </span>
+    <span class="list-title-wrapper">
+      <span class="list-title">
+        <input
+          type="text"
+          [(ngModel)]="name"
+          placeholder="Enter list name"
+          (change)="emitListData()"
+          [disabled]="!canChangeRules()"
+        />
+      </span>
+    </span>
+    <span class="list-weight-wrapper">
+      <span class="list-weight-input">
+        <input
+          type="number"
+          min="1"
+          max="100"
+          [(ngModel)]="weightValue"
+          (change)="emitListData()"
+          [disabled]="!canChangeRules()"
+          matTooltip="Value must be in range from 1 to 100"
+          matTooltipPosition="above"
+        />
+      </span>
+    </span>
+    <div
+      class="selected-offers-list"
+      cdkDropList
+      [id]="getDropListID()"
+      [cdkDropListData]="offers"
+      (cdkDropListDropped)="onDrop($event)"
+      (change)="emitListData()"
+    >
+      <div *ngIf="!offers.length" class="list-placeholder">
+        <div>Drag offers here</div>
+      </div>
+      <div
+        class="selected-offer-element flex-element-space-between"
+        *ngFor="let item of offers; let i = index"
+        [ngClass]="{ 'odd-element': !(i % 2) }"
+        cdkDrag
+        [cdkDragDisabled]="!canChangeRules()"
+      >
+        <div *cdkDragPreview>
+          <div class="weight-list-drag-preview-wrapper">
+            <div class="drag-handle" cdkDragHandle>
+              <mat-icon>reorder</mat-icon>
+            </div>
+            <div class="rule-offer-container">
+              <span class="three-dots">{{ getOfferName(item) }}</span>
+            </div>
+          </div>
+        </div>
+        <div
+          class="weight-list-element"
+          [ngClass]="{ 'absent-offer': isAbsentOffer(item) }"
+        >
+          <div class="drag-handle" cdkDragHandle>
+            <mat-icon>reorder</mat-icon>
+          </div>
+
+          <div
+            *ngIf="!item.offerCode"
+            class="rule-offer-container"
+            matTooltip="{{ getTooltipText(item) }}"
+            matTooltipPosition="above"
+          >
+            <span
+              class="three-dots"
+              [ngClass]="{ 'absent-offer': isAbsentOffer(item) }"
+              >{{ getOfferName(item) }}</span
+            >
+            <span class="rule-offer-code three-dots">{{ item }}</span>
+          </div>
+
+          <div
+            *ngIf="item.offerCode"
+            class="rule-offer-container"
+            matTooltip="{{ getTooltipText(item) }}"
+            matTooltipPosition="above"
+          >
+            <span class="three-dots">{{ getOfferName(item.offerCode) }}</span>
+            <span class="rule-offer-code three-dots">{{ item.offerCode }}</span>
+          </div>
+        </div>
+        <button
+          class="mat-icon-button delete-item-button"
+          mat-icon-button
+          (click)="deleteFromList(item)"
+          (change)="emitListData()"
+          [disabled]="!canChangeRules()"
+        >
+          <mat-icon [ngClass]="{ 'absent-offer': isAbsentOffer(item) }"
+            >delete_forever</mat-icon
+          >
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

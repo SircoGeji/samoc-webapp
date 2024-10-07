@@ -1,0 +1,380 @@
+<app-header></app-header>
+
+<app-spinner></app-spinner>
+
+<div class="android-sku-form-styles-container" *ngIf="isFormVisible">
+  <header class="android-sku-form-header">
+    <span
+      (click)="navigateBack()"
+      class="backbtn back-arrow material-icons md-light md-36"
+    >
+      keyboard_arrow_left
+    </span>
+    <p *ngIf="pageQuery !== 'view'" class="android-sku-title">NEW SKU</p>
+    <p *ngIf="pageQuery === 'view'" class="android-sku-title">EDIT SKU</p>
+    <button
+      [matMenuTriggerFor]="saveMenu"
+      class="android-sku-form-save-button button-secondary"
+      [disabled]="isSaveButtonDisabled()"
+      [ngClass]="{ 'button-disabled': isSaveButtonDisabled() }"
+    >
+      {{ pageQuery === 'view' ? 'UPDATE' : 'SAVE' }}
+      <mat-icon class="arrow-drop-down">arrow_drop_down</mat-icon>
+    </button>
+    <mat-menu #saveMenu="matMenu">
+      <button
+        mat-menu-item
+        (click)="saveAll()"
+        [disabled]="isSaveAllButtonDisabled()"
+        [ngClass]="{ 'button-disabled': isSaveAllButtonDisabled() }"
+      >
+        {{ pageQuery === 'view' ? 'UPDATE ALL' : 'SAVE ALL' }}
+      </button>
+      <button
+        mat-menu-item
+        *ngIf="pageQuery === 'view'"
+        [disabled]="isUpdateRegionButtonDisabled()"
+        [ngClass]="{ 'button-disabled': isUpdateRegionButtonDisabled() }"
+        (click)="updateRegion()"
+      >
+        UPDATE SELECTED REGION
+      </button>
+    </mat-menu>
+  </header>
+  <div class="android-sku-form-container">
+    <form [formGroup]="formGroup">
+      <div class="android-sku-inputs-container">
+        <div class="mat-container android-sku-mat-container">
+          <mat-form-field appearance="fill">
+            <mat-label>SKU Name</mat-label>
+            <input
+              matInput
+              required
+              type="text"
+              formControlName="skuName"
+              placeholder="Add text"
+              autocomplete="off"
+            />
+          </mat-form-field>
+          <div
+            class="error-container"
+            *ngIf="!formGroup.controls.skuName.valid"
+          >
+            Please enter SKU Name
+          </div>
+        </div>
+        <div class="mat-container android-sku-mat-container">
+          <mat-form-field appearance="fill">
+            <mat-label>Store Parent SKU ID</mat-label>
+            <input
+              matInput
+              type="text"
+              formControlName="store_parent_SKU_ID"
+              placeholder="Add text"
+              autocomplete="off"
+            />
+          </mat-form-field>
+          <div
+            class="error-container"
+            *ngIf="!formGroup.controls.store_parent_SKU_ID.valid"
+          >
+            Please enter Store Parent SKU ID
+          </div>
+        </div>
+        <div class="mat-container android-sku-mat-container">
+          <mat-form-field appearance="fill">
+            <mat-label>Store SKU ID</mat-label>
+            <input
+              required
+              (focus)="storeSkuIdFocused = true"
+              (blur)="storeSkuIdFocused = false"
+              matInput
+              type="text"
+              formControlName="store_SKU_ID"
+              placeholder="Add text"
+              autocomplete="off"
+            />
+          </mat-form-field>
+          <div
+            class="error-container"
+            *ngIf="!formGroup.controls.store_SKU_ID.valid"
+          >
+            {{ getStoreSkuIdIdErrorMessage() }}
+          </div>
+        </div>
+        <div class="mat-container android-sku-mat-container">
+          <mat-form-field appearance="fill">
+            <mat-label>Link ID</mat-label>
+            <input
+              (focus)="linkIdFocused = true"
+              (blur)="linkIdFocused = false"
+              matInput
+              type="text"
+              formControlName="linkID"
+              placeholder="Add text"
+              autocomplete="off"
+            />
+          </mat-form-field>
+          <div
+            class="warning-container"
+            *ngIf="
+              !isFieldValueUnique('linkId', formGroup.controls.linkID.value)
+            "
+          >
+            {{ getWarningMessage('linkId') }}
+          </div>
+        </div>
+      </div>
+
+      <div class="android-sku-form-translatable-container">
+        <div
+          #regionButtonsContainer
+          class="android-sku-form-region-buttons-container"
+        >
+          <div
+            class="region-button"
+            *ngFor="let region of regionsLanguagesBinding; let i = index"
+            (click)="regionButtonClick(i)"
+            [ngClass]="getClassArray(region, i)"
+          >
+            {{ region.code }}
+          </div>
+        </div>
+        <div
+          formGroupName="regionsFormGroup"
+          class="switch-container"
+          [ngSwitch]="regionPosition"
+        >
+          <ng-template
+            *ngFor="let region of regionsLanguagesBinding; let i = index"
+            [ngSwitchCase]="i"
+            [formGroupName]="region.code"
+          >
+            <div class="upper-table-header">
+              <div
+                class="mat-container android-sku-mat-container-region"
+                *ngFor="let field of regionNonTranslatableFields"
+              >
+                <mat-form-field
+                  appearance="fill"
+                  *ngIf="field['dataType'] === 'string'"
+                >
+                  <mat-label
+                    >{{ field['fieldName']
+                    }}{{ field.required ? '*' : '' }}</mat-label
+                  >
+                  <input
+                    [formControlName]="field['fieldName']"
+                    (ngModelChange)="changeModuleRegionStatus(i)"
+                    matInput
+                    type="text"
+                    placeholder="Add text"
+                    autocomplete="off"
+                  />
+                </mat-form-field>
+                <mat-form-field
+                  appearance="fill"
+                  *ngIf="field['dataType'] === 'number'"
+                >
+                  <mat-label
+                    >{{ field['fieldName']
+                    }}{{ field.required ? '*' : '' }}</mat-label
+                  >
+                  <input
+                    [formControlName]="field['fieldName']"
+                    (ngModelChange)="changeModuleRegionStatus(i)"
+                    matInput
+                    type="number"
+                  />
+                </mat-form-field>
+                <div
+                  class="android-sku-form-boolean-container"
+                  *ngIf="field['dataType'] === 'boolean'"
+                >
+                  <mat-checkbox
+                    (change)="changeModuleRegionStatus(i)"
+                    [formControlName]="field['fieldName']"
+                    >{{ field['fieldName'] }}
+                  </mat-checkbox>
+                </div>
+                <mat-form-field
+                      *ngIf="field.dataType === 'date'"
+                      appearance="fill"
+                    >
+                      <mat-label
+                        >{{ field['fieldName']
+                        }}{{ field.required ? '*' : '' }}</mat-label
+                      >
+                      <input
+                        #DateRef
+                        [matDatepicker]="date"
+                        class="pointer-cursor-cls"
+                        matInput
+                        autocomplete="off"
+                        placeholder="MM/DD/YYYY"
+                        [formControlName]="field['fieldName']"
+                        (ngModelChange)="changeModuleRegionStatus(i)"
+                      />
+                      <mat-datepicker-toggle
+                        class="android-datepicker-toggle"
+                        [for]="date"
+                        matSuffix
+                      >
+                      </mat-datepicker-toggle>
+                      <mat-datepicker #date></mat-datepicker>
+                    </mat-form-field>
+              </div>
+            </div>
+            <div #tableContainer class="android-sku-form-table-container">
+              <div class="fields-container">
+                <div class="field-container table-header"></div>
+                <div class="margin-top-container">
+                  <div
+                    class="field-container"
+                    [style.color]="
+                      isRequiredFieldEmpty(field, region) ? '#ff5252' : 'white'
+                    "
+                    *ngFor="let field of regionTranslatableFields"
+                  >
+                    {{ field['fieldName'] }}
+                    {{ field.required ? '*' : '' }}
+                  </div>
+                </div>
+              </div>
+              <div
+                *ngFor="let language of region.languages"
+                [formGroupName]="language.code"
+              >
+                <div
+                  class="cell-container table-header"
+                  [style.width]="
+                    doesRegionHaveOneLanguage(region) ? '450px' : '280px'
+                  "
+                >
+                  {{ language.name }}
+                  <mat-icon
+                    class="copy-icon md-18 copy-button"
+                    (click)="copyFields(region.code, language.code)"
+                    matTooltip="Copy Column"
+                    matTooltipPosition="above"
+                  >
+                    file_copy
+                  </mat-icon>
+                  <mat-icon
+                    class="paste-icon md-18 paste-button"
+                    (click)="pasteFields(region.code, language.code, i)"
+                    matTooltip="Paste Column"
+                    matTooltipPosition="above"
+                  >
+                    insert_drive_file
+                  </mat-icon>
+                </div>
+                <div class="margin-top-container">
+                  <div
+                    class="cell-container"
+                    [style.width]="
+                      doesRegionHaveOneLanguage(region) ? '450px' : '280px'
+                    "
+                    *ngFor="let field of regionTranslatableFields"
+                  >
+                    <input
+                      *ngIf="field['dataType'] === 'string'"
+                      class="android-sku-form-input"
+                      type="text"
+                      [formControlName]="field['fieldName']"
+                      (ngModelChange)="changeModuleRegionStatus(i)"
+                    />
+                    <input
+                      *ngIf="field['dataType'] === 'number'"
+                      class="android-sku-form-input"
+                      type="number"
+                      [formControlName]="field['fieldName']"
+                      (ngModelChange)="changeModuleRegionStatus(i)"
+                    />
+                    <div
+                      class="store-copy-boolean-container"
+                      *ngIf="field['dataType'] === 'boolean'"
+                    >
+                      <mat-checkbox
+                        (change)="changeModuleRegionStatus(i)"
+                        [formControlName]="field['fieldName']"
+                        >{{ field['fieldName'] }}
+                      </mat-checkbox>
+                    </div>
+                    <mat-form-field
+                      *ngIf="field['dataType'] === 'date'"
+                      appearance="fill"
+                    >
+                      <input
+                        #DateRef
+                        [matDatepicker]="date"
+                        class="pointer-cursor-cls"
+                        matInput
+                        autocomplete="off"
+                        placeholder="MM/DD/YYYY"
+                        [formControlName]="field['fieldName']"
+                        (ngModelChange)="changeModuleRegionStatus(i)"
+                      />
+                      <mat-datepicker-toggle
+                        class="android-datepicker-toggle"
+                        [for]="date"
+                        matSuffix
+                      >
+                      </mat-datepicker-toggle>
+                      <mat-datepicker #date></mat-datepicker>
+                    </mat-form-field>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </ng-template>
+        </div>
+        <div
+          class="android-sku-form-image-container"
+          #imgContainer
+          formGroupName="regionsFormGroup"
+          [ngSwitch]="regionPosition"
+        >
+          <ng-template
+            *ngFor="let region of regionsLanguagesBinding; let i = index"
+            [ngSwitchCase]="i"
+            [formGroupName]="region.code"
+          >
+            <div class="mat-select-container img-selector-container">
+              <mat-form-field appearance="fill">
+                <mat-label>Select Preview</mat-label>
+                <mat-select
+                  disableOptionCentering
+                  formControlName="imgSelector"
+                >
+                  <mat-option
+                    *ngFor="let img of skuImagesArray; let i = index"
+                    [value]="img.url"
+                  >
+                    {{ img.name }}
+                  </mat-option>
+                </mat-select>
+              </mat-form-field>
+            </div>
+            <mat-spinner
+              [ngStyle]="{ left: imgSpinnerPosition }"
+              class="img-spinner"
+              *ngIf="showImgSpinner"
+            >
+            </mat-spinner>
+            <img
+              *ngIf="imgCanBeLoaded; else defaultImg"
+              [src]="formGroup.value.regionsFormGroup[region.code].img"
+              (error)="showImgSpinner = false; imgCanBeLoaded = false"
+              (load)="showImgSpinner = false"
+              class="android-sku-form-image"
+            />
+            <ng-template #defaultImg>
+              <div class="default-image">The image can't be loaded.</div>
+            </ng-template>
+          </ng-template>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>

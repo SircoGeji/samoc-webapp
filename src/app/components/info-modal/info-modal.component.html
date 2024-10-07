@@ -1,0 +1,30 @@
+<div mat-dialog-content>
+  <div *ngIf="data.assetPath">
+    <img class="info-modal-image" src="{{ data.assetPath }}" />
+  </div>
+  <div *ngIf="data.infoText">
+    <p class="info-modal-text">{{ data.infoText }}</p>
+  </div>
+  <div *ngIf="!!offerHistory && !showLoader">
+    <div *ngFor="let offerData of offerHistory; index as i">
+      <span style="font-weight: bold">{{ offerData.offerName }}</span>
+      <span style="font-style: italic">{{
+        getOfferHistoryFieldsNames(offerData)
+      }}</span>
+      <span> {{ getOfferHistoryActionName(offerData) }}</span>
+      by
+      <span style="font-weight: bold">{{ offerData.actionMadeBy }}</span>
+      on
+      <span style="font-weight: bold">{{
+        getProperDate(offerData.actionMadeAt)
+      }}</span>
+      <hr *ngIf="!isElementLast(i)" style="max-width: 250px" />
+    </div>
+  </div>
+  <div class="pending-history" *ngIf="showLoader">
+    <mat-spinner></mat-spinner>
+  </div>
+  <div *ngIf="!offerHistory && !showLoader">
+    <p style="text-align: center">{{ errorMessage }}</p>
+  </div>
+</div>

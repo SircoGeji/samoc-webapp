@@ -1,0 +1,116 @@
+@import '../../../base/_mixin.scss';
+
+@include detail-page();
+
+.blink_me {
+  animation: blinker 1s linear infinite;
+}
+
+@keyframes blinker {
+  50% {
+    opacity: 0;
+  }
+}
+
+.refresh-btn {
+  color: white;
+  font-weight: 200;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+
+  &:focus {
+    outline: none;
+  }
+}
+
+.download-button {
+  display: flex;
+  align-items: center;
+  width: 186px;
+  height: 36px;
+  color: $app-grey;
+  background-color: transparent;
+  border: 1px solid $app-grey;
+  border-radius: 4px;
+  cursor: pointer;
+
+  &:focus {
+    outline: none;
+  }
+
+  &-image {
+    margin-right: 8px;
+    padding: 5px;
+  }
+
+  span {
+    font-size: 24px;
+
+    &.showExportCsvBtn-disabled {
+      visibility: hidden;
+    }
+  }
+}
+
+.details-component-container-details-field-image {
+  width: 432px;
+  height: auto;
+}
+
+.dit-container {
+  display: flex;
+  flex-direction: row;
+  margin-bottom: 30px;
+}
+
+#DetailPageDITButton {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background-color: grey;
+  cursor: pointer;
+}
+
+#DetailPageDITButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.dit-message {
+  text-align: left;
+  margin: auto 0;
+  margin-left: 10px;
+}
+
+@keyframes spinner {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.showExportCsvBtn-spinner::before {
+  position: relative;
+  top: 15%;
+  left: 11%;
+  box-sizing: border-box;
+  width: 20px;
+  height: 20px;
+  margin-top: -10px;
+  margin-left: -10px;
+  border: 2px solid gray;
+  border-top-color: black;
+  border-radius: 50%;
+  animation: spinner 0.8s linear infinite;
+  content: '';
+}
+
+.showExportCsvBtn-disabled {
+  color: gray;
+  border-color: gray;
+  cursor: not-allowed;
+}
+
+.countdown-overlay {
+  position: relative;
+}

@@ -1,0 +1,562 @@
+<app-header></app-header>
+
+<app-spinner></app-spinner>
+
+<div class="sku-component-container">
+  <div
+    class="sku-filters-container"
+    [ngClass]="
+      showFiltersBlock ? 'filters-block-shown' : 'filters-block-hidden'
+    "
+  >
+    <div class="filter-accordion-container">
+      <!-- FILTERS: SKU NAME -->
+      <mat-accordion class="filters-accordion" multi>
+        <mat-expansion-panel style="margin-top: 10px">
+          <mat-expansion-panel-header>
+            <mat-panel-title style="font-weight: bold">
+              {{ skuFiltersHeaders[0] }}
+            </mat-panel-title>
+          </mat-expansion-panel-header>
+
+          <div class="filters-accordion-content">
+            <div matInput class="accordion-filter-container">
+              <input
+                matInput
+                #skuNameSearchInputRef
+                (keyup)="editFilterValue($event, 'name')"
+                [(ngModel)]="skuNameSearchFilter"
+                autocomplete="off"
+                placeholder="Enter SKU Name"
+              />
+              <i
+                *ngIf="skuNameSearchInputRef.value.length == 0"
+                class="material-icons md-dark md-inactive inter-table-component-container-icon"
+                >search</i
+              >
+              <i
+                (click)="
+                  clearSearchInput('skuNameSearchFilter', skuNameSearchInputRef)
+                "
+                *ngIf="skuNameSearchInputRef.value.length != 0"
+                class="material-icons md-dark md-inactive inter-table-component-container-icon clear-icon"
+              >
+                close
+              </i>
+            </div>
+          </div>
+        </mat-expansion-panel>
+      </mat-accordion>
+      <!-- FILTERS: STORE SKU ID -->
+      <mat-accordion class="filters-accordion" multi>
+        <mat-expansion-panel style="margin-top: 10px">
+          <mat-expansion-panel-header>
+            <mat-panel-title style="font-weight: bold">
+              {{ skuFiltersHeaders[1] }}
+            </mat-panel-title>
+          </mat-expansion-panel-header>
+
+          <div class="filters-accordion-content">
+            <div matInput class="accordion-filter-container">
+              <input
+                matInput
+                #storeSkuIdSearchInputRef
+                (keyup)="editFilterValue($event, 'storeSkuId')"
+                [(ngModel)]="skuStoreSkuIdSearchFilter"
+                autocomplete="off"
+                placeholder="Enter STORE SKU ID"
+              />
+              <i
+                *ngIf="storeSkuIdSearchInputRef.value.length == 0"
+                class="material-icons md-dark md-inactive inter-table-component-container-icon"
+                >search</i
+              >
+              <i
+                (click)="
+                  clearSearchInput(
+                    'skuStoreSkuIdSearchFilter',
+                    storeSkuIdSearchInputRef
+                  )
+                "
+                *ngIf="storeSkuIdSearchInputRef.value.length != 0"
+                class="material-icons md-dark md-inactive inter-table-component-container-icon clear-icon"
+              >
+                close
+              </i>
+            </div>
+          </div>
+        </mat-expansion-panel>
+      </mat-accordion>
+      <!-- FILTERS: SKU ID -->
+      <mat-accordion class="filters-accordion" multi>
+        <mat-expansion-panel style="margin-top: 10px">
+          <mat-expansion-panel-header>
+            <mat-panel-title style="font-weight: bold">
+              {{ skuFiltersHeaders[2] }}
+            </mat-panel-title>
+          </mat-expansion-panel-header>
+
+          <div class="filters-accordion-content">
+            <div matInput class="accordion-filter-container">
+              <input
+                matInput
+                #skuIdSearchInputRef
+                (keyup)="editFilterValue($event, 'skuId')"
+                [(ngModel)]="skuSkuIdSearchFilter"
+                autocomplete="off"
+                placeholder="Enter SKU ID"
+              />
+              <i
+                *ngIf="skuIdSearchInputRef.value.length == 0"
+                class="material-icons md-dark md-inactive inter-table-component-container-icon"
+                >search</i
+              >
+              <i
+                (click)="
+                  clearSearchInput('skuSkuIdSearchFilter', skuIdSearchInputRef)
+                "
+                *ngIf="skuIdSearchInputRef.value.length != 0"
+                class="material-icons md-dark md-inactive inter-table-component-container-icon clear-icon"
+              >
+                close
+              </i>
+            </div>
+          </div>
+        </mat-expansion-panel>
+      </mat-accordion>
+      <!-- FILTERS: LINK ID -->
+      <mat-accordion class="filters-accordion" multi>
+        <mat-expansion-panel style="margin-top: 10px">
+          <mat-expansion-panel-header>
+            <mat-panel-title style="font-weight: bold">
+              {{ skuFiltersHeaders[3] }}
+            </mat-panel-title>
+          </mat-expansion-panel-header>
+
+          <div class="filters-accordion-content">
+            <div matInput class="accordion-filter-container">
+              <input
+                matInput
+                #linkIdSearchInputRef
+                (keyup)="editFilterValue($event, 'linkId')"
+                [(ngModel)]="skuLinkIdSearchFilter"
+                autocomplete="off"
+                placeholder="Enter LINK ID"
+              />
+              <i
+                *ngIf="linkIdSearchInputRef.value.length == 0"
+                class="material-icons md-dark md-inactive inter-table-component-container-icon"
+                >search</i
+              >
+              <i
+                (click)="
+                  clearSearchInput(
+                    'skuLinkIdSearchFilter',
+                    linkIdSearchInputRef
+                  )
+                "
+                *ngIf="linkIdSearchInputRef.value.length != 0"
+                class="material-icons md-dark md-inactive inter-table-component-container-icon clear-icon"
+              >
+                close
+              </i>
+            </div>
+          </div>
+        </mat-expansion-panel>
+      </mat-accordion>
+      <!-- FILTERS: FLOW -->
+      <mat-accordion class="filters-accordion" multi>
+        <mat-expansion-panel style="margin-top: 10px">
+          <mat-expansion-panel-header>
+            <mat-panel-title style="font-weight: bold">
+              {{ skuFiltersHeaders[4] }}
+            </mat-panel-title>
+          </mat-expansion-panel-header>
+
+          <div class="filters-accordion-content">
+            <div matInput class="accordion-filter-container">
+              <input
+                matInput
+                #flowSearchInputRef
+                (keyup)="editFilterValue($event, 'flow')"
+                [(ngModel)]="skuFlowSearchFilter"
+                autocomplete="off"
+                placeholder="Enter FLOW"
+              />
+              <i
+                *ngIf="flowSearchInputRef.value.length == 0"
+                class="material-icons md-dark md-inactive inter-table-component-container-icon"
+                >search</i
+              >
+              <i
+                (click)="
+                  clearSearchInput('skuFlowSearchFilter', flowSearchInputRef)
+                "
+                *ngIf="flowSearchInputRef.value.length != 0"
+                class="material-icons md-dark md-inactive inter-table-component-container-icon clear-icon"
+              >
+                close
+              </i>
+            </div>
+          </div>
+        </mat-expansion-panel>
+      </mat-accordion>
+      <!-- FILTERS: STATUS -->
+      <!-- <mat-accordion class="filters-accordion">
+        <mat-expansion-panel style="margin-top: 10px"
+          [disabled]="!skuStatusCheckboxesValues.length || skuStatusCheckboxesValues.length === 1">
+          <mat-expansion-panel-header>
+            <mat-panel-title style="font-weight: bold">
+              {{ skuFiltersHeaders[4] }}
+            </mat-panel-title>
+          </mat-expansion-panel-header>
+
+          <div class="filters-accordion-content">
+            <div
+              matInput
+              class="accordion-filter-container"
+              *ngFor="let status of skuStatusCheckboxesValues"
+            >
+              <mat-checkbox
+                (change)="editFilterValue($event, 'status', status)"
+                [disabled]="status === 'Archived' && !showArchivedSku"
+                [checked]="isElementChecked(status, skuStatusCheckedValues)"
+                >{{ status }}</mat-checkbox
+              >
+            </div>
+          </div>
+        </mat-expansion-panel>
+      </mat-accordion> -->
+      <!-- FILTERS: SUPPORTED REGIONS -->
+      <mat-accordion class="filters-accordion" multi>
+        <mat-expansion-panel
+          style="margin-top: 10px"
+          [disabled]="
+            !skuSupportedRegionsCheckboxesValues.length ||
+            skuSupportedRegionsCheckboxesValues.length === 1
+          "
+        >
+          <mat-expansion-panel-header>
+            <mat-panel-title style="font-weight: bold">
+              {{ skuFiltersHeaders[5] }}
+            </mat-panel-title>
+          </mat-expansion-panel-header>
+
+          <div class="filters-accordion-content">
+            <div
+              matInput
+              class="accordion-filter-container"
+              *ngFor="let region of skuSupportedRegionsCheckboxesValues"
+            >
+              <mat-checkbox
+                (change)="editFilterValue($event, 'regions', region)"
+                [checked]="
+                  isElementChecked(region, skuSupportedRegionsCheckedValues)
+                "
+              >
+                {{ region }}
+              </mat-checkbox>
+            </div>
+          </div>
+        </mat-expansion-panel>
+      </mat-accordion>
+      <!-- FILTERS: PUBLISH -->
+      <mat-accordion class="filters-accordion" multi>
+        <mat-expansion-panel style="margin-top: 10px">
+          <mat-expansion-panel-header>
+            <mat-panel-title style="font-weight: bold">
+              {{ skuFiltersHeaders[6] }}
+            </mat-panel-title>
+          </mat-expansion-panel-header>
+
+          <div class="filters-accordion-content">
+            <div matInput class="accordion-filter-container">
+              <mat-checkbox
+                (change)="
+                  checkSkuCheckboxAction($event, 'env', publishOptions[0])
+                "
+                [checked]="skuEnvCheckedValue === publishOptions[0]"
+              >
+                Published
+              </mat-checkbox>
+            </div>
+            <div matInput class="accordion-filter-container">
+              <mat-checkbox
+                (change)="
+                  checkSkuCheckboxAction($event, 'env', publishOptions[1])
+                "
+                [checked]="skuEnvCheckedValue === publishOptions[1]"
+              >
+                Not Published
+              </mat-checkbox>
+            </div>
+          </div>
+        </mat-expansion-panel>
+      </mat-accordion>
+      <!-- FILTERS: PROMOTED -->
+      <mat-accordion
+        class="filters-accordion"
+        multi
+        *ngIf="currentEnv.code === 'dev'"
+      >
+        <mat-expansion-panel style="margin-top: 10px">
+          <mat-expansion-panel-header>
+            <mat-panel-title style="font-weight: bold">
+              {{ skuFiltersHeaders[7] }}
+            </mat-panel-title>
+          </mat-expansion-panel-header>
+
+          <div class="filters-accordion-content">
+            <div matInput class="accordion-filter-container">
+              <mat-checkbox
+                (change)="
+                  checkSkuCheckboxAction($event, 'promote', promotionOptions[0])
+                "
+                [checked]="skuPromoteCheckedValue === promotionOptions[0]"
+              >
+                Promoted
+              </mat-checkbox>
+            </div>
+            <div matInput class="accordion-filter-container">
+              <mat-checkbox
+                (change)="
+                  checkSkuCheckboxAction($event, 'promote', promotionOptions[1])
+                "
+                [checked]="skuPromoteCheckedValue === promotionOptions[1]"
+              >
+                Not Promoted
+              </mat-checkbox>
+            </div>
+          </div>
+        </mat-expansion-panel>
+      </mat-accordion>
+    </div>
+  </div>
+  <div class="sku-container">
+    <div
+      class="filter-clear-all-button-container"
+      [ngClass]="
+        showFiltersBlock
+          ? 'filter-clear-all-button-container-shown'
+          : 'filter-clear-all-button-container-hidden'
+      "
+    >
+      <button
+        class="filter-clear-all-button"
+        (click)="clearAllSkuFilters()"
+        matTooltip="Clear all filters"
+      >
+        <mat-icon class="filter-clear-all-button-icon">clear</mat-icon>
+      </button>
+    </div>
+    <div class="sku-grid-container">
+      <div class="sku-buttons-container">
+        <div>
+          <button class="button-primary" (click)="toggleFiltersBlock()">
+            FILTERS
+          </button>
+          <mat-checkbox
+            class="white-border-checkbox"
+            (change)="toggleArchivedSku()"
+            [checked]="showArchivedSku"
+          >
+            Show Archived</mat-checkbox
+          >
+        </div>
+        <div>
+          <button
+            class="button-primary"
+            (click)="createNewSKU()"
+            *ngIf="currentEnv.code === 'dev'"
+          >
+            CREATE NEW
+          </button>
+          <button
+            class="button-secondary"
+            style="margin-left: 10px"
+            (click)="publishList()"
+          >
+            PUBLISH
+          </button>
+        </div>
+      </div>
+      <div class="sku-table-container">
+        <table
+          [dataSource]="skuData"
+          class="mat-elevation-z8"
+          mat-table
+          #skuTable
+          matSort
+        >
+          <ng-container
+            *ngFor="let column of skuDataKeys; index as i"
+            [matColumnDef]="column"
+          >
+            <th
+              class="table-header-row"
+              *matHeaderCellDef
+              mat-header-cell
+              mat-sort-header
+              [disabled]="skuTableHeaders[i] === ''"
+            >
+              <div class="table-header-flex-row">
+                <div>{{ skuTableHeaders[i] }}</div>
+                <div *ngIf="skuTableHeaders[i] === 'PUBLISH'">
+                  ({{ currentEnv.name }})
+                </div>
+              </div>
+            </th>
+            <td
+              *matCellDef="let element; index as j"
+              [ngSwitch]="column"
+              mat-cell
+            >
+              <div *ngSwitchCase="'skuName'">
+                <a href="{{ getEditHRef(element) }}">{{ element[column] }}</a>
+                <span
+                  *ngIf="
+                    currentEnv.code === 'dev' &&
+                    !getAttentionIconTooltipText(element) &&
+                    !!getPromotionIconTooltipText(element) &&
+                    !!isPromotedModuleExist(element) &&
+                    !isPromotedModuleArchived(element)
+                  "
+                  class="promote-module-icon-container"
+                  [matTooltip]="getPromotionIconTooltipText(element)"
+                >
+                  <mat-icon
+                    class="module-icon"
+                    [ngClass]="getPromotionIconClass(element)"
+                    (click)="
+                      !element.isArchived && !!canPromoteModule(element)
+                        ? menuAction('PROMOTE-SKU', element)
+                        : null
+                    "
+                  >
+                    arrow_upward
+                  </mat-icon>
+                </span>
+                <span
+                  *ngIf="!!getAttentionIconTooltipText(element)"
+                  class="promote-module-icon-container"
+                  [matTooltip]="getAttentionIconTooltipText(element)"
+                >
+                  <mat-icon class="module-icon deleted">
+                    report_problem
+                  </mat-icon>
+                </span>
+                <span
+                  *ngIf="
+                    currentEnv.code !== 'dev' &&
+                    !getAttentionIconTooltipText(element) &&
+                    !!element.hasChanges &&
+                    !!isOriginalModuleExist(element) &&
+                    !isOriginalModuleArchived(element)
+                  "
+                  class="promote-module-icon-container"
+                  [matTooltip]="getPromotionIconTooltipText(element)"
+                >
+                  <div class="icon-background"></div>
+                  <mat-icon
+                    class="module-icon"
+                    [ngClass]="getPromotionIconClass(element)"
+                    (click)="
+                      !!isOriginalModuleExist(element)
+                        ? !element.isArchived
+                          ? pullPromotionSkuAction(element)
+                          : null
+                        : null
+                    "
+                  >
+                    new_releases
+                  </mat-icon>
+                </span>
+              </div>
+              <div *ngSwitchCase="'storeSkuId'">
+                <span class="word-break-span">{{ element[column] }}</span>
+              </div>
+              <div *ngSwitchCase="'skuId'">
+                {{ element[column] }}
+              </div>
+              <div *ngSwitchCase="'linkId'">
+                <span class="word-break-span">{{ element[column] }}</span>
+              </div>
+              <div *ngSwitchCase="'flow'">
+                <span class="word-break-span">{{ element[column] }}</span>
+              </div>
+              <div *ngSwitchCase="'supportedRegions'">
+                <span class="word-break-span">{{ element[column] }}</span>
+              </div>
+              <div *ngSwitchCase="'isPublished'">
+                <div class="env-checkbox">
+                  <mat-checkbox
+                    (change)="changePublishCheckbox(element.skuId)"
+                    [checked]="element.isPublished"
+                    [disabled]="!!element.isArchived"
+                  >
+                  </mat-checkbox>
+                </div>
+              </div>
+              <div *ngSwitchCase="'actions'">
+                <button
+                  class="table-menu-action-button"
+                  mat-icon-button
+                  [matMenuTriggerFor]="menu"
+                >
+                  <mat-icon>more_horiz</mat-icon>
+                </button>
+                <mat-menu #menu="matMenu">
+                  <button
+                    mat-menu-item
+                    (click)="menuAction('DUPLICATE-SKU', element)"
+                  >
+                    <span>Duplicate</span>
+                  </button>
+                  <button
+                    mat-menu-item
+                    (click)="menuAction('PROMOTE-SKU-QA', element)"
+                    *ngIf="canPromoteModule(element)"
+                  >
+                    <span>Promote to QA</span>
+                  </button>
+                  <button
+                    mat-menu-item
+                    (click)="menuAction('PROMOTE-SKU-PROD', element)"
+                    *ngIf="canPromoteModule(element)"
+                  >
+                    <span>Promote to Prod</span>
+                  </button>
+                  <button
+                    mat-menu-item
+                    (click)="menuAction('VIEW-SKU', element)"
+                    *ngIf="canEditSku(element)"
+                  >
+                    <span>Edit</span>
+                  </button>
+                  <button
+                    mat-menu-item
+                    (click)="menuAction('ARCHIVE', element)"
+                    *ngIf="canArchiveSku(element)"
+                  >
+                    <span>{{
+                      !element.isArchived ? 'Archive' : 'Unarchive'
+                    }}</span>
+                  </button>
+                </mat-menu>
+              </div>
+            </td>
+          </ng-container>
+          <tr *matHeaderRowDef="skuDataKeys; sticky: true" mat-header-row></tr>
+          <tr *matRowDef="let row; columns: skuDataKeys" mat-row></tr>
+        </table>
+        <mat-paginator
+          #skuListViewPaginator
+          (page)="setPageSize($event, 'Sku')"
+          [pageSize]="getPageSize('Sku')"
+          [pageSizeOptions]="getPageSizeOptions()"
+          showFirstLastButtons
+        ></mat-paginator>
+      </div>
+    </div>
+  </div>
+</div>

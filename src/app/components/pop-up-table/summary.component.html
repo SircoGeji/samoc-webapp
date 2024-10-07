@@ -1,0 +1,105 @@
+<div class="summary-container">
+  <div class="summary-header">
+    <div class="summary-title-container">
+      <div class="summary-title">Cancellation Offer Summary</div>
+      <div class="summary-description">Campaign name | {{ currentDate }}</div>
+    </div>
+    <div class="summary-actions">
+      <button
+        (click)="exportSummaryTable()"
+        class="button-secondary"
+        type="button"
+      >
+        EXPORT
+      </button>
+    </div>
+  </div>
+  <div class="close-button-container">
+    <button class="close-button" (click)="closeDialog()">
+      <i class="material-icons md-inactive close-button-icon">close</i>
+    </button>
+  </div>
+  <mat-dialog-content>
+    <div class="summary-table-container">
+      <div class="summary-table">
+        <table [dataSource]="summaryTableData" mat-table matSort>
+          <ng-container *ngFor="let column of summaryTableDataKeys; index as i" [matColumnDef]="column">
+            <th *matHeaderCellDef [disabled]="column == 'ellipsis'" mat-header-cell mat-sort-header>
+              {{summaryTableHeaders[i]}}</th>
+            <td
+              *matCellDef="let element; index as j"
+              [ngSwitch]="column"
+              mat-cell
+              >
+              <div class="table-cell-start" *ngSwitchCase="'campaign'">
+                <span class="region-name">{{ element[column] }}</span>
+              </div>
+              <div class="table-cell-start" *ngSwitchCase="'offers'">
+                <div
+                  *ngFor="let elem of element[column]"
+                  class="region-name"
+                >{{ elem }}</div>
+              </div>
+              <div class="table-cell-start" *ngSwitchCase="'countries'">
+                <div
+                  *ngFor="let elem of element[column]"
+                  class="region-name"
+                >{{ elem }}</div>
+              </div>
+              <div class="table-cell-start" *ngSwitchCase="'primary'">
+                <!-- <span class="region-name">{{ element[column] }}</span> -->
+                <div
+                  *ngFor="let elem of element[column]"
+                  class="region-name"
+                >{{ elem }}</div>
+              </div>
+              <div class="table-cell-start" *ngSwitchCase="'secondary'">
+                <!-- <span class="region-name">{{ element[column] }}</span> -->
+                <div
+                  *ngFor="let elem of element[column]"
+                  class="region-name"
+                >{{ elem }}</div>
+              </div>
+            </td>
+          </ng-container>
+          <tr *matHeaderRowDef="summaryTableDataKeys; sticky: true" mat-header-row></tr>
+          <tr *matRowDef="let row; columns: summaryTableDataKeys;" mat-row></tr>
+        </table>
+        <!-- <p>Hello World!</p> -->
+      </div>
+    </div>
+  </mat-dialog-content>
+  <!-- <div class="summary-table-container">
+    <div class="summary-table">
+      <table [dataSource]="summaryTableData" mat-table matSort>
+        <ng-container *ngFor="let column of summaryTableDataKeys; index as i" [matColumnDef]="column">
+          <th *matHeaderCellDef [disabled]="column == 'ellipsis'" mat-header-cell mat-sort-header>
+            {{summaryTableHeaders[i]}}</th>
+          <td
+            *matCellDef="let element; index as j"
+            [ngSwitch]="column"
+            mat-cell
+            >
+            <div class="table-cell-start" *ngSwitchCase="'campaign'">
+              <span class="region-name">{{ element[column] }}</span>
+            </div>
+            <div class="table-cell-start" *ngSwitchCase="'offers'">
+              <span class="region-name">{{ element[column] }}</span>
+            </div>
+            <div class="table-cell-start" *ngSwitchCase="'countries'">
+              <span class="region-name">{{ element[column] }}</span>
+            </div>
+            <div class="table-cell-start" *ngSwitchCase="'primary'">
+              <span class="region-name">{{ element[column] }}</span>
+            </div>
+            <div class="table-cell-start" *ngSwitchCase="'secondary'">
+              <span class="region-name">{{ element[column] }}</span>
+            </div>
+          </td>
+        </ng-container>
+        <tr *matHeaderRowDef="summaryTableDataKeys; sticky: true" mat-header-row></tr>
+        <tr *matRowDef="let row; columns: summaryTableDataKeys;" mat-row></tr>
+      </table>
+    </div>
+  </div> -->
+</div>

@@ -1,0 +1,59 @@
+<div class="slack-notifications">
+  <ng-container [formGroup]="slackBot">
+    <div class="slack-bot__header">
+      <div class="template-info">SLACK BOT NAME:</div>
+      <div class="header__slack-bot-name grey">
+        {{ slackBot.get('name').value }}
+      </div>
+    </div>
+    <div class="slack-bot__toggle">
+      <mat-slide-toggle class="template-info" formControlName="enabled">{{
+        slackBot.get('enabled').value ? 'ENABLED' : 'DISABLED'
+      }}</mat-slide-toggle>
+      <span class="slack-bot__trigger-description grey">(Triggers when {{ getTriggerDescription(slackBot.get('type').value) }})</span>
+    </div>
+    <div class="slack-bot__channels-list">
+      <div class="channels-list__label template-info">ATTACHED TO CHANNELS</div>
+      <div
+        class="channels-list__channel"
+        *ngFor="
+          let channel of slackBot.get('data').get('channels').value;
+          let j = index
+        "
+        [ngClass]="channel.valid ? 'grey' : 'red'"
+      >
+        {{ channel.name }}
+      </div>
+    </div>
+    <div
+      class="mat-container slack-bot__mentions-selector"
+      formGroupName="data"
+    >
+      <mat-form-field appearance="fill">
+        <mat-label>MESSAGE MENTIONS</mat-label>
+        <mat-select
+          multiple
+          formControlName="mentionsSelector"
+          disableOptionCentering
+          panelClass="mentions-select-list"
+        >
+          <div class="custom-panel">
+            <mat-option
+              *ngFor="let user of allUsersListInfo"
+              [disabled]="user.disabled"
+              [value]="user.id"
+              [matTooltipDisabled]="!user.disabled"
+              matTooltip="User is not a member of all app channels"
+              matTooltipPosition="above"
+            >
+              <div class="select-panel-option">
+                <img class="option-image" [src]="user.image" />
+                <div class="option-name">{{ user.name }}</div>
+              </div>
+            </mat-option>
+          </div>
+        </mat-select>
+      </mat-form-field>
+    </div>
+  </ng-container>
+</div>

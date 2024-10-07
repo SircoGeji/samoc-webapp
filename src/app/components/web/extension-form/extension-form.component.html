@@ -1,0 +1,344 @@
+<ng-container [formGroup]="extensionForm">
+  <!-- ELIGIBLE CHARGES FIELD -->
+  <div style="display: flex">
+    <div
+      class="form-component-container-form-container-form-field-medium form-component-container-form-container-form-field"
+    >
+      <mat-form-field>
+        <mat-label>ELIGIBLE CHARGES</mat-label>
+        <mat-select formControlName="eligibleCharges" required multiple>
+          <mat-select-trigger>
+            {{ formatSelectedPlans(extensionForm.controls.eligibleCharges) }}
+          </mat-select-trigger>
+          <mat-option
+            *ngFor="let plan of plans"
+            [value]="plan.planCode"
+            [disabled]="!isPlanAvailable(plan.planCode)"
+          >
+            {{ plan.planCode }} - {{ plan['planDetails'] }}
+          </mat-option>
+        </mat-select>
+        <mat-error
+          *ngIf="extensionForm.controls.eligibleCharges.hasError('required')"
+        >
+          Please select at least one eligible plan
+        </mat-error>
+      </mat-form-field>
+    </div>
+    <!-- CREATE UPGRADE OFFER FIELD -->
+    <div
+      *ngIf="showCreateUpgradeOffer"
+      class="form-component-container-form-container-form-field-medium form-component-container-form-container-form-field"
+    >
+      <mat-checkbox formControlName="createUpgradeOffer"
+        >Create Upgrade Offer</mat-checkbox
+      >
+      <div *ngIf="offerCode" style="font-size: 80%; margin-left: 16px">
+        <mat-hint class="mat-hint-validation-success"
+          >Upgrade offer name is<br />
+          <b>'{{ offerCode }}_upgrade'</b></mat-hint
+        >
+      </div>
+    </div>
+  </div>
+
+  <!--  It makes no sense to configure discount until eligible plans are select -->
+  <div
+    class="form-component-container-form-container-subform"
+    style="margin-bottom: 95px"
+  >
+    <!-- DISCOUNT AMOUNT FIELD -->
+    <div
+      class="form-component-container-form-container-form-field-subfield form-component-container-form-container-form-field"
+    >
+      <mat-form-field appearance="fill" class="example-full-width">
+        <mat-label>PROMO PRICE (USD)</mat-label>
+        <input
+          type="number"
+          min="0"
+          step="0.01"
+          (keypress)="keyPressNumbersWithDecimal($event)"
+          autocomplete="off"
+          formControlName="discountAmount"
+          matInput
+          required
+        />
+        <span
+          class="offer-form-tooltip-button"
+          matTooltip="Selected plan price is ${{ planPrice }} USD"
+          matTooltipPosition="above"
+          >&nbsp;</span
+        >
+        <mat-error
+          *ngIf="extensionForm.controls.discountAmount.hasError('required')"
+          >Please enter the promo price
+        </mat-error>
+        <mat-error
+          *ngIf="extensionForm.controls.discountAmount.hasError('pattern')"
+        >
+          Price should be greater or equal to 0 with maximum 2 decimals
+        </mat-error>
+        <mat-error
+          *ngIf="
+            extensionForm.controls.discountAmount.hasError(
+              'validatePromoPriceError'
+            )
+          "
+        >
+          Please enter a promo price smaller than or equal to the plan price
+        </mat-error>
+      </mat-form-field>
+    </div>
+    <!-- DURATION FIELD -->
+    <div
+      class="form-component-container-form-container-form-field-subfield margin-left-3-perc form-component-container-form-container-form-field"
+    >
+      <mat-form-field>
+        <mat-label>DURATION</mat-label>
+        <mat-select required formControlName="durationType">
+          <mat-option *ngFor="let type of durationTypes" [value]="type.value">
+            {{ type.viewValue }}
+          </mat-option>
+        </mat-select>
+        <mat-error
+          *ngIf="extensionForm.get('durationType').hasError('required')"
+          >Please select a discount duration
+        </mat-error>
+      </mat-form-field>
+    </div>
+    <!-- DURATION AMOUNT FIELD -->
+    <div
+      *ngIf="extensionForm.controls.durationType.value === 'customize'"
+      class="form-component-container-form-container-form-field-subfield margin-left-3-perc form-component-container-form-container-form-field"
+    >
+      <mat-form-field appearance="fill" class="example-full-width">
+        <mat-label>DURATION AMOUNT</mat-label>
+        <input
+          type="number"
+          min="1"
+          step="1"
+          matInput
+          required
+          autocomplete="off"
+          formControlName="durationAmount"
+          (keypress)="keyPressNumbersIntOnly($event)"
+        />
+        <mat-error
+          *ngIf="extensionForm.get('durationAmount').hasError('required')"
+          >Please enter a duration value
+        </mat-error>
+
+        <mat-error
+          *ngIf="
+            extensionForm.get('durationAmount').hasError('min') ||
+            extensionForm.get('durationAmount').hasError('max')
+          "
+          >{{ durationAmountError }}
+        </mat-error>
+
+        <mat-error
+          *ngIf="extensionForm.get('durationAmount').hasError('durationError')"
+          >{{ extensionForm.get('durationAmount').getError('durationError') }}
+        </mat-error>
+      </mat-form-field>
+    </div>
+    <!-- DURATION UNIT -->
+    <div
+      *ngIf="extensionForm.controls.durationType.value === 'customize'"
+      class="form-component-container-form-container-form-field-subfield margin-left-3-perc form-component-container-form-container-form-field"
+    >
+      <mat-form-field>
+        <mat-label>DURATION UNIT</mat-label>
+        <mat-select required formControlName="durationUnit">
+          <mat-option *ngFor="let unit of durationUnits" [value]="unit.value">
+            {{ unit.viewValue }}
+          </mat-option>
+        </mat-select>
+        <mat-error
+          *ngIf="extensionForm.get('durationUnit').hasError('required')"
+          >Please select a duration unit
+        </mat-error>
+      </mat-form-field>
+    </div>
+  </div>
+
+  <!-- CONTENTFUL FIELDS -->
+
+  <!-- OFFER TITLE FIELD -->
+  <div
+    class="form-component-container-form-container-form-field-medium form-component-container-form-container-form-field"
+  >
+    <mat-form-field appearance="fill" class="example-full-width">
+      <mat-label>OFFER TITLE</mat-label>
+      <input
+        matInput
+        required
+        maxlength="{{ nameLength }}"
+        autocomplete="off"
+        formControlName="offerTitle"
+        (focus)="offerTitleCounter.hidden = false"
+        (blur)="offerTitleCounter.hidden = true"
+        (paste)="removeNewlines($event, extensionForm.controls.offerTitle)"
+      />
+
+      <mat-hint #offerTitleCounter class="char-counter" align="end" hidden>
+        {{ extensionForm.get('offerTitle').value.length }} / {{ nameLength }}
+      </mat-hint>
+
+      <mat-error *ngIf="extensionForm.get('offerTitle').hasError('required')"
+        >Please enter an offer name
+      </mat-error>
+
+      <mat-error *ngIf="extensionForm.get('offerTitle').hasError('pattern')"
+        >{{ generalTextFieldPatternErrMsg }}
+      </mat-error>
+    </mat-form-field>
+  </div>
+
+  <!-- OFFER DESCRIPTION FIELD -->
+  <div
+    class="form-component-container-form-container-form-field-large form-component-container-form-container-form-field"
+  >
+    <mat-form-field appearance="fill" class="example-full-width">
+      <mat-label>OFFER DESCRIPTION</mat-label>
+      <input
+        matInput
+        required
+        maxlength="{{ headerLength }}"
+        autocomplete="off"
+        formControlName="offerDescription"
+        (focus)="offerDescriptionCounter.hidden = false"
+        (blur)="offerDescriptionCounter.hidden = true"
+        (paste)="
+          removeNewlines($event, extensionForm.controls.offerDescription)
+        "
+      />
+
+      <mat-hint class="mat-hint-validation-success" align="start">
+        Use <b>&lt;strong&gt;</b> to enter offer price, e.g.
+        '&lt;strong&gt;$14.99&lt;/strong&gt; for 6 months' to display <br />
+        '<strong>$14.99</strong> for 6 months'<br />
+      </mat-hint>
+      <mat-hint
+        #offerDescriptionCounter
+        class="char-counter"
+        align="end"
+        hidden
+      >
+        {{ extensionForm.get('offerDescription').value.length }} /
+        {{ headerLength }}
+      </mat-hint>
+
+      <mat-error
+        *ngIf="extensionForm.get('offerDescription').hasError('required')"
+        >Please enter an offer header
+      </mat-error>
+
+      <mat-error
+        *ngIf="extensionForm.get('offerDescription').hasError('pattern')"
+        >{{ generalTextFieldPatternErrMsg }}
+      </mat-error>
+    </mat-form-field>
+  </div>
+
+  <!-- OFFER TERMS FIELD -->
+  <div
+    class="form-component-container-form-container-form-field-text form-component-container-form-container-form-field"
+  >
+    <mat-form-field appearance="fill" class="example-full-width">
+      <mat-label>OFFER TERMS</mat-label>
+      <textarea
+        matInput
+        required
+        maxlength="{{ offerTermsLength }}"
+        cdkTextareaAutosize
+        cdkAutosizeMinRows="1"
+        cdkAutosizeMaxRows="2"
+        #autosize="cdkTextareaAutosize"
+        formControlName="offerTerms"
+        (focus)="offerTermsCounter.hidden = false"
+        (blur)="offerTermsCounter.hidden = true"
+        (paste)="removeNewlines($event, extensionForm.controls.offerTerms)"
+      ></textarea>
+
+      <mat-hint #offerTermsCounter class="char-counter" align="end" hidden>
+        {{ extensionForm.get('offerTerms').value.length }} /
+        {{ offerTermsLength }}
+      </mat-hint>
+
+      <mat-error *ngIf="extensionForm.get('offerTerms').hasError('required')"
+        >Please enter claim offer terms
+      </mat-error>
+
+      <mat-error *ngIf="extensionForm.get('offerTerms').hasError('pattern')"
+        >{{ generalTextFieldPatternErrMsg }}
+      </mat-error>
+    </mat-form-field>
+  </div>
+  <!-- > OFFER BANNER TEXT -->
+  <div
+    class="form-component-container-form-container-form-field-large form-component-container-form-container-form-field"
+  >
+    <mat-form-field appearance="fill" class="example-full-width">
+      <mat-label>OFFER APPLIED BANNER TEXT</mat-label>
+      <input
+        matInput
+        required
+        maxlength="{{ bannerTextLength }}"
+        autocomplete="off"
+        formControlName="bannerText"
+        (focus)="bannerTextCounter.hidden = false"
+        (blur)="bannerTextCounter.hidden = true"
+        (paste)="removeNewlines($event, extensionForm.controls.bannerText)"
+      />
+
+      <mat-hint #bannerTextCounter class="char-counter" align="end" hidden>
+        {{ extensionForm.get('bannerText').value?.length }} /
+        {{ bannerTextLength }}
+      </mat-hint>
+
+      <mat-error *ngIf="extensionForm.get('bannerText').hasError('required')"
+        >Please enter an offer business owner
+      </mat-error>
+
+      <mat-error *ngIf="extensionForm.get('bannerText').hasError('pattern')"
+        >{{ generalTextFieldPatternErrMsg }}
+      </mat-error>
+    </mat-form-field>
+  </div>
+  <!-- >OFFER BUSINESS OWNER -->
+  <div
+    class="form-component-container-form-container-form-field-medium form-component-container-form-container-form-field"
+  >
+    <mat-form-field appearance="fill" class="example-full-width">
+      <mat-label>OFFER BUSINESS OWNER</mat-label>
+      <input
+        matInput
+        required
+        maxlength="{{ ownerLength }}"
+        autocomplete="off"
+        formControlName="offerBusinessOwner"
+        (focus)="offerOwnerCounter.hidden = false"
+        (blur)="offerOwnerCounter.hidden = true"
+        (paste)="
+          removeNewlines($event, extensionForm.controls.offerBusinessOwner)
+        "
+      />
+
+      <mat-hint #offerOwnerCounter class="char-counter" align="end" hidden>
+        {{ extensionForm.get('offerBusinessOwner').value.length }} /
+        {{ ownerLength }}
+      </mat-hint>
+
+      <mat-error
+        *ngIf="extensionForm.get('offerBusinessOwner').hasError('required')"
+        >Please enter an offer business owner
+      </mat-error>
+
+      <mat-error
+        *ngIf="extensionForm.get('offerBusinessOwner').hasError('pattern')"
+        >{{ generalTextFieldPatternErrMsg }}
+      </mat-error>
+    </mat-form-field>
+  </div>
+</ng-container>

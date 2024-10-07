@@ -1,0 +1,32 @@
+<app-header></app-header>
+
+<app-spinner></app-spinner>
+
+<div class="settings-component-container">
+  <form [formGroup]="settings">
+    <mat-tab-group [(selectedIndex)]="selectedIndex">
+      <!-- SLACK NOTIFICATIONS TAB -->
+      <mat-tab label="SLACK NOTIFICATIONS">
+        <div class="tab-content-main">
+          <slack-notifications-settings [formGroup]="settings"></slack-notifications-settings>
+        </div>
+      </mat-tab>
+  
+      <!-- CONTENT TAB -->
+      <!-- <mat-tab label="ANOTHER"> -->
+        <!-- TAB TITLE BLOCK -->
+        <!-- <div class="tab-content-title-container">
+          <span class="tab-content-title">ANOTHER</span>
+        </div> -->
+  
+        <!-- <div class="tab-content-main"></div> -->
+      <!-- </mat-tab> -->
+    </mat-tab-group>
+  </form>
+  <div class="button-group">
+    <button class="button-primary"
+    [disabled]="isUpdateButtonDisabled()"
+    [ngClass]="{'button-disabled': isUpdateButtonDisabled()}"
+    (click)="updateSettingsConfig();">UPDATE</button>
+  </div>
+</div>

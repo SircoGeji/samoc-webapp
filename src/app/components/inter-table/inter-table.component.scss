@@ -1,0 +1,537 @@
+@import '../../../base/_variables.scss';
+@import '../../../base/_mixin.scss';
+
+@include custom-scrollbar();
+
+.filters-block-hidden,
+.filters-block-shown {
+  transition: all .3s ease-in-out;
+}
+.filters-block-shown {
+  width: 400px;
+}
+.filters-block-hidden {
+  width: 0;
+}
+
+.page-filters-container {
+  overflow: auto;
+  height: calc(100vh - 72px);
+  background: #2F2F2F;
+
+  .filter-accordion-container {
+    padding: 10px;
+
+    .filters-accordion-content {
+      max-height: 200px;
+      min-height: 0;
+      overflow-y: auto;
+
+      .accordion-filter-container {
+        display: flex;
+        align-items: center;
+        justify-content: flex-start;
+
+        label {
+          padding: 10px 0 10px 16px;
+        }
+
+        input {
+          color: #000;
+          margin-top: 5px;
+          border: solid 1px grey;
+          padding-left: 5px;
+          width: 100%;
+        }
+
+        i.material-icons {
+          cursor: pointer;
+        }
+      }
+    }
+  }
+}
+
+.disabled-option {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.custom-panel {
+  max-height: 200px; // mat-select-panel height = 256px. 200 + 10 + 44 + 2
+  overflow: auto;
+}
+
+.inter-table-component-container {
+  @include inter-table();
+  display: block;
+
+  .mat-select-arrow-wrapper {
+    margin-right: 10px;
+    .mat-select-arrow {
+      color: #f0f0f0;
+    }
+  }
+
+  .add-inter-offer-container {
+    width: 150px;
+    height: 36px;
+    background-color: $red;
+    border: none;
+    border-radius: 4px;
+    outline: none;
+    cursor: pointer;
+    color: white;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    button {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      background-color: transparent;
+      color: inherit;
+      border: none;
+      cursor: pointer;
+    }
+  }
+
+  .lg-only {
+    @media only screen and (max-width: 1200px) {
+      display: none;
+    }
+  }
+
+  .below-lg {
+    @media only screen and (min-width: 1201px) {
+      display: none !important;
+    }
+  }
+
+  .search-input-container {
+    @include inter-input-field-width(300px);
+    .mat-form-field-infix {
+      padding-bottom: none;
+    }
+  }
+
+  .results-text-container {
+    height: auto;
+    margin: 15px 0 0 0;
+  }
+
+  .flex-container {
+    &-second {
+      margin-top: 15px;
+    }
+
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+  }
+
+  .space-between {
+    justify-content: space-between !important;
+  }
+
+  .status-filter {
+    span {
+      color: $label-grey;
+      font-weight: bold;
+    }
+  }
+
+  .right-side {
+    display: flex;
+    align-items: center;
+  }
+
+  &-icon {
+    position: absolute;
+    right: 0;
+    z-index: 10;
+    display: inline-block;
+
+    &.clear-icon {
+      cursor: pointer;
+    }
+  }
+
+  &-search-result-text {
+    position: relative;
+    bottom: -5px;
+    padding: 0 15px;
+    color: $label-grey;
+  }
+
+  &-table {
+    width: 100%;
+    margin: 28px 40px 0 40px;
+    
+    &-container {
+      overflow: auto;
+      height: calc(100vh - 170px);
+      &-action {
+        position: relative;
+        width: 60px;
+        height: 40px;
+  
+        &-icon {
+          position: absolute;
+          top: 25%;
+          left: 35%;
+          width: 20px;
+          height: 20px;
+          cursor: pointer;
+        }
+      }
+  
+      &-icon {
+        position: relative;
+        top: 3px;
+        width: 20px;
+        height: 20px;
+      }
+  
+      &-status {
+        width: 100px;
+        height: 32px;
+        color: white;
+        font-size: 9px;
+        line-height: 3.5;
+        text-align: center;
+        border-radius: 8px;
+      }
+  
+      &-tests {
+        width: 24px;
+        height: 32px;
+        color: white;
+        font-size: 9px;
+        line-height: 3.5;
+        text-align: center;
+        border-radius: 8px;
+        button {
+          width: 24px;
+          height: 24px;
+          border-radius: 50%;
+          cursor: pointer;
+        }
+        button:disabled {
+          opacity: 0.5;
+          cursor: not-allowed;
+        }
+      }
+    }
+    .page-buttons-container {
+      display: flex;
+      justify-content: space-between;
+    }
+    .odd-element {
+      background-color: rgba(255, 255, 255, 0.05);
+    }
+
+    .mat-sort-header-content {
+      text-align: left !important;
+    }
+    .mat-sort-header-arrow {
+      margin-right: 10px;
+    }
+
+    @keyframes blinking {
+      from {
+        background-color: $blinking-color-from;
+      }
+      50% {
+        background-color: $blinking-color-to;
+      }
+      to {
+        background-color: $blinking-color-from;
+      }
+    }
+
+    .pending-blink {
+      animation: blinking 2s infinite;
+    }
+  }
+
+  .mat-form-field-ripple {
+    background-color: $input-underline-grey;
+  }
+
+  .mat-form-field.mat-focused .mat-form-field-ripple {
+    width: 100%;
+    max-width: 300px;
+    background-color: $input-background-grey;
+  }
+
+  .mat-sort-header-arrow {
+    width: 12px;
+    height: 12px;
+    margin-left: 8px;
+  }
+
+  .mat-form-field {
+    height: 50px;
+  }
+
+  .mat-form-field-label {
+    color: $label-grey;
+    font-weight: bold;
+    font-style: normal;
+    font-stretch: normal;
+    line-height: 1.21;
+    letter-spacing: normal;
+    text-align: left;
+  }
+
+  .mat-form-field.mat-focused .mat-form-field-label {
+    color: $label-grey;
+  }
+
+  .mat-input-element {
+    width: 87%;
+    margin-top: 4px;
+    padding-left: 12px;
+    color: white;
+    caret-color: $label-grey;
+  }
+
+  .mat-input-element::placeholder {
+    color: $input-placeholder-grey;
+  }
+
+  .mat-select-value-text {
+    position: absolute;
+  }
+
+  .mat-form-field-infix {
+    width: 432px;
+    height: 25px;
+    font-size: 14px;
+    background-color: rgba(255, 255, 255, 0.1);
+    border-bottom: 1px solid $input-underline-white;
+    @media (max-width: $screen-sm) {
+      width: 316px;
+    }
+  }
+
+  .mat-form-field-appearance-fill .mat-form-field-flex {
+    padding: 0;
+  }
+
+  .mat-form-field-underline {
+    bottom: 0;
+  }
+
+  .mat-form-field-wrapper {
+    padding: 0;
+  }
+
+  .button-container {
+    float: right;
+
+    span.image {
+      float: left;
+      margin-left: 10px;
+    }
+
+    span.action-text {
+      position: relative;
+      top: 5px;
+      right: 5px;
+    }
+
+    @media (max-width: $screen-sm) {
+      display: block;
+      float: left;
+      width: 100%;
+      padding: 20px 0;
+    }
+  }
+
+  .no-results-text {
+    position: absolute;
+    top: 245px;
+    left: 50px;
+    color: $label-grey;
+  }
+
+  .status-filter-container {
+    margin-right: 10px;
+    @include inter-input-field-width(200px);
+    .mat-form-field-infix {
+      padding: 0.25em 0 0.7em 0;
+    }
+    .mat-select-value-text {
+      top: -6px;
+      left: 15px;
+    }
+  }
+}
+
+.mat-tooltip {
+  white-space: normal !important;
+  word-break: break-all !important;
+}
+
+.mat-paginator-container {
+  overflow: hidden;
+}
+
+th.mat-header-cell {
+  word-wrap: break-word !important;
+  overflow-wrap: break-word;
+  border-color: $input-underline-grey;
+  border-width: 2px;
+}
+
+.glrollback {
+  background-color: rgba(255, 0, 0, 0.3);
+
+  &:hover {
+    background-color: rgba(255, 0, 0, 0.3);
+  }
+}
+
+.table-component-container-plans-table {
+  .mat-column-statusId {
+    flex: 0 0 12% !important;
+    width: 12% !important;
+    min-width: 110px;
+    max-width: 110px;
+    white-space: unset !important;
+    word-wrap: break-word;
+    word-break: break-word;
+    overflow-wrap: break-word;
+    hyphens: auto;
+  }
+
+  .mat-column-planCode {
+    flex: 0 0 30% !important;
+    width: 30% !important;
+    white-space: unset !important;
+    word-wrap: break-word;
+    word-break: break-word;
+    overflow-wrap: break-word;
+    hyphens: none;
+  }
+}
+
+.table-component-container-offers-table {
+  .mat-column-statusId {
+    flex: 0 0 10% !important;
+    width: 10% !important;
+    min-width: 110px;
+    max-width: 110px;
+    white-space: unset !important;
+    word-wrap: break-word;
+    word-break: break-word;
+    overflow-wrap: break-word;
+    hyphens: auto;
+  }
+
+  .mat-column-offerName {
+    flex: 0 0 15% !important;
+    width: 15% !important;
+    white-space: unset !important;
+    word-wrap: break-word;
+    word-break: break-word;
+    overflow-wrap: break-word;
+    hyphens: auto;
+  }
+
+  .mat-column-offerCode {
+    flex: 0 0 15% !important;
+    width: 15% !important;
+    white-space: unset !important;
+    word-wrap: break-word;
+    word-break: break-word;
+    overflow-wrap: break-word;
+    hyphens: none;
+  }
+
+  .mat-column-totalUniqueCodes {
+    flex: 0 0 6% !important;
+    width: 6% !important;
+    min-width: 45px;
+    max-width: 45px;
+    white-space: unset !important;
+    word-wrap: break-word;
+    word-break: break-word;
+    overflow-wrap: break-word;
+    hyphens: auto;
+  }
+
+  .mat-column-offerCodeType {
+    flex: 0 0 7% !important;
+    width: 7% !important;
+    min-width: 60px;
+    max-width: 60px;
+    white-space: unset !important;
+    word-wrap: break-word;
+    word-break: break-word;
+    overflow-wrap: break-word;
+    hyphens: auto;
+  }
+
+  .mat-column-planCode {
+    flex: 0 0 7% !important;
+    width: 7% !important;
+    min-width: 60px;
+    max-width: 60px;
+    white-space: unset !important;
+    word-wrap: break-word;
+    word-break: break-word;
+    overflow-wrap: break-word;
+    hyphens: auto;
+  }
+
+  .mat-column-promoDurationString {
+    flex: 0 0 8% !important;
+    width: 8% !important;
+    min-width: 70px;
+    max-width: 70px;
+    white-space: unset !important;
+    word-wrap: break-word;
+    word-break: break-word;
+    overflow-wrap: break-word;
+    hyphens: auto;
+  }
+
+  .mat-column-discountAmount {
+    flex: 0 0 8% !important;
+    width: 8% !important;
+    min-width: 45px;
+    max-width: 45px;
+    white-space: unset !important;
+    word-wrap: break-word;
+    word-break: break-word;
+    overflow-wrap: break-word;
+    hyphens: auto;
+  }
+
+  .mat-column-endDate {
+    flex: 0 0 8% !important;
+    width: 8% !important;
+    min-width: 70px;
+    max-width: 70px;
+    white-space: unset !important;
+    word-wrap: break-word;
+    word-break: break-word;
+    overflow-wrap: break-word;
+    hyphens: auto;
+  }
+
+  .mat-column-link {
+    flex: 0 0 1% !important;
+    width: 1% !important;
+    min-width: 55px;
+    max-width: 55px;
+    white-space: unset !important;
+    word-wrap: break-word;
+    word-break: break-word;
+    overflow-wrap: break-word;
+    hyphens: auto;
+  }
+}

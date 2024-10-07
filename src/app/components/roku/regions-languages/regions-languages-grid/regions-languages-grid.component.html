@@ -1,0 +1,412 @@
+<app-header></app-header>
+
+<app-spinner></app-spinner>
+
+<div class="regions-languages-component-container">
+  <div
+    *ngIf="selectedTab.value === 0"
+    class="regions-languages-filters-container"
+    [ngClass]="
+      showFiltersBlock ? 'filters-block-shown' : 'filters-block-hidden'
+    "
+  >
+    <div
+      class="filter-clear-all-button-container"
+      [ngClass]="
+        showFiltersBlock
+          ? 'filter-clear-all-button-container-shown'
+          : 'filter-clear-all-button-container-hidden'
+      "
+    >
+      <button
+        class="filter-clear-all-button"
+        (click)="clearAllRegionsFilters()"
+        matTooltip="Clear all filters"
+      >
+        <mat-icon class="filter-clear-all-button-icon">clear</mat-icon>
+      </button>
+    </div>
+    <div class="filter-accordion-container">
+      <!-- FILTERS: REGION NAME -->
+      <mat-accordion class="filters-accordion" multi>
+        <mat-expansion-panel style="margin-top: 10px">
+          <mat-expansion-panel-header>
+            <mat-panel-title style="font-weight: bold">
+              {{ regionsFiltersHeaders[0] }}
+            </mat-panel-title>
+          </mat-expansion-panel-header>
+
+          <div class="filters-accordion-content">
+            <div matInput class="accordion-filter-container">
+              <input
+                matInput
+                #regionNameSearchInputRef
+                (keyup)="editFilterValue($event, 'name')"
+                [(ngModel)]="regionNameFilterValue"
+                autocomplete="off"
+                placeholder="Enter Region Name"
+              />
+              <i
+                *ngIf="regionNameSearchInputRef.value.length == 0"
+                class="material-icons md-dark md-inactive inter-table-component-container-icon"
+                >search</i
+              >
+              <i
+                (click)="clearSearchInputs('name', regionNameSearchInputRef)"
+                *ngIf="regionNameSearchInputRef.value.length != 0"
+                class="material-icons md-dark md-inactive inter-table-component-container-icon clear-icon"
+              >
+                close
+              </i>
+            </div>
+          </div>
+        </mat-expansion-panel>
+      </mat-accordion>
+      <!-- FILTERS: CODE -->
+      <mat-accordion class="filters-accordion" multi>
+        <mat-expansion-panel style="margin-top: 10px">
+          <mat-expansion-panel-header>
+            <mat-panel-title style="font-weight: bold">
+              {{ regionsFiltersHeaders[1] }}
+            </mat-panel-title>
+          </mat-expansion-panel-header>
+
+          <div class="filters-accordion-content">
+            <div matInput class="accordion-filter-container">
+              <input
+                matInput
+                #codeSearchInputRef
+                (keyup)="editFilterValue($event, 'code')"
+                [(ngModel)]="regionCodeFilterValue"
+                autocomplete="off"
+                placeholder="Enter Region Code"
+              />
+              <i
+                *ngIf="codeSearchInputRef.value.length == 0"
+                class="material-icons md-dark md-inactive inter-table-component-container-icon"
+                >search</i
+              >
+              <i
+                (click)="clearSearchInputs('code', codeSearchInputRef)"
+                *ngIf="codeSearchInputRef.value.length != 0"
+                class="material-icons md-dark md-inactive inter-table-component-container-icon clear-icon"
+              >
+                close
+              </i>
+            </div>
+          </div>
+        </mat-expansion-panel>
+      </mat-accordion>
+
+      <!-- FILTERS: SUPPORTED LANGUAGES-->
+      <mat-accordion class="filters-accordion" multi>
+        <mat-expansion-panel style="margin-top: 10px">
+          <mat-expansion-panel-header>
+            <mat-panel-title style="font-weight: bold">
+              {{ regionsFiltersHeaders[2] }}
+            </mat-panel-title>
+          </mat-expansion-panel-header>
+          <div class="filters-accordion-content">
+            <div
+              matInput
+              class="accordion-filter-container"
+              *ngFor="let language of languagesSet"
+            >
+              <mat-checkbox
+                (change)="
+                  editFilterValue($event, 'supportedLanguages', language)
+                "
+                [checked]="
+                  isElementChecked(language, supportedLanguagesFilterValue)
+                "
+              >
+                {{ language }}
+              </mat-checkbox>
+            </div>
+          </div>
+        </mat-expansion-panel>
+      </mat-accordion>
+    </div>
+  </div>
+  <div
+    *ngIf="selectedTab.value === 1"
+    class="regions-languages-filters-container"
+    [ngClass]="
+      showFiltersBlock ? 'filters-block-shown' : 'filters-block-hidden'
+    "
+  >
+    <div
+      class="filter-clear-all-button-container"
+      [ngClass]="
+        showFiltersBlock
+          ? 'filter-clear-all-button-container-shown'
+          : 'filter-clear-all-button-container-hidden'
+      "
+    >
+      <button
+        class="filter-clear-all-button"
+        (click)="clearAllLanguagesFilters()"
+        matTooltip="Clear all filters"
+      >
+        <mat-icon class="filter-clear-all-button-icon">clear</mat-icon>
+      </button>
+    </div>
+    <div class="filter-accordion-container">
+      <!-- FILTERS: NAME -->
+      <mat-accordion class="filters-accordion" multi>
+        <mat-expansion-panel style="margin-top: 10px">
+          <mat-expansion-panel-header>
+            <mat-panel-title style="font-weight: bold">
+              {{ languagesFiltersHeaders[0] }}
+            </mat-panel-title>
+          </mat-expansion-panel-header>
+
+          <div class="filters-accordion-content">
+            <div matInput class="accordion-filter-container">
+              <input
+                matInput
+                #languageNameSearchInputRef
+                (keyup)="editFilterValue($event, 'name')"
+                [(ngModel)]="languageNameFilterValue"
+                autocomplete="off"
+                placeholder="Enter Language Name"
+              />
+              <i
+                *ngIf="languageNameSearchInputRef.value.length == 0"
+                class="material-icons md-dark md-inactive inter-table-component-container-icon"
+              >
+                search
+              </i>
+              <i
+                (click)="clearSearchInputs('name', languageNameSearchInputRef)"
+                *ngIf="languageNameSearchInputRef.value.length != 0"
+                class="material-icons md-dark md-inactive inter-table-component-container-icon clear-icon"
+              >
+                close
+              </i>
+            </div>
+          </div>
+        </mat-expansion-panel>
+      </mat-accordion>
+      <mat-accordion class="filters-accordion" multi>
+        <mat-expansion-panel style="margin-top: 10px">
+          <mat-expansion-panel-header>
+            <mat-panel-title style="font-weight: bold">
+              {{ languagesFiltersHeaders[1] }}
+            </mat-panel-title>
+          </mat-expansion-panel-header>
+
+          <div class="filters-accordion-content">
+            <div matInput class="accordion-filter-container">
+              <input
+                matInput
+                #codeSearchInputRef
+                (keyup)="editFilterValue($event, 'code')"
+                [(ngModel)]="languageCodeFilterValue"
+                autocomplete="off"
+                placeholder="Enter Language Code"
+              />
+              <i
+                *ngIf="codeSearchInputRef.value.length == 0"
+                class="material-icons md-dark md-inactive inter-table-component-container-icon"
+              >
+                search
+              </i>
+              <i
+                (click)="clearSearchInputs('code', codeSearchInputRef)"
+                *ngIf="codeSearchInputRef.value.length != 0"
+                class="material-icons md-dark md-inactive inter-table-component-container-icon clear-icon"
+              >
+                close
+              </i>
+            </div>
+          </div>
+        </mat-expansion-panel>
+      </mat-accordion>
+    </div>
+  </div>
+  <div class="regions-languages-tab-group-container">
+    <mat-tab-group
+      [selectedIndex]="selectedTab.value"
+      (selectedIndexChange)="changeTab($event)"
+    >
+      <!-- REGIONS TAB -->
+      <mat-tab label="REGIONS">
+        <div class="regions-languages-grid-container">
+          <div class="regions-languages-buttons-container">
+            <button class="button-primary" (click)="toggleFiltersBlock()">
+              FILTERS
+            </button>
+            <button class="button-primary" (click)="createRegion()">
+              CREATE NEW
+            </button>
+          </div>
+          <div class="regions-languages-table-container">
+            <table
+              [dataSource]="regionsSource"
+              class="mat-elevation-z8"
+              #regionTable
+              mat-table
+              matSort
+            >
+              <ng-container
+                *ngFor="let column of regionsDataKeys; index as i"
+                [matColumnDef]="column"
+              >
+                <th
+                  class="table-header-row"
+                  *matHeaderCellDef
+                  mat-header-cell
+                  mat-sort-header
+                  [disabled]="regionsTableHeaders[i] === ''"
+                >
+                  {{ regionsTableHeaders[i] }}
+                </th>
+                <td
+                  *matCellDef="let element; index as j"
+                  [ngSwitch]="column"
+                  mat-cell
+                >
+                  <div *ngSwitchCase="'name'">
+                    <a (click)="menuAction('EDIT', 0, element)">{{
+                      element[column]
+                    }}</a>
+                  </div>
+                  <div *ngSwitchCase="'code'">
+                    {{ element[column] }}
+                  </div>
+                  <div *ngSwitchCase="'languages'">
+                    {{ element[column] }}
+                  </div>
+                  <div *ngSwitchCase="'actions'">
+                    <button
+                      class="table-menu-action-button"
+                      mat-icon-button
+                      [matMenuTriggerFor]="menu"
+                    >
+                      <mat-icon>more_horiz</mat-icon>
+                    </button>
+                    <mat-menu #menu="matMenu">
+                      <button
+                        mat-menu-item
+                        (click)="menuAction('EDIT', 0, element)"
+                      >
+                        <span>Edit</span>
+                      </button>
+                      <button
+                        mat-menu-item
+                        (click)="menuAction('DELETE', 0, element)"
+                      >
+                        <span>Delete</span>
+                      </button>
+                    </mat-menu>
+                  </div>
+                </td>
+              </ng-container>
+              <tr
+                *matHeaderRowDef="regionsDataKeys; sticky: true"
+                mat-header-row
+              ></tr>
+              <tr *matRowDef="let row; columns: regionsDataKeys" mat-row></tr>
+            </table>
+            <mat-paginator
+              #regionsPaginator="matPaginator"
+              (page)="setPageSize($event, 'Region')"
+              [pageSize]="getPageSize('Region')"
+              [pageSizeOptions]="getPageSizeOptions()"
+              showFirstLastButtons
+            ></mat-paginator>
+          </div>
+        </div>
+      </mat-tab>
+
+      <!-- LANGUAGES TAB-->
+      <mat-tab label="LANGUAGES">
+        <div class="regions-languages-grid-container">
+          <div class="regions-languages-buttons-container">
+            <button class="button-primary" (click)="toggleFiltersBlock()">
+              FILTERS
+            </button>
+            <button class="button-primary" (click)="createLanguage()">
+              CREATE NEW
+            </button>
+          </div>
+          <div class="regions-languages-table-container">
+            <table
+              [dataSource]="languagesSource"
+              class="mat-elevation-z8"
+              mat-table
+              #languageTable
+              matSort
+            >
+              <ng-container
+                *ngFor="let column of languagesDataKeys; index as i"
+                [matColumnDef]="column"
+              >
+                <th
+                  class="table-header-row"
+                  *matHeaderCellDef
+                  mat-header-cell
+                  mat-sort-header
+                  [disabled]="languagesTableHeaders[i] === ''"
+                >
+                  {{ languagesTableHeaders[i] }}
+                </th>
+                <td
+                  *matCellDef="let element; index as j"
+                  [ngSwitch]="column"
+                  mat-cell
+                >
+                  <div *ngSwitchCase="'name'">
+                    <a (click)="menuAction('EDIT', 1, element)">{{
+                      element[column]
+                    }}</a>
+                  </div>
+                  <div *ngSwitchCase="'code'">
+                    {{ element[column] }}
+                  </div>
+                  <div *ngSwitchCase="'actions'">
+                    <button
+                      class="table-menu-action-button"
+                      mat-icon-button
+                      [matMenuTriggerFor]="menu"
+                    >
+                      <mat-icon>more_horiz</mat-icon>
+                    </button>
+                    <mat-menu #menu="matMenu">
+                      <button
+                        mat-menu-item
+                        (click)="menuAction('EDIT', 1, element)"
+                      >
+                        <span>Edit</span>
+                      </button>
+                      <button
+                        mat-menu-item
+                        *ngIf="!isDeleteLanguageDisabled(element)"
+                        (click)="menuAction('DELETE', 1, element)"
+                      >
+                        <span>Delete</span>
+                      </button>
+                    </mat-menu>
+                  </div>
+                </td>
+              </ng-container>
+              <tr
+                *matHeaderRowDef="languagesDataKeys; sticky: true"
+                mat-header-row
+              ></tr>
+              <tr *matRowDef="let row; columns: languagesDataKeys" mat-row></tr>
+            </table>
+            <mat-paginator
+              #languagesPaginator="matPaginator"
+              (page)="setPageSize($event, 'Language')"
+              [pageSize]="getPageSize('Language')"
+              [pageSizeOptions]="getPageSizeOptions()"
+              showFirstLastButtons
+            ></mat-paginator>
+          </div>
+        </div>
+      </mat-tab>
+    </mat-tab-group>
+  </div>
+</div>

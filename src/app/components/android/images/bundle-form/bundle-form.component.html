@@ -1,0 +1,70 @@
+<app-header></app-header>
+
+<app-spinner></app-spinner>
+
+<div class="bundle-container" [formGroup]="formGroup" *ngIf="isFormVisible">
+  <header class="bundle-form-header">
+    <span (click)="navigateBack()" class="backbtn back-arrow material-icons md-light md-36">
+      keyboard_arrow_left
+    </span>
+    <div class="bundle-form bundle-mat-container">
+      <mat-form-field appearance="fill">
+        <mat-label>Bundle Name*</mat-label>
+        <input matInput type="text" placeholder="Add text" autocomplete="off" formControlName="bundleName"
+          (focus)="checkBundleName = false" (blur)="checkBundleName = true">
+        <mat-error *ngIf="formGroup.controls.bundleName.hasError('required')">
+          Please enter Bundle Name
+        </mat-error>
+        <mat-error *ngIf="formGroup.controls.bundleName.hasError('fieldValueIsNotUnique')">
+          This Bundle Name already exists
+        </mat-error>
+      </mat-form-field>
+    </div>
+    <button class="bundle-save-button button-secondary" (click)="save()"
+      [ngClass]="{'button-disabled': isSaveButtonDisabled()}" [disabled]="isSaveButtonDisabled()">
+      {{ pageQuery==='view' ? 'UPDATE' : 'SAVE' }}
+    </button>
+    <button *ngIf="canShowPublishButton()" (click)="publish()" class="bundle-publish-button button-primary"
+      [ngClass]="{'button-disabled': isPublishButtonDisabled()}" [disabled]="isPublishButtonDisabled()"
+      style="margin-right: 20px;">
+      PUBLISH
+    </button>
+  </header>
+
+  <div class="bundle-form-container">
+    <div class="bundle-form-regions-container">
+      <p class="regions-label">SUPPORTED REGIONS</p>
+      <div class="regions-checkboxed-container">
+        <div class="region-checkbox-container" *ngFor="let region of regions; let i = index">
+          <mat-checkbox class="white-border-checkbox" (change)="changeRegionCheckbox(i)" [checked]="region.checked">
+            {{ region.code }}
+          </mat-checkbox>
+        </div>
+      </div>
+    </div>
+
+    <div class="bundle-form-images-grid">
+      <div class="bundle-image-container" *ngFor="let image of images; let i = index">
+        <label>{{ image.name.toUpperCase() }}</label>
+        <div
+          class="image-container"
+          (click)="selectImage(i, image)"
+          matTooltip="{{ image.placementTooltip }}"
+          matTooltipClass="higher-tooltip"
+          matTooltipPosition="above"
+        >
+          <div class="upload-icon-container" matTooltip="Upload image" matTooltipPosition="above">
+            <mat-icon (click)="uploadImage(i, image); $event.stopPropagation();">
+              cloud_upload</mat-icon>
+          </div>
+          <div class="thumbnail">
+            <img *ngIf="image.url" [src]="image.url" class="bundle-image">
+            <div *ngIf="!image.url" class="empty-image">
+              <mat-icon [ngClass]="{'required-image': image.required}">image</mat-icon>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

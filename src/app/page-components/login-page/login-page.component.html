@@ -1,0 +1,49 @@
+<!-- placeholder to allow login and test route permission -->
+<app-header></app-header>
+<div class="login-page-container">
+  <div class="login-page-box">
+    <h2 class="login-page-box-header">LOG IN</h2>
+    <p>
+      <mat-hint class="mat-hint-validation-success" align="start">
+        Use your twlght domain <b>username</b> and password<br/>
+        You should be a member of the <b>RG-samoc-Users</b> group
+      </mat-hint>
+    </p>
+    <form (ngSubmit)="login()" [formGroup]="loginForm">
+      <div class="login-page-box-section">
+        <div class="login-page-box-section-field">
+          <mat-form-field appearance="fill" class="example-full-width">
+            <mat-label>USERNAME</mat-label>
+            <input
+              autocomplete="off"
+              formControlName="username"
+              matInput
+              required
+            />
+            <mat-error *ngIf="username.hasError('required')">
+              Username is required
+            </mat-error>
+          </mat-form-field>
+        </div>
+
+        <div class="login-page-box-section-field">
+          <mat-form-field appearance="fill" class="example-full-width">
+            <mat-label>PASSWORD</mat-label>
+            <input
+              [type]="'password'"
+              autocomplete="off"
+              formControlName="password"
+              matInput
+              name="password"
+              required
+            />
+            <mat-error *ngIf="password.hasError('required')">
+              Password is required
+            </mat-error>
+          </mat-form-field>
+        </div>
+      </div>
+      <button class="button-secondary" type="submit">LOG IN</button>
+    </form>
+  </div>
+</div>

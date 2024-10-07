@@ -1,0 +1,240 @@
+@import '../../../../../base/_variables.scss';
+@import '../../../../../base/_mixin.scss';
+
+@include custom-scrollbar();
+
+$grey: rgb(120,120,120);
+
+.android-sku-form-styles-container {
+  .android-sku-form-boolean-container {
+    label {
+      padding: 0;
+    }
+    .mat-checkbox-frame {
+      border-color: grey;
+    }
+  }
+  .android-sku-form-header {
+    position: relative;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    margin: 10px 20px 10px 20px;
+  }
+
+  .android-sku-title {
+    position: relative;
+    left: 45px;
+    color: #b1b1b1;
+    font-weight: 300;
+    font-size: 24px;
+    font-style: normal;
+    font-stretch: normal;
+    letter-spacing: 0.72px;
+  }
+
+  .back-arrow {
+    position: relative;
+    left: 15px;
+  }
+
+  .android-sku-form-save-button {
+    position: absolute;
+    right: 0;
+  }
+
+  .android-sku-form-save-button {
+    position: absolute;
+    right: 0;
+  }
+
+  .arrow-drop-down {
+    position: absolute;
+    top: 5px;
+    right: 8px;
+  }
+
+  .android-sku-form-container {
+    @include mat-container();
+    @include mat-select-container();
+    @include cell-container();
+    @include region-button();
+
+    position: relative;
+    height: calc(100vh - 178px);
+    margin-top: 20px;
+    overflow: auto;
+  }
+
+  .android-sku-inputs-container {
+    position: relative;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: 1fr 1fr;
+    margin-left: 103px;
+    max-width: 700px;
+    height: 150px;
+  }
+
+ .upper-table-header {
+   display: flex;
+   flex-direction: column;
+   justify-content: left;
+ }
+
+  .buttons-container {
+    position: relative;
+    top: 10px;
+    display: inline-flex;
+    gap: 10px;
+  }
+
+  .button-disabled {
+    cursor: not-allowed;
+  }
+
+  .android-sku-form-translatable-container {
+    position: relative;
+    display: inline-flex;
+    flex-direction: row;
+    top: 50px;
+    left: 45px;
+  }
+
+  .android-sku-form-region-buttons-container {
+    display: inline-flex;
+    flex-flow: column wrap;
+    align-content: flex-end;
+    margin-bottom: 10px;
+  }
+
+  .android-sku-form-table-container {
+    display: inline-flex;
+    flex-direction: row;
+    overflow-y: auto;
+  }
+
+  .field-container {
+    padding-left: 10px;
+    width: 250px;
+    height: 48px;
+    border-bottom: solid $grey 1px;
+    border-right: solid black 1px;
+    border-left: solid $grey 1px;
+    background-color: rgb(32,32,32);
+    line-height: 3.5;
+  }
+
+  .margin-top-container {
+    margin-top: 48px;
+  }
+
+  .android-datepicker-toggle {
+    color: #fff;
+    position: absolute;
+    top: -30px;
+    right: 5px;
+  }
+
+  .cell-container {
+    padding-left: 10px;
+    width: 280px;
+    height: 48px;
+    border-bottom: solid $grey 1px;
+    border-right: solid $grey 1px;
+    background-color: rgb(48,48,48);
+    line-height: 3.5;
+    cursor: text;
+  }
+
+  .table-header {
+    display: flex;
+    flex-direction: row;
+    position: absolute;
+    align-items: center;
+    padding-left: 20px;
+    border-top: solid $grey 1px;
+    border-bottom: solid black 1px;
+  }
+
+  .copy-icon {
+    position: absolute;
+    right: 30px;
+    top: 14px;
+    cursor: pointer;
+  }
+
+  .paste-icon {
+    position: absolute;
+    right: 5px;
+    top: 14px;
+    cursor: pointer;
+  }
+
+  .android-sku-form-input {
+    all: initial;
+    width: 100%;
+    height: 100%;
+    border: 0;
+    outline: none;
+    cursor: inherit;
+    line-height: inherit;
+    font-family: MuseoSans-300, Arial, Helvetica, sans-serif;
+    color: white;
+  }
+
+  .android-sku-mat-container {
+    position: relative;
+    width: 330px;
+    margin-top: 20px;
+    margin-right: 20px;
+    cursor: pointer;
+  }
+
+  .android-sku-mat-container-region {
+    position: relative;
+    display: block;
+    width: 100%;
+    margin-bottom: 10px;
+    cursor: pointer;
+  }
+
+  .android-sku-form-image-container {
+    position: relative;
+    margin-left: 20px;
+    margin-bottom: 20px;
+    width: calc(100vw - 1150px);
+    min-width: 300px;
+    max-width: 400px;
+    .android-sku-form-image {
+      width: 100%;
+    }
+  }
+
+  .img-selector-container {
+    width: 300px;
+    margin-bottom: 10px;
+    margin-left: auto;
+    margin-top: 0;
+  }
+
+  .img-spinner {
+    position: absolute;
+    top: 100px;
+  }
+
+  .default-image {
+    color: grey;
+  }
+
+  @media only screen and (min-width: 1621px) {
+    .android-sku-form-table-container {
+      max-height: calc(100vh - 320px);
+    }
+  }
+  @media only screen and (max-width: 1620px) {
+    .android-sku-form-table-container {
+      max-height: calc(100vh - 190px);
+    }
+  }
+}

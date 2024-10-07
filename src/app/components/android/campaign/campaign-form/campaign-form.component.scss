@@ -1,0 +1,156 @@
+@import '../../../../../base/_variables.scss';
+@import '../../../../../base/_mixin.scss';
+
+@include custom-scrollbar();
+
+.campaign-form-styles-container {
+  * {
+    box-sizing: border-box;
+  }
+  @include mat-container();
+  @include mat-select-container();
+
+  .form-header {
+    position: relative;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    margin: 40px 20px 60px 20px;
+  }
+
+  .campaign-name {
+    position: absolute;
+    left: 100px;
+    max-width: 330px;
+  }
+
+  .back-arrow {
+    position: relative;
+    left: 15px;
+  }
+
+  .publish-button {
+    position: absolute;
+    top: 60px;
+    right: 0;
+  }
+
+  .save-button {
+    position: absolute;
+    right: 0;
+  }
+
+  .body {
+    margin-left: 120px;
+    overflow: auto;
+    height: calc(100vh - 230px);
+  }
+
+  .date-container {
+    width: 300px;
+    display: inline-block;
+  }
+
+  .end-date {
+    margin-left: 25px;
+  }
+
+  .app-copy-select {
+    margin-top: 30px;
+    width: 300px;
+    display: inline-block;
+  }
+
+  .image-select-container {
+    margin-top: 20px;
+    height: 60px;
+    position: relative;
+
+    .image-collection-select {
+      cursor: pointer;
+      width: 300px;
+      input {
+        width: calc(100% - 50px);
+      }
+      .image-select-arrow {
+        position: absolute;
+        right: 3px;
+        top: 20px;
+      }
+    }
+
+    .image-select-panel {
+      position: absolute;
+      display: inline-flex;
+      z-index: 1000;
+      flex-direction: column;
+      overflow: auto;
+      background-color: white;
+      border-radius: 6px;
+      max-height: 300px;
+      min-width: 300px;
+      padding-right: 15px;
+    }
+
+    .image-checkbox-container {
+      display: inline-block;
+      color: black;
+    }
+
+    .checkbox-span {
+      position: relative;
+      top: -1px;
+      margin-left: 3px;
+      cursor: pointer;
+      &:hover {
+        text-decoration: underline;
+      }
+    }
+  }
+
+  .campaign-select {
+    margin-top: 30px;
+    width: 271px;
+    display: inline-block;
+  }
+  .edit-button, .create-button {
+    position: relative;
+    top: -10px;
+    width: 110px;
+    margin-left: 30px;
+    height: 32px;
+    font-size: 16px;
+    border-radius: 5px;
+    background-color: rgb(80,80,80);
+    color: white;
+    cursor: pointer;
+    border: none;
+  }
+
+  .image-collection-create-button {
+    position: relative;
+    left: 300px;
+    top: -40px;
+  }
+
+  .supported-regions {
+    color: dimgrey;
+    padding: 0 4px;
+
+    span {
+      margin-right: 4px;
+      margin-top: 3px;
+    }
+  }
+
+  .clear-button {
+    position: relative;
+    top: -5px;
+    margin-right: 5px;
+    cursor: pointer;
+  }
+
+  .button-disabled {
+    cursor: not-allowed;
+  }
+}

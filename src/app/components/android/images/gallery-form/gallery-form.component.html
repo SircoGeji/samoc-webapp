@@ -1,0 +1,132 @@
+<app-spinner></app-spinner>
+
+<div class="gallery-styles-container">
+  <header
+    class="gallery-form-header"
+    [ngStyle]="{
+      'justify-content':
+        galleryModuleData.length || isInDialog ? 'space-between' : 'flex-end'
+    }"
+  >
+    <button
+      *ngIf="isInDialog"
+      class="gallery-save-button button-secondary"
+      [ngClass]="{ 'button-disabled': !selectedImageId }"
+      [disabled]="!selectedImageId"
+      (click)="select()"
+    >
+      SELECT IMAGE
+    </button>
+    <div
+      style="display: flex; justify-content: space-between"
+      *ngIf="galleryModuleData.length"
+    >
+      <p class="gallery-sort-label">Sort:</p>
+      <p
+        class="gallery-sort-header"
+        [ngClass]="{ 'active-sort': activeSort === 'asc' }"
+        (click)="toggleSort('asc')"
+      >
+        Ascending
+      </p>
+      <p
+        class="gallery-sort-header"
+        [ngClass]="{ 'active-sort': activeSort === 'desc' }"
+        (click)="toggleSort('desc')"
+      >
+        Descending
+      </p>
+      <p
+        class="gallery-sort-header"
+        [ngClass]="{ 'active-sort': activeSort === 'a-z' }"
+        (click)="toggleSort('a-z')"
+      >
+        A-Z
+      </p>
+      <p
+        class="gallery-sort-header"
+        [ngClass]="{ 'active-sort': activeSort === 'z-a' }"
+        (click)="toggleSort('z-a')"
+      >
+        Z-A
+      </p>
+    </div>
+    <div style="position: relative">
+      <button
+        class="gallery-save-button button-secondary"
+        (click)="uploadImage()"
+      >
+        UPLOAD TO GALLERY
+      </button>
+      <mat-icon *ngIf="isInDialog" class="close-gallery" (click)="close()"
+        >close</mat-icon
+      >
+    </div>
+  </header>
+
+  <div
+    class="gallery-form-container"
+    *ngIf="galleryModuleData.length && !galleryPending"
+  >
+    <div class="gallery-form-images-grid">
+      <div
+        class="gallery-image-container"
+        *ngFor="let image of galleryModuleData"
+        [ngStyle]="{ cursor: isInDialog ? 'pointer' : 'default' }"
+        (click)="selectImage(image)"
+        matTooltip="{{ image.tooltipText }}"
+        matTooltipPosition="above"
+      >
+        <div class="thumbnail">
+          <img
+            [src]="image.path"
+            class="gallery-image"
+            [ngClass]="{
+              'image-checked': isInDialog ? isImageChecked(image) : false,
+              'image-disabled': isInDialog ? isImageDisabled(image) : false
+            }"
+          />
+        </div>
+        <div *ngIf="isInDialog && !isImageDisabled(image)" class="gallery-image-checkbox">
+          <input
+            type="checkbox"
+            [checked]="isImageChecked(image)"
+            [disabled]="isImageDisabled(image)"
+          />
+        </div>
+        <div
+          class="gallery-image-icon"
+          style="right: 40px"
+          (click)="openImageInTab(image.path); $event.stopPropagation()"
+        >
+          <mat-icon>open_in_new</mat-icon>
+        </div>
+        <div
+          class="gallery-image-icon"
+          style="right: 5px"
+          (click)="openDeleteActionDialog(image); $event.stopPropagation()"
+        >
+          <mat-icon>delete</mat-icon>
+        </div>
+        <label
+          class="gallery-image-name"
+          [ngClass]="{
+            'label-disabled': isInDialog ? isImageDisabled(image) : false
+          }"
+          >{{ image.name }}</label
+        >
+      </div>
+    </div>
+  </div>
+
+  <div
+    class="empty-gallery"
+    *ngIf="!galleryModuleData.length && !galleryPending"
+  >
+    <p>NO IMAGES</p>
+  </div>
+
+  <div class="pending-gallery" *ngIf="galleryPending">
+    <mat-spinner></mat-spinner>
+  </div>
+</div>

@@ -1,0 +1,9 @@
+@import '../../../base/_variables.scss';
+@import '../../../base/mixin';
+@include custom-scrollbar();
+
+.filter-diff {
+  * {
+    box-sizing: border-box;
+  }
+}

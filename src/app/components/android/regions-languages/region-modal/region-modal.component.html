@@ -1,0 +1,85 @@
+<div
+  class="region-modal-container"
+  [formGroup]="formGroup"
+  *ngIf="isFormVisible"
+>
+  <p class="title">
+    {{ data.pageQuery === 'create' ? 'NEW REGION' : 'EDIT REGION' }}
+  </p>
+  <div class="mat-container region-input-container">
+    <mat-form-field appearance="fill">
+      <mat-label>Region Name*</mat-label>
+      <input
+        matInput
+        formControlName="regionName"
+        type="text"
+        placeholder="Add text"
+        autocomplete="off"
+      />
+    </mat-form-field>
+    <div class="error-container">
+      {{ getRegionNameErrorMessage() }}
+    </div>
+  </div>
+  <div class="mat-container region-input-container">
+    <mat-form-field appearance="fill">
+      <mat-label>Code*</mat-label>
+      <input
+        matInput
+        formControlName="regionCode"
+        type="text"
+        placeholder="Add text"
+        autocomplete="off"
+      />
+    </mat-form-field>
+    <div class="error-container">
+      {{ getRegionCodeErrorMessage() }}
+    </div>
+  </div>
+  <div class="select-regions-window" formArrayName="allLanguages">
+    <div
+      class="checkbox-container"
+      *ngFor="let language of formGroup.get('allLanguages').value | keyvalue"
+    >
+      <mat-checkbox
+        type="checkbox"
+        [formControlName]="language.key"
+        [value]="language.value"
+        >{{ language.key }}
+      </mat-checkbox>
+    </div>
+  </div>
+  <div class="mat-container">
+    <div
+      class="error-container"
+      style="top: -35px"
+      *ngIf="!getSelectedLanguagesList().length"
+    >
+      Please select at least one language
+    </div>
+  </div>
+  <div class="mat-select-container region-input-container">
+    <mat-form-field appearance="fill">
+      <mat-label>Default language</mat-label>
+      <mat-select disableOptionCentering formControlName="defaultLanguage">
+        <mat-option
+          *ngFor="let languageCode of getSelectedLanguagesList()"
+          [value]="languageCode"
+        >
+          {{ languageCode }}
+        </mat-option>
+      </mat-select>
+    </mat-form-field>
+  </div>
+  <div class="buttons-container">
+    <button class="button-primary" (click)="closeModal()">CANCEL</button>
+    <button
+      class="button-secondary"
+      (click)="onSubmit()"
+      [disabled]="isSaveButtonDisabled()"
+      [ngClass]="{ 'button-disabled': isSaveButtonDisabled() }"
+    >
+      {{ data.pageQuery === 'create' ? 'SAVE' : 'UPDATE' }}
+    </button>
+  </div>
+</div>

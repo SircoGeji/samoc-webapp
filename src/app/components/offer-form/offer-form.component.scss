@@ -1,0 +1,129 @@
+@import '../../../base/_variables.scss';
+@import '../../../base/_mixin.scss';
+
+@include form-page();
+.validation-error-button {
+  width: 230px;
+  height: 36px;
+  color: $offer-form-error-primary;
+  text-transform: uppercase;
+}
+
+.clear-enddate-icon {
+  position: absolute;
+  top: 1px;
+  right: 30px;
+}
+
+.clear-endtime-icon {
+  position: absolute;
+  top: 1px;
+  right: 5px;
+}
+
+.show-pointer {
+  cursor: pointer;
+}
+
+.offer-form-tooltip-button {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 85%;
+  color: transparent;
+  background-color: transparent;
+  border: none;
+  outline: none;
+}
+
+.offer-form-error {
+  margin-top: 0.349em;
+  margin-left: 13px;
+  color: $offer-form-error;
+  font-size: 90%;
+}
+
+.timepicker {
+  .timepicker__header {
+    background-color: $red !important;
+  }
+
+  .clock-face__clock-hand {
+    background-color: $red !important;
+
+    &::after {
+      background-color: $red !important;
+    }
+
+    &::before {
+      border-color: $red !important;
+    }
+  }
+
+  .clock-face__number {
+    > span.active {
+      background-color: $red !important;
+    }
+  }
+
+  .timepicker-dial__control {
+    height: 40px;
+  }
+
+  button:not(.timepicker-dial__item) {
+    color: $red !important;
+  }
+}
+
+.ngx-timepicker {
+  position: absolute !important;
+  top: 5px !important;
+  color: white;
+  border-bottom: none !important;
+  cursor: pointer;
+
+  .ngx-timepicker-control__input {
+    color: $label-grey;
+    font-size: 14px;
+    background-color: transparent !important;
+  }
+
+  .ngx-timepicker-control {
+    background-color: transparent !important;
+
+    .ngx-timepicker-control__arrow {
+      margin-top: 6px !important;
+      margin-left: 1px !important;
+      color: $label-grey;
+      font-size: 6px !important;
+    }
+  }
+
+  .ngx-timepicker-control--active::after {
+    background-color: $input-background-grey !important;
+  }
+
+  .period-control__arrow {
+    color: $label-grey !important;
+  }
+
+  .ng-tns-c158-20 {
+    font-size: 14px;
+  }
+
+  .period-selector__button--active {
+    color: $red !important;
+  }
+
+  .period-control__button::after {
+    background-color: $input-background-grey !important;
+  }
+}
+
+.pre-input-mat-error {
+  position: absolute;
+  left: 0px;
+  top: 55px;
+  font-size: 75%;
+  color: #ff5252;
+}

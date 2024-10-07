@@ -1,0 +1,15 @@
+version: '3.8'
+services:
+  samoc-webapp:
+    image: samoc-webapp
+    container_name: samoc-webapp
+    restart: unless-stopped
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - '.:/app'
+      - '/app/node_modules'
+    ports:
+      - '3000:3000'
+      - '4200:4200'

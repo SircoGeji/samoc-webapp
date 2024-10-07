@@ -1,0 +1,449 @@
+<app-spinner></app-spinner>
+<app-header></app-header>
+<div class="inter-details-component-container" *ngIf="showDetailPage">
+  <div class="inter-details-component-container-header">
+    <span (click)="navigateBack()" class="backbtn material-icons md-light md-36">keyboard_arrow_left</span>
+    <h1 class="inter-details-component-container-header-title">{{campaignName}}</h1>
+    <div class="inter-details-component-container-header-button-group {{showButtonsGroupCls}}">
+      <button (click)="onSubmit(retireButtonText)" *ngIf="showRetireBtn()" class="button-tertiary">
+        {{retireButtonText}} </button>
+      <button (click)="onSubmit('DUPLICATE')"
+              *ngIf="showDuplicateBtn()"
+              class="button-primary inter-details-component-container-header-button-group-button">DUPLICATE
+      </button>
+      <div class="custom-tooltip" matTooltip="{{getValidateButtonToolTip()}}" matTooltipShowDelay="500"
+           style="display:inline-block">
+        <app-count-down
+          *ngIf="showValidateBtn() && !this.readyToValidate"
+          class="countdown-overlay"
+          lastModifiedAt="{{this.lastModifiedAt}}"
+          (countdownCompleted)="countDownCompleteHandler($event)">
+        </app-count-down>
+        <button (click)="onSubmit('VALIDATE')"
+                *ngIf="showValidateBtn()"
+                [disabled]="disableValidateBtn() || !this.readyToValidate"
+                [ngClass]="disableValidateBtn() || !this.readyToValidate? 'button-disabled':''"
+                class="button-primary inter-details-component-container-header-button-group-button">VALIDATE
+        </button>
+      </div>
+      <button (click)="onSubmit('PUBLISH')"
+              *ngIf="showPublishBtn()"
+              class="button-primary inter-details-component-container-header-button-group-button">PUBLISH
+      </button>
+      <button (click)="editOffer()"
+              *ngIf="showEditBtn()"
+              class="{{(showCreateBtn())? 'button-primary':'button-secondary'}} inter-details-component-container-header-button-group-button">EDIT
+      </button>
+      <button (click)="onSubmit('CREATE')"
+              *ngIf="showCreateBtn()"
+              class="button-secondary inter-details-component-container-header-button-group-button">CREATE
+      </button>
+    </div>
+  </div>
+  <div class="inter-details-component-container-inter-details inter-details">
+    <mat-tab-group>
+      <!-- SETTINGS TAB -->
+      <mat-tab label="SETTINGS">
+        <!-- TAB TITLE BLOCK -->
+        <div class="tab-content-title-container">
+          <span class="tab-content-title">{{ offerTypeTitle }} Settings</span>
+        </div>
+
+        <!-- STATUS DATA BLOCK -->
+        <div class="tab-content-block-container">
+          <div class="tab-content-inner-block-container">
+            <span class="tab-content-block-title">Status</span>
+          </div>
+
+          <div class="tab-content-block-row-container">
+            <div class="tab-content-block-row-item">
+              <!-- OFFER STATUS -->
+              <span class="tab-content-block-row-title">OFFER STATUS</span>
+              <div
+                *ngFor="let element of regions"
+                class="status-item"
+              >
+                <div
+                  class="tab-content-block-data"
+                  style="width: 25px;"
+                >{{ element.code }}:&nbsp;</div>
+                <div
+                  class="status-cell"
+                  [ngStyle]="{'background-color': getStatusColor(element.statusId)}"
+                  >
+                  {{getStatusTitle(element.statusId)}}
+                </div>
+              </div>
+            </div>
+            <div class="tab-content-block-row-item">
+              <!-- CREATED AT -->
+              <span class="tab-content-block-row-title">CREATED AT</span>
+              <span class="tab-content-block-data">{{ couponCreatedAt }}</span>
+            </div>
+            <div class="tab-content-block-row-item">
+              <!-- RECURLY STATUS -->
+              <span class="tab-content-block-row-title">RECURLY STATUS</span>
+              <span class="tab-content-block-data">{{ capitalizeFirstLetter(couponState) }}</span>
+            </div>
+            <div class="tab-content-block-row-item">
+              <!-- CONTENTFUL STATUS -->
+              <span class="tab-content-block-row-title">CONTENTFUL STATUS</span>
+              <span class="tab-content-block-data">{{ capitalizeFirstLetter(entryState) }}</span>
+            </div>
+            <div class="tab-content-block-row-item">
+              <!-- OFFER TYPE -->
+              <span class="tab-content-block-row-title">OFFER TYPE</span>
+              <span class="tab-content-block-data">{{ offerTypeTitle }}</span>
+            </div>
+            <div class="tab-content-block-row-item" *ngIf="dptrmLink">
+              <!-- DPTRM LINK -->
+              <span class="tab-content-block-row-title">DPTRM LINK</span>
+              <a [href]="dptrmLink" target="_blank" class="tab-content-block-data link-data">Link</a>
+            </div>
+          </div>
+          <div class="tab-content-block-row-container">
+            <div class="tab-content-block-row-item">
+              <!-- DISCOUNT TYPE -->
+              <span class="tab-content-block-row-title">DISCOUNT TYPE</span>
+              <span class="tab-content-block-data">{{ formattedOffer }}</span>
+            </div>
+            <div class="tab-content-block-row-item">
+              <!-- BUSINESS OWNER -->
+              <span class="tab-content-block-row-title">BUSINESS OWNER</span>
+              <span class="tab-content-block-data">{{ offerBusinessOwner }}</span>
+            </div>
+            <div class="tab-content-block-row-item">
+              <!-- END DATE -->
+              <span class="tab-content-block-row-title">END DATE</span>
+              <span class="tab-content-block-data">{{ endDate }}</span>
+            </div>
+            <div class="tab-content-block-row-item">
+              <!-- END TIME -->
+              <span class="tab-content-block-row-title">END TIME</span>
+              <span class="tab-content-block-data">{{ endTime }}</span>
+            </div>
+            <div class="tab-content-block-row-item" *ngIf="targetLaunchDate && targetLaunchDate !== 'Invalid date'">
+              <!-- TARGET LAUNCH DATE -->
+              <span class="tab-content-block-row-title">TARGET LAUNCH DATE</span>
+              <span class="tab-content-block-data">{{ targetLaunchDate }}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- REGION DATA BLOCK -->
+        <div class="tab-content-block-container">
+          <div class="tab-content-inner-block-container">
+            <span class="tab-content-block-title">Region</span>
+          </div>
+          <div class="tab-content-regions-table-container">
+            <table [dataSource]="regionsData" mat-table matSort>
+              <ng-container *ngFor="let column of regionsTableDataKeys; index as i" [matColumnDef]="column">
+                <th *matHeaderCellDef [disabled]="column == 'ellipsis'" mat-header-cell mat-sort-header>
+                  {{regionsTableHeaders[i]}}</th>
+                <td
+                  *matCellDef="let element; index as j"
+                  [ngSwitch]="column"
+                  [ngClass]="{
+                    'odd-element': !(j % 2),
+                    'row-with-error': isRegionCreationFailed(element) || isRegionValidationFailed(element)
+                   }"
+                  mat-cell
+                  >
+                  <div class="table-cell-left" *ngSwitchCase="'statusId'">
+                    <div
+                      class="status-cell {{shouldBlink(element['statusId'])}}"
+                      [ngStyle]="{ 'background-color': getStatusColor(element['statusId']) }"
+                      >
+                      {{ getStatusTitle(element[column]) }}
+                    </div>
+                  </div>
+                  <div class="table-cell-left" *ngSwitchCase="'region'">
+                    <span>{{ element.name }}</span>
+                  </div>
+                  <div class="table-cell-left" *ngSwitchCase="'price'">
+                    <span *ngIf="discountType !== 'percent'">{{ element.currencyPrefix }}&nbsp;</span>
+                    <span>{{ element[column] }}</span>
+                    <span *ngIf="discountType === 'percent'">&nbsp;%</span>
+                  </div>
+                  <div class="table-cell-left" *ngSwitchCase="'duration'">
+                    <span>{{ getDiscountDurationViewValue(element[column]) }}</span>
+                  </div>
+                  <div class="table-cell-left" *ngSwitchCase="'plan'">
+                    <div *ngIf="!isRetention">
+                      <span>{{ getFormattedPlan(element.planCode) }}</span>
+                    </div>
+                    <div *ngIf="isRetention" style="display: flex; flex-direction: column;">
+                      <span
+                        *ngFor="let eligiblePlan of element.eligiblePlans"
+                        >{{ getFormattedPlan(eligiblePlan) }}
+                      </span>
+                    </div>
+                  </div>
+                  <div class="table-cell-left" *ngSwitchCase="'offerCode'">
+                    <span *ngIf="!element['createUpgradeOffer']">{{ element[column] }}</span>
+                    <div *ngIf="element['createUpgradeOffer']" style="display: flex; flex-direction: column;">
+                      <span>{{ element[column] }}</span>
+                      <span>{{ element[column] + '_upgrade' }}</span>
+                    </div>
+                    <div class="offer-code-loader">
+                      <div
+                        *ngIf="element['offerCodeStatus'] === 'pending'"
+                        class="offer-code-field-spinner"
+                      >
+                        <mat-spinner></mat-spinner>
+                      </div>
+                      <mat-icon
+                        *ngIf="element['offerCodeStatus'] === 'valid'"
+                        class="offer-code-validation-icon valid-icon"
+                      >check</mat-icon>
+                      <mat-icon
+                        *ngIf="element['offerCodeStatus'] === 'invalid'"
+                        class="offer-code-validation-icon invalid-icon"
+                      >close</mat-icon>
+                    </div>
+                  </div>
+                  <div class="table-cell-left" *ngSwitchCase="'offerName'">
+                    <span>{{ element[column] }}</span>
+                  </div>
+                  <a (click)="$event.stopPropagation()" *ngSwitchCase="'offerUrl'" href="{{element[column]}}"
+                    target="_blank">
+                    <span *ngIf="element[column]"
+                          class="material-icons inter-table-component-container-table-icon">link</span>
+                  </a>
+                  <div class="table-cell-left" *ngSwitchCase="'bulkCodes'">
+                    <span *ngIf="status == 1" class="tab-content-block-data">
+                      {{element.totalUniqueCodes}}
+                    </span>
+                    <span *ngIf="status > 1" class="tab-content-block-data">
+                      {{element.totalUniqueCodes}}/{{element.origTotalUniqueCodes}}
+                    </span>
+                    <button (click)="refreshClickHandler(element)" *ngIf="showRefreshBtn" class="refresh-btn blink_me">(Refresh)</button>
+                  </div>
+                  <div class="table-cell-left" *ngSwitchCase="'exportCsvButton'">
+                    <button
+                      (click)="exportCsv(element)"
+                      *ngIf="element.showExportCsvBtn" [class.showExportCsvBtn-disabled]="exportCsvButtonDisabled"
+                      [class.showExportCsvBtn-spinner]="element.exportingCsv"
+                      [disabled]="exportCsvButtonDisabled" class="download-button inter-details-component-container-details-subfield">
+                      <span [class.showExportCsvBtn-disabled]="exportCsvButtonDisabled"
+                            class="material-icons md-light md-18 download-button-image">update</span>
+                      EXPORT CSV
+                    </button>
+                    <button
+                      (click)="downloadCsv(element)"
+                      *ngIf="element.showDownloadCsvBtn" class="download-button details-component-container-details-subfield">
+                      <span class="material-icons md-light md-18 download-button-image">cloud_download</span>
+                      DOWNLOAD CSV
+                    </button>
+                  </div>
+                  <ng-container
+                    *ngIf="isRegionCreationFailed(element) || isRegionValidationFailed(element)"
+                  >
+                    <div
+                      class="row-error-message-container"
+                      [ngClass]="{ 'error-block': isRegionCreationFailed(element) && !isRegionValidationFailed(element) }"
+                    >
+                      <div class="error-message-container">
+                        <mat-icon>error</mat-icon>
+                        <div>
+                          <div class="error-message">{{
+                            isRegionCreationFailed(element) ?
+                              creationErrorMessage :
+                              isRegionValidationFailed(element) ?
+                                validationErrorMessage :
+                                'Error message not found'
+                          }}</div>
+                          <div class="error-suggestion">{{
+                            isRegionCreationFailed(element) ?
+                              getCreationErrorSuggestion(element.nextValidOfferCode) :
+                              isRegionValidationFailed(element) ?
+                                validationErrorSuggestion :
+                                'Error suggestion not found'
+                          }}</div>
+                        </div>
+                      </div>
+                      <div class="action-buttons-container">
+                        <button
+                          *ngIf="isRegionCreationFailed(element)"
+                          class="button-primary action-button"
+                          (click)="onSubmit('RETRY REGION', element)"
+                        >Retry</button>
+                        <button
+                          *ngIf="!isRegionCreationFailed(element) && isRegionValidationFailed(element)"
+                          class="button-primary action-button"
+                          (click)="onSubmit('RETIRE REGION', element)"
+                        >Retire</button>
+                        <button
+                          *ngIf="!isRegionCreationFailed(element) && isRegionValidationFailed(element)"
+                          class="button-primary action-button"
+                          (click)="onSubmit('VALIDATE REGION', element)"
+                        >Validate</button>
+                      </div>
+                    </div>
+                  </ng-container>
+                </td>
+              </ng-container>
+              <tr *matHeaderRowDef="regionsTableDataKeys; sticky: true" mat-header-row></tr>
+              <tr *matRowDef="let row; columns: regionsTableDataKeys;" mat-row></tr>
+            </table>
+            <mat-paginator
+              #regionsTablePaginator
+              [pageSize]="regionsTablePageSize"
+              (page)="pageEvent = $event"
+              [length]="regionsLength"
+              ></mat-paginator>
+          </div>
+        </div>
+
+      </mat-tab>
+      <!-- CONTENT TAB -->
+      <mat-tab label="CONTENT">
+        <!-- TAB TITLE BLOCK -->
+        <div class="tab-content-title-container">
+          <span class="tab-content-title">{{ offerTypeTitle }} Content</span>
+        </div>
+
+        <!-- OFFER LINKS DATA BLOCK -->
+        <div class="tab-content-block-container" *ngIf="showCampaignLinks()">
+          <div class="tab-content-inner-block-container">
+            <span class="tab-content-block-title">Offer Links</span>
+          </div>
+
+          <div class="tab-content-block-grid-container">
+            <div
+              *ngFor="let element of languages"
+              class="tab-content-block-grid-item"
+            >
+              <a
+                [href]="element.offerUrl"
+                class="tab-content-block-data link-data"
+                [ngClass]="{ 'disabled-link': !element.offerUrl }"
+                target="_blank"
+              >
+              {{ element.code }}
+            </a>
+            </div>
+          </div>
+        </div>
+
+        <!-- LANGUAGE DATA BLOCK -->
+        <div class="tab-content-block-container">
+          <div class="tab-content-inner-block-container">
+            <span class="tab-content-block-title">Region</span>
+          </div>
+
+          <div class="tab-content-block-languages-container">
+            <div
+              *ngFor="let element of languages; index as k"
+              class="tab-content-block-languages-item"
+              [ngClass]="{ 'odd-element': !(k % 2) }"
+              [ngStyle]="{ 'grid-template-columns': isRetention ? '1fr 2fr 2fr 2fr' : '2fr 2fr 2fr 3fr' }"
+            >
+              <div class="tab-content-block-languages-data-container">
+                <!-- LANGUAGE -->
+                <div class="tab-content-block-languages-data-item">
+                  <div class="tab-content-block-languages-data-item-title">LANGUAGE</div>
+                  <div
+                    class="tab-content-block-languages-data-item-content"
+                    [ngStyle]="{ 'max-width': isRetention ? '700px' : '295px' }"
+                  >
+                    <span class="item-content-language">{{ element.name }}</span>
+                  </div>
+                </div>
+              </div>
+              <div class="tab-content-block-languages-data-container">
+                <!-- OFFER HEADER -->
+                <div class="tab-content-block-languages-data-item">
+                  <div class="tab-content-block-languages-data-item-title">OFFER HEADER</div>
+                  <div
+                    class="tab-content-block-languages-data-item-content"
+                    [ngStyle]="{ 'max-width': isRetention ? '700px' : '295px' }"
+                  >
+                    {{ element.marketingHeadline }}
+                  </div>
+                </div>
+                <!-- OFFER BODY TEXT -->
+                <div class="tab-content-block-languages-data-item">
+                  <div class="tab-content-block-languages-data-item-title">OFFER BODY TEXT</div>
+                  <div
+                    class="tab-content-block-languages-data-item-content"
+                    [ngStyle]="{ 'max-width': isRetention ? '700px' : '295px' }"
+                  >
+                    {{ element.offerHeadline }}
+                  </div>
+                </div>
+                <!-- OFFER BOLDED TEXT -->
+                <div class="tab-content-block-languages-data-item">
+                  <div class="tab-content-block-languages-data-item-title">OFFER BOLDED TEXT</div>
+                  <div
+                    class="tab-content-block-languages-data-item-content"
+                    [ngStyle]="{ 'max-width': isRetention ? '700px' : '295px' }"
+                  >
+                    {{ element.subhead }}
+                  </div>
+                </div>
+                <!-- OFFER APPLIED BANNER -->
+                <div class="tab-content-block-languages-data-item">
+                  <div class="tab-content-block-languages-data-item-title">OFFER APPLIED BANNER</div>
+                  <div
+                    class="tab-content-block-languages-data-item-content"
+                    [ngStyle]="{ 'max-width': isRetention ? '700px' : '295px' }"
+                  >
+                    {{ element.offerAppliedBanner }}
+                  </div>
+                </div>
+              </div>
+              <div class="tab-content-block-languages-data-container">
+                <!-- OFFER TERMS -->
+                <div class="tab-content-block-languages-data-item">
+                  <div class="tab-content-block-languages-data-item-title">OFFER TERMS</div>
+                  <div
+                    class="tab-content-block-languages-data-item-content"
+                    [ngStyle]="{ 'max-width': isRetention ? '700px' : '295px' }"
+                  >
+                    {{ element.offerTerms }}
+                  </div>
+                </div>
+                <!-- WELCOME EMAIL TEXT -->
+                <div *ngIf="discountType !== 'trial'" class="tab-content-block-languages-data-item">
+                  <div class="tab-content-block-languages-data-item-title">WELCOME EMAIL TEXT</div>
+                  <div
+                    class="tab-content-block-languages-data-item-content"
+                    [ngStyle]="{ 'max-width': isRetention ? '700px' : '295px' }"
+                  >
+                    {{ element.welcomeEmailText }}
+                  </div>
+                </div>
+              </div>
+              <div class="tab-content-block-languages-data-container" *ngIf="!isRetention">
+                <!-- BACKGROUND IMAGE -->
+                <div class="tab-content-block-languages-data-item">
+                  <div class="tab-content-block-languages-data-item-title">BACKGROUND IMAGE</div>
+                  <div
+                    class="tab-content-block-languages-data-item-content"
+                    [ngStyle]="{ 'max-width': isRetention ? '700px' : '295px' }"
+                  >
+                    <app-dnd [imgSrc]="element.offerBgImageUrl" [editableDnd]="false"></app-dnd>
+                  </div>
+                </div>
+              </div>
+              <div class="tab-content-block-languages-data-container" *ngIf="isRetention">
+                <!-- CLAIM OFFER TERMS -->
+                <div class="tab-content-block-languages-data-item">
+                  <div class="tab-content-block-languages-data-item-title">CLAIM OFFER TERMS</div>
+                  <div
+                    class="tab-content-block-languages-data-item-content"
+                    [ngStyle]="{ 'max-width': isRetention ? '700px' : '295px' }"
+                  >
+                    {{ element.claimOfferTerms }}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </mat-tab>
+    </mat-tab-group>
+  </div>
+</div>

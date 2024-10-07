@@ -1,0 +1,368 @@
+<app-header></app-header>
+
+<app-spinner></app-spinner>
+
+<div class="campaign-form-styles-container"
+     (click)="imageCollectionSelectIsOpened = false"
+     [formGroup]="formGroup">
+  <header class="form-header">
+  <span (click)="navigateBack()"
+        class="backbtn back-arrow material-icons md-light md-36">
+    keyboard_arrow_left
+  </span>
+    <div class="mat-container campaign-name">
+      <mat-form-field
+        appearance="fill"
+        [ngClass]="{'button-disabled': isFormDisabled()}">
+        <mat-label>Campaign Name*</mat-label>
+        <input
+          (focus)="isFormFocused = true"
+          (blur)="isFormFocused = false"
+          (ngModelChange)="changeLocalStorageCampaign('name', $event)"
+          matInput type="text"
+          placeholder="Add text"
+          autocomplete="off"
+          formControlName="name">
+      </mat-form-field>
+      <div
+        class="error-container"
+        *ngIf="!formGroup.controls.name.valid">
+        {{
+        getCampaignNameErrorMessage()
+        }}
+      </div>
+    </div>
+    <button
+      *ngIf="isPublishButtonDisplayed()"
+      (click)="publish()"
+      class="publish-button button-primary"
+      [ngClass]="{'button-disabled': isPublishButtonDisabled()}"
+      [disabled]="isPublishButtonDisabled()">
+      PUBLISH
+    </button>
+    <button
+      *ngIf="!isFormDisabled()"
+      (click)="save()"
+      class="save-button button-secondary"
+      [ngClass]="{'button-disabled': isSaveButtonDisabled()}"
+      [disabled]="isSaveButtonDisabled()">
+      {{
+      pageQuery==='view' ? 'UPDATE' : 'SAVE'
+      }}
+    </button>
+    <button
+      *ngIf="isFormDisabled()"
+      (click)="duplicateCampaign()"
+      class="save-button button-primary">
+      DUPLICATE
+    </button>
+  </header>
+
+  <div class="body">
+    <div class="mat-container date-container">
+      <mat-form-field
+        [ngClass]="{'button-disabled': isFormDisabled()}"
+        appearance="fill">
+        <mat-label>Start Date*</mat-label>
+        <input
+          (ngModelChange)="changeLocalStorageCampaign('startDate', $event)"
+          [matDatepicker]="startDate"
+          class="pointer-cursor-cls"
+          matInput
+          autocomplete="off"
+          formControlName="startDate"
+          placeholder="MM/DD/YYYY">
+        <mat-datepicker-toggle
+          class="datepicker-toggle"
+          [for]="startDate"
+          matSuffix>
+        </mat-datepicker-toggle>
+        <mat-datepicker #startDate></mat-datepicker>
+      </mat-form-field>
+      <div
+        class="error-container"
+        *ngIf="!formGroup.controls.startDate.valid">
+        {{
+        getStartDateErrorMessage()
+        }}
+      </div>
+    </div>
+    <div class="mat-container date-container end-date">
+      <mat-form-field
+        [ngClass]="{'button-disabled': isFormDisabled()}"
+        appearance="fill">
+        <mat-label>End Date*</mat-label>
+        <input
+          (ngModelChange)="changeLocalStorageCampaign('endDate', $event)"
+          [matDatepicker]="endDate"
+          class="pointer-cursor-cls"
+          matInput
+          autocomplete="off"
+          formControlName="endDate"
+          placeholder="MM/DD/YYYY">
+        <mat-datepicker-toggle
+          class="datepicker-toggle"
+          [for]="endDate"
+          matSuffix>
+        </mat-datepicker-toggle>
+        <mat-datepicker #endDate></mat-datepicker>
+      </mat-form-field>
+      <div
+        class="error-container">
+        {{
+        getEndDateErrorMessage()
+        }}
+      </div>
+    </div>
+
+   <!--Modules selects-->
+    <div>
+      <!--app-copy-->
+      <div>
+        <div class="mat-select-container app-copy-select">
+          <mat-form-field
+            [ngClass]="{'button-disabled': isFormDisabled()}"
+            appearance="fill">
+            <mat-label>App Copy*</mat-label>
+            <mat-select
+              #appCopy
+              (ngModelChange)="changeLocalStorageCampaign('appCopyId', $event)"
+              [style.color]="isSelectedModuleDraft(appCopiesArray, appCopy.value, 'appCopyId') ?
+              '#ff5252' : 'white'"
+              disableOptionCentering
+              formControlName="appCopyId">
+              <div class="campaign-form-custom-panel">
+                <mat-option
+                  *ngFor="let appCopy of appCopiesArray"
+                  [style.color]="appCopy.status === 'draft' ? '#ff5252 !important' : 'black'"
+                  [value]="appCopy['appCopyId']">
+                  {{ appCopy['name'] }}
+                </mat-option>
+              </div>
+            </mat-select>
+          </mat-form-field>
+          <div
+            class="error-container"
+            *ngIf="formGroup.controls.appCopyId.invalid">
+            Please select App copy
+          </div>
+        </div>
+        <button
+          class="edit-button"
+          [disabled]="!appCopy.value || isSelectedModuleEnded(appCopiesArray, appCopy.value, 'appCopyId')"
+          [ngClass]="{'button-disabled': !appCopy.value ||
+          isSelectedModuleEnded(appCopiesArray, appCopy.value, 'appCopyId')}"
+          (click)="navigateEdit('app-copy', appCopy.value)">
+          Edit
+        </button>
+        <button
+          class="create-button"
+          *ngIf="!isFormDisabled()"
+          (click)="navigateCreate('app-copy','appCopyId', defaultAppCopy)">
+          Create
+        </button>
+        <div class="supported-regions">
+          <span *ngFor="let region of getAppCopyRegions(appCopy.value)">
+            {{ region }}
+          </span>
+        </div>
+      </div>
+
+      <!--image-collection-->
+      <div class="image-select-container">
+        <div class="mat-container image-collection-select"
+             (click)="imageCollectionSelectIsOpened = !imageCollectionSelectIsOpened; $event.stopPropagation()">
+          <mat-form-field
+            appearance="fill"
+            [matTooltip]="this.imgCollectionName"
+            [ngClass]="{'button-disabled': isFormDisabled()}">
+            <mat-label>Image Collection</mat-label>
+            <input
+              [value]="imgCollectionName"
+              [disabled]="true"
+              [style.color]="isImageCollectionSelectDraft() ? '#ff5252' : 'white'"
+              matInput type="text"
+              placeholder="Add text"
+              autocomplete="off">
+          </mat-form-field>
+          <span class="material-icons image-select-arrow"
+                *ngIf="!imageCollectionSelectIsOpened">
+            arrow_drop_down
+          </span>
+          <span class="material-icons image-select-arrow"
+                *ngIf="imageCollectionSelectIsOpened">
+            arrow_drop_up
+          </span>
+        </div>
+        <div
+          (click)="$event.stopPropagation()"
+          class="image-select-panel"
+          *ngIf="imageCollectionSelectIsOpened">
+          <div
+            class="image-checkbox-container"
+            *ngFor="let imgCollection of imageCollectionsArray">
+            <mat-checkbox
+              #checkbox
+              [checked]="isImgCheckboxChecked(imgCollection.imageCollectionId)"
+              [disabled]="isFormDisabled() || !isImageCheckboxEnabled(checkbox, imgCollection)"
+              [ngClass]="{'button-disabled': isFormDisabled() ||
+              !isImageCheckboxEnabled(checkbox, imgCollection)}"
+              (change)="editImageCollectionSelect($event, imgCollection)">
+            </mat-checkbox>
+            <span
+              class="checkbox-span"
+              [style.color]="imgCollection.status === 'draft' ? '#ff5252 !important' : 'black'"
+              (click)="navigateEdit('images/collection', imgCollection.imageCollectionId)">
+                {{ imgCollection.name }}
+            </span>
+          </div>
+        </div>
+        <button
+          class="image-collection-create-button create-button"
+          *ngIf="!isFormDisabled()"
+          (click)="navigateCreate('images/collection',
+          'imageCollectionId', defaultImageCollection)">
+          Create
+        </button>
+      </div>
+
+      <!--store-copy-->
+      <div>
+        <span class="material-icons clear-button"
+              *ngIf="!isFormDisabled()"
+              (click)="clearField('storeCopyId')">
+          close
+        </span>
+        <div class="mat-select-container campaign-select">
+          <mat-form-field
+            [ngClass]="{'button-disabled': isFormDisabled()}"
+            appearance="fill">
+            <mat-label>Store Copy</mat-label>
+            <mat-select
+              #storeCopy
+              (ngModelChange)="changeLocalStorageCampaign('storeCopyId', $event)"
+              [style.color]="isSelectedModuleDraft(storeCopiesArray,
+              storeCopy.value, 'storeCopyId') ?'#ff5252' : 'white'"
+              disableOptionCentering
+              formControlName="storeCopyId">
+              <div class="campaign-form-custom-panel">
+                <mat-option
+                  *ngFor="let storeCopy of storeCopiesArray"
+                  [style.color]="storeCopy.status === 'draft' ? '#ff5252 !important' : 'black'"
+                  [value]="storeCopy['storeCopyId']">
+                  {{ storeCopy['name'] }}
+                </mat-option>
+              </div>
+            </mat-select>
+          </mat-form-field>
+        </div>
+        <button
+          class="edit-button"
+          [disabled]="!storeCopy.value || isSelectedModuleEnded(storeCopiesArray, storeCopy.value, 'storeCopyId')"
+          [ngClass]="{'button-disabled': !storeCopy.value ||
+          isSelectedModuleEnded(storeCopiesArray, storeCopy.value, 'storeCopyId')}"
+          (click)="navigateEdit('store-copy', storeCopy.value)">
+          Edit
+        </button>
+        <button
+          class="create-button"
+          *ngIf="!isFormDisabled()"
+          (click)="navigateCreate('store-copy', 'storeCopyId', defaultStoreCopy)">
+          Create
+        </button>
+      </div>
+
+      <!--selector-config-->
+      <div>
+        <span class="material-icons clear-button"
+              *ngIf="!isFormDisabled()"
+              (click)="clearField('selectorConfigId')">
+          close
+        </span>
+        <div class="mat-select-container campaign-select">
+          <mat-form-field
+            [ngClass]="{'button-disabled': isFormDisabled()}"
+            appearance="fill">
+            <mat-label>Product Selector</mat-label>
+            <mat-select
+              #selectorConfig
+              (ngModelChange)="changeLocalStorageCampaign('selectorConfigId', $event)"
+              [style.color]="isSelectedModuleDraft(selectorConfigsArray,
+              selectorConfig.value, 'selectorConfigId') ?'#ff5252' : 'white'"
+              disableOptionCentering
+              formControlName="selectorConfigId">
+              <div class="campaign-form-custom-panel">
+                <mat-option
+                  *ngFor="let selectorConfig of selectorConfigsArray"
+                  [style.color]="selectorConfig.status === 'draft' ? '#ff5252 !important' : 'black'"
+                  [value]="selectorConfig['selectorConfigId']">
+                  {{ selectorConfig['name'] }}
+                </mat-option>
+              </div>
+            </mat-select>
+          </mat-form-field>
+        </div>
+        <button
+          class="edit-button"
+          [disabled]="!selectorConfig.value || isSelectedModuleEnded(selectorConfigsArray,
+          selectorConfig.value, 'selectorConfigId')"
+          [ngClass]="{'button-disabled': !selectorConfig.value || isSelectedModuleEnded(selectorConfigsArray,
+          selectorConfig.value, 'selectorConfigId')}"
+          (click)="navigateEdit('sku/selector-config', selectorConfig.value)">
+          Edit
+        </button>
+        <button
+          class="create-button"
+          *ngIf="!isFormDisabled()"
+          (click)="navigateCreate('sku/selector-config','selectorConfigId', defaultSelectorConfig)">
+          Create
+        </button>
+      </div>
+
+      <!--sku-->
+      <div>
+        <span class="material-icons clear-button"
+              *ngIf="!isFormDisabled()"
+              (click)="clearField('winbackSkuId')">
+          close
+        </span>
+        <div class="mat-select-container campaign-select">
+          <mat-form-field
+            [ngClass]="{'button-disabled': isFormDisabled()}"
+            appearance="fill">
+            <mat-label>Winback SKU</mat-label>
+            <mat-select
+              #sku
+              (ngModelChange)="changeLocalStorageCampaign('winbackSkuId', $event)"
+              [style.color]="isSelectedModuleDraft(skusArray,
+              sku.value, 'skuId') ?'#ff5252' : 'white'"
+              disableOptionCentering
+              formControlName="winbackSkuId">
+              <div class="campaign-form-custom-panel">
+                <mat-option
+                  *ngFor="let sku of skusArray"
+                  [style.color]="sku.status === 'draft' ? '#ff5252 !important' : 'black'"
+                  [value]="sku['skuId']">
+                  {{ sku['name'] }}
+                </mat-option>
+              </div>
+            </mat-select>
+          </mat-form-field>
+        </div>
+        <button
+          class="edit-button"
+          [disabled]="!sku.value || isSelectedModuleEnded(skusArray, sku.value, 'skuId')"
+          [ngClass]="{'button-disabled': !sku.value || isSelectedModuleEnded(skusArray, sku.value, 'skuId')}"
+          (click)="navigateEdit('sku', sku.value)">
+          Edit
+        </button>
+        <button
+          class="create-button"
+          *ngIf="!isFormDisabled()"
+          (click)="navigateCreate('sku','skuId')">
+          Create
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

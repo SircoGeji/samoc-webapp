@@ -1,0 +1,11 @@
+<div (filesChangeEmitter)="onFilesChange($event)" appDnd class="dnd-container">
+  <div class="nested-container">
+    <img appImgFallback class="dnd-preview" src="{{ imgSrc }}"/>
+    <div
+      *ngIf="editableDnd"
+    >
+      <span class="dnd-placeholder-text">Drag background image override here</span>
+      <span class="dnd-placeholder-hint-text">{{ hintText }}</span>
+    </div>
+  </div>
+</div>

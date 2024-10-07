@@ -1,0 +1,49 @@
+<div id="main">
+  <div class="initContainer">
+    <div class="env-title">
+      ENVIRONMENT:&nbsp;{{ env.toUpperCase() }}
+    </div>
+    <div class="diffcontainer">
+      <div class="codeContainer">
+        <div class="header">PREVIOUS VERSION [{{ leftVersion }}]</div>
+        <div
+          #previousCodeContent
+          class="codeBlock"
+          (mouseenter)="updateCurrentElement('previousCodeContent')"
+          (scroll)="updateVerticalScroll($event)"
+        >
+          <pre id="preBlockLeft" class="left"></pre>
+        </div>
+      </div>
+      <div class="codeContainer">
+        <div class="header">CURRENT VERSION [{{ rightVersion }}]</div>
+        <div
+          #currentCodeContent
+          class="codeBlock"
+          (mouseenter)="updateCurrentElement('currentCodeContent')"
+          (scroll)="updateVerticalScroll($event)"
+        >
+          <pre id="preBlockRight" class="right"></pre>
+        </div>
+      </div>
+    </div>
+    <div class="legend-container">
+      <div class="legend-element">
+        <div class="missing-block"></div>
+        <div class="legend-label">ADDED ROW</div>
+      </div>
+      <div class="legend-element">
+        <div class="changed-block"></div>
+        <div class="legend-label">CHANGED ROW</div>
+      </div>
+      <div class="legend-element">
+        <div class="removed-block"></div>
+        <div class="legend-label">REMOVED ROW</div>
+      </div>
+      <div class="legend-element">
+        <div class="selected-block"></div>
+        <div class="legend-label">SELECTED ROW</div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,487 @@
+<app-spinner></app-spinner>
+<app-header></app-header>
+<div class="details-component-container">
+  <div class="details-component-container-header">
+    <span (click)="return()" class="backbtn material-icons md-light md-36">keyboard_arrow_left</span>
+    <h1 *ngIf="!isExtension()" class="details-component-container-header-title">{{offerName}}</h1>
+    <h1 *ngIf="isExtension()" class="details-component-container-header-title">{{offerTitle}}</h1>
+    <div class="details-component-container-header-button-group {{showButtonsGroupCls}}">
+      <button (click)="onSubmit(retireButtonText)" *ngIf="showRetireBtn()" class="button-tertiary">
+        {{retireButtonText}}
+      </button>
+      <button (click)="onSubmit('HISTORY')"
+              *ngIf="showHistoryBtn()"
+              class="button-primary details-component-container-header-button-group-button">HISTORY
+      </button>
+      <button (click)="onSubmit('VALIDATE')"
+              *ngIf="isOfferValidationFailed()"
+              class="button-primary details-component-container-header-button-group-button">RETRY VALIDATE
+      </button>
+      <button (click)="onSubmit('DUPLICATE')"
+              *ngIf="showDuplicateBtn()"
+              class="button-primary details-component-container-header-button-group-button">DUPLICATE
+      </button>
+      <div class="custom-tooltip" matTooltip="{{getValidateButtonToolTip()}}" matTooltipPosition="above"
+           style="display:inline-block">
+        <app-count-down
+          *ngIf="showValidateBtn() && !this.readyToValidate"
+          class="countdown-overlay"
+          lastModifiedAt="{{this.lastModifiedAt}}"
+          (countdownCompleted)="countDownCompleteHandler($event)">
+        </app-count-down>
+        <button (click)="onSubmit('VALIDATE')"
+                *ngIf="showValidateBtn()"
+                [disabled]="isValidateButtonDisabled() || !this.readyToValidate"
+                [ngClass]="isValidateButtonDisabled() || !this.readyToValidate? 'button-disabled':''"
+                class="button-primary details-component-container-header-button-group-button"
+                >VALIDATE
+        </button>
+      </div>
+      <button (click)="onSubmit('PUBLISH')"
+              *ngIf="showPublishBtn()"
+              class="button-primary details-component-container-header-button-group-button">PUBLISH
+      </button>
+      <button (click)="editOffer()"
+              *ngIf="showEditBtn()"
+              class="{{(showCreateBtn())? 'button-primary':'button-secondary'}} details-component-container-header-button-group-button">EDIT
+      </button>
+      <button (click)="onSubmit('CREATE')"
+              *ngIf="showCreateBtn()"
+              class="button-secondary details-component-container-header-button-group-button">CREATE
+      </button>
+    </div>
+  </div>
+  <div class="details-component-container-details">
+    <div *ngIf="showDITButton" class="dit-container">
+      <button
+        id="DetailPageDITButton"
+        class="mdc-button"
+        (click)="startRecordDIT()"
+        [ngStyle]="{'background-color': DITButtonColor}"
+        [disabled]="isOfferStatusInvalidForDIT() || isExtension()"
+      >
+      </button>
+      <p class="details-component-container-details-field-subtitle dit-message">{{ detailPageTooltipText }}</p>
+    </div>
+    <div class='fullwidth-flex-container flex-container'>
+      <div class="details-component-container-details-field flex-item">
+        <p class="details-component-container-details-field-title">OFFER STATUS</p>
+        <p class="details-component-container-details-field-subtitle">{{currentStatus}}</p>
+      </div>
+      <div *ngIf="showRecurlyContentfulStatus()" class="details-component-container-details-field flex-item">
+        <p class="details-component-container-details-field-title">CREATED AT</p>
+        <p class="details-component-container-details-field-subtitle capitalize">{{couponCreatedAt}}</p>
+      </div>
+      <div *ngIf="showRecurlyContentfulStatus()" class="details-component-container-details-field flex-item">
+        <p class="details-component-container-details-field-title">RECURLY STATUS</p>
+        <p class="details-component-container-details-field-subtitle capitalize">{{couponState}}</p>
+      </div>
+      <div *ngIf="showRecurlyContentfulStatus()" class="details-component-container-details-field flex-item">
+        <p class="details-component-container-details-field-title">CONTENTFUL STATUS</p>
+        <p class="details-component-container-details-field-subtitle capitalize">{{entryState}}</p>
+      </div>
+    </div>
+    <hr class="details-component-container-details-spacer">
+    <div class='flex-container'>
+      <div class="details-component-container-details-field flex-item">
+        <p class="details-component-container-details-field-title">OFFER TYPE</p>
+        <p
+        [ngStyle]="{'border-bottom': invalidStrings && isInvalidField('offerTypeId') ? '1px solid #f00' : null }"
+        class="details-component-container-details-field-subtitle">{{offerTypeString}}</p>
+        <mat-error
+          *ngIf="invalidStrings && invalidStrings.length > 0 && isInvalidField('offerTypeId')"
+        >
+          {{ getInvalidErrorText('offerTypeId') }}
+        </mat-error>
+      </div>
+      <div *ngIf="offerUrl" class="details-component-container-details-field flex-item">
+        <p class="details-component-container-details-field-title">OFFER PAGE</p>
+        <a class="details-component-container-details-field-subtitle"
+           href="{{offerUrl}}"
+           target="_blank">Link</a>
+      </div>
+    </div>
+    <div class='fullwidth-flex-container flex-container'>
+      <div class="details-component-container-details-field flex-item fullwidth-flex-item">
+        <p class="details-component-container-details-field-title">OFFER CODE</p>
+        <p
+        [ngStyle]="{'border-bottom': invalidStrings && isInvalidField('offerCode') ? '1px solid #f00' : null }"
+        class="details-component-container-details-field-subtitle">{{offerCode}}</p>
+        <mat-error
+          *ngIf="invalidStrings && invalidStrings.length > 0 && isInvalidField('offerCode')"
+        >
+          {{ getInvalidErrorText('offerCode') }}
+        </mat-error>
+      </div>
+    </div>
+    <div *ngIf="!isRetention() && !isExtension()" class="details-component-container-details-field">
+      <p class="details-component-container-details-field-title">PLAN</p>
+      <p
+      [ngStyle]="{'border-bottom': invalidStrings && isInvalidField('planCode') ? '1px solid #f00' : null }"
+      class="details-component-container-details-field-subtitle">{{plan}}</p>
+      <mat-error
+          *ngIf="invalidStrings && invalidStrings.length > 0 && isInvalidField('planCode')"
+        >
+          {{ getInvalidErrorText('planCode') }}
+        </mat-error>
+    </div>
+    <div *ngIf="isRetention() && !isExtension()" class="details-component-container-details-field">
+      <p class="details-component-container-details-field-title">ELIGIBLE PLANS</p>
+      <p
+      [ngStyle]="{'border-bottom': invalidStrings && isInvalidField('eligiblePlans') ? '1px solid #f00' : null }"
+      class="details-component-container-details-field-subtitle">{{eligiblePlans}}</p>
+      <mat-error
+          *ngIf="invalidStrings && invalidStrings.length > 0 && isInvalidField('eligiblePlans')"
+        >
+          {{ getInvalidErrorText('eligiblePlans') }}
+        </mat-error>
+    </div>
+    <div *ngIf="isExtension()" class="details-component-container-details-field">
+      <p class="details-component-container-details-field-title">ELIGIBLE CHARGES</p>
+      <p
+      [ngStyle]="{'border-bottom': invalidStrings && isInvalidField('eligibleCharges') ? '1px solid #f00' : null }"
+      class="details-component-container-details-field-subtitle">{{eligibleCharges}}</p>
+      <mat-error
+          *ngIf="invalidStrings && invalidStrings.length > 0 && isInvalidField('eligibleCharges')"
+        >
+          {{ getInvalidErrorText('eligibleCharges') }}
+        </mat-error>
+    </div>
+    <div *ngIf="(isRetention() || isExtension()) && upgradePlan" class="details-component-container-details-field">
+      <p class="details-component-container-details-field-title">UPGRADE PLAN</p>
+      <p
+      [ngStyle]="{'border-bottom': invalidStrings && isInvalidField('upgradePlan') ? '1px solid #f00' : null }"
+      class="details-component-container-details-field-subtitle">{{upgradePlan}}</p>
+      <mat-error
+          *ngIf="invalidStrings && invalidStrings.length > 0 && isInvalidField('upgradePlan')"
+        >
+          {{ getInvalidErrorText('upgradePlan') }}
+        </mat-error>
+    </div>
+    <div *ngIf="isRetention() && upgradePlan && usersOnPlans" class="details-component-container-details-field">
+      <p class="details-component-container-details-field-title">UPGRADE USERS ON PLANS</p>
+      <p
+      [ngStyle]="{'border-bottom': invalidStrings && isInvalidField('usersOnPlans') ? '1px solid #f00' : null }"
+      class="details-component-container-details-field-subtitle">{{usersOnPlans}}</p>
+      <mat-error
+          *ngIf="invalidStrings && invalidStrings.length > 0 && isInvalidField('usersOnPlans')"
+        >
+          {{ getInvalidErrorText('usersOnPlans') }}
+        </mat-error>
+    </div>
+    <div *ngIf="!isExtension()" class="details-component-container-details-multifield">
+      <div class="details-component-container-details-field details-component-container-details-primary">
+        <p class="details-component-container-details-field-title subwidth ">OFFER CODE TYPE</p>
+        <p
+        [ngStyle]="{'border-bottom': invalidStrings && isInvalidField('offerCodeType') ? '1px solid #f00' : null }"
+        class="details-component-container-details-field-subtitle subwidth">{{formattedOfferCodeType}}</p>
+        <mat-error
+          *ngIf="invalidStrings && invalidStrings.length > 0 && isInvalidField('offerCodeType')"
+        >
+          {{ getInvalidErrorText('offerCodeType') }}
+        </mat-error>
+      </div>
+      <div *ngIf="offerCodeType === 'bulk'" class="details-component-container-details-subfield">
+        <p class="details-component-container-details-field-title subwidth">TOTAL UNIQUE CODES</p>
+        <span *ngIf="status == 1"
+        [ngStyle]="{'border-bottom': invalidStrings && isInvalidField('totalUniqueCodes') ? '1px solid #f00' : null }"
+              class="details-component-container-details-field-subtitle refreshLink subwidth">{{totalUniqueCodes}}</span>
+        <span *ngIf="status > 1"
+          [ngStyle]="{'border-bottom': invalidStrings && isInvalidField('totalUniqueCodes') ? '1px solid #f00' : null }"
+              class="details-component-container-details-field-subtitle refreshLink subwidth">{{totalUniqueCodes}}/{{origTotalUniqueCodes}}</span>
+        <mat-error
+          *ngIf="invalidStrings && invalidStrings.length > 0 && isInvalidField('totalUniqueCodes')"
+        >
+          {{ getInvalidErrorText('totalUniqueCodes') }}
+        </mat-error>
+        <button (click)="refreshClickHandler()" *ngIf="showRefreshBtn" class="refresh-btn blink_me">(Refresh)</button>
+      </div>
+      <button
+        (click)="exportCsv()"
+        *ngIf="showExportCsvBtn" [class.showExportCsvBtn-disabled]="exportingCsv"
+        [class.showExportCsvBtn-spinner]="exportingCsv"
+        [disabled]="exportingCsv" class="download-button details-component-container-details-subfield">
+        <span [class.showExportCsvBtn-disabled]="exportingCsv"
+              class="material-icons md-light md-18 download-button-image">update</span>
+        EXPORT CSV
+      </button>
+      <button
+        (click)="downloadCsv()"
+        *ngIf="showDownloadCsvBtn" class="download-button details-component-container-details-subfield">
+        <span class="material-icons md-light md-18 download-button-image">cloud_download</span>
+        DOWNLOAD CSV
+      </button>
+    </div>
+    <div *ngIf="!isRetention() && !isExtension()" class="details-component-container-details-multifield">
+      <div class="details-component-container-details-field details-component-container-details-primary">
+        <p class="details-component-container-details-field-title subwidth">DISCOUNT TYPE</p>
+        <p
+        [ngStyle]="{'border-bottom': invalidStrings && isInvalidField('discountType') ? '1px solid #f00' : null }"
+        class="details-component-container-details-field-subtitle subwidth">{{formattedOffer}}</p>
+        <mat-error
+          *ngIf="invalidStrings && invalidStrings.length > 0 && isInvalidField('discountType')"
+        >
+          {{ getInvalidErrorText('discountType') }}
+        </mat-error>
+      </div>
+
+      <div *ngIf="offer == 'fixed' || isExtension()" class="details-component-container-details-subfield">
+        <p class="details-component-container-details-field-title subwidth">PROMO PRICE</p>
+        <p
+        [ngStyle]="{'border-bottom': invalidStrings && isInvalidField('discountAmount') ? '1px solid #f00' : null }"
+        class="details-component-container-details-field-subtitle subwidth">$ {{offerPrice}} USD</p>
+        <mat-error
+          *ngIf="invalidStrings && invalidStrings.length > 0 && isInvalidField('discountAmount')"
+        >
+          {{ getInvalidErrorText('discountAmount') }}
+        </mat-error>
+      </div>
+      <div class="details-component-container-details-subfield">
+        <p class="details-component-container-details-field-title subwidth">DISCOUNT DURATION</p>
+        <p
+        [ngStyle]="{'border-bottom': invalidStrings && (isInvalidField('discountDurationValue') || isInvalidField('discountDurationUnit')) ? '1px solid #f00' : null }"
+        class="details-component-container-details-field-subtitle subwidth">{{offerDurationValue}}
+          {{formattedOfferDurationUnit}}
+        </p>
+        <mat-error
+          *ngIf="invalidStrings && invalidStrings.length > 0 && isInvalidField('discountDurationValue')"
+        >
+          {{ getInvalidErrorText('discountDurationValue') }}
+        </mat-error>
+        <mat-error
+          *ngIf="invalidStrings && invalidStrings.length > 0 && isInvalidField('discountDurationUnit')"
+        >
+          {{ getInvalidErrorText('discountDurationUnit') }}
+        </mat-error>
+      </div>
+    </div>
+    <div *ngIf="isRetention() || isExtension()" class="details-component-container-details-multifield">
+      <div *ngIf="!isExtension()" class="details-component-container-details-field details-component-container-details-primary">
+        <p class="details-component-container-details-field-title subwidth">DISCOUNT TYPE</p>
+        <p
+        [ngStyle]="{'border-bottom': invalidStrings && isInvalidField('formattedDiscountType') ? '1px solid #f00' : null }"
+        class="details-component-container-details-field-subtitle subwidth">{{formattedDiscountType}}</p>
+        <mat-error
+          *ngIf="invalidStrings && invalidStrings.length > 0 && isInvalidField('formattedDiscountType')"
+        >
+          {{ getInvalidErrorText('formattedDiscountType') }}
+        </mat-error>
+      </div>
+
+      <div [ngClass]="isExtension() ? 'details-component-container-details-field' : ''" class="details-component-container-details-subfield">
+        <p class="details-component-container-details-field-title subwidth">PROMO PRICE</p>
+        <p
+        [ngStyle]="{'border-bottom': invalidStrings && isInvalidField('formattedDiscountAmount') ? '1px solid #f00' : null }"
+        class="details-component-container-details-field-subtitle subwidth">{{formattedDiscountAmount}}</p>
+        <mat-error
+          *ngIf="invalidStrings && invalidStrings.length > 0 && isInvalidField('formattedDiscountAmount')"
+        >
+          {{ getInvalidErrorText('formattedDiscountAmount') }}
+        </mat-error>
+      </div>
+      <div class="details-component-container-details-subfield">
+        <p class="details-component-container-details-field-title subwidth">DISCOUNT DURATION</p>
+        <p
+        [ngStyle]="{'border-bottom': invalidStrings && isInvalidField('formattedDiscountDuration') ? '1px solid #f00' : null }"
+        class="details-component-container-details-field-subtitle subwidth">{{formattedDiscountDuration}}</p>
+        <mat-error
+          *ngIf="invalidStrings && invalidStrings.length > 0 && isInvalidField('formattedDiscountDuration')"
+        >
+          {{ getInvalidErrorText('formattedDiscountDuration') }}
+        </mat-error>
+      </div>
+    </div>
+    <div *ngIf="isExtension()" class="details-component-container-details-field">
+      <p class="details-component-container-details-field-title">OFFER TITLE</p>
+      <p
+      [ngStyle]="{'border-bottom': invalidStrings && isInvalidField('offerTitle') ? '1px solid #f00' : null }"
+      class="details-component-container-details-field-subtitle"
+      >{{offerTitle}}</p>
+      <mat-error
+          *ngIf="invalidStrings && invalidStrings.length > 0 && isInvalidField('offerTitle')"
+        >
+          {{ getInvalidErrorText('offerTitle') }}
+        </mat-error>
+    </div>
+    <div *ngIf="isExtension()" class="details-component-container-details-field">
+      <p class="details-component-container-details-field-title">OFFER DESCRIPTION</p>
+      <p
+      [ngStyle]="{'border-bottom': invalidStrings && isInvalidField('offerDescription') ? '1px solid #f00' : null }"
+      class="details-component-container-details-field-subtitle"
+      >{{offerDescription}}</p>
+      <mat-error
+          *ngIf="invalidStrings && invalidStrings.length > 0 && isInvalidField('offerDescription')"
+        >
+          {{ getInvalidErrorText('offerDescription') }}
+        </mat-error>
+    </div>
+    <div *ngIf="isExtension()" class="details-component-container-details-field">
+      <p class="details-component-container-details-field-title">OFFER TERMS</p>
+      <p class="details-component-container-details-field-subtitle multi-line">{{offerTerms}}</p>
+    </div>
+    <div *ngIf="!isExtension()" class="details-component-container-details-field">
+      <p class="details-component-container-details-field-title">OFFER NAME</p>
+      <p
+      [ngStyle]="{'border-bottom': invalidStrings && isInvalidField('offerName') ? '1px solid #f00' : null }"
+      class="details-component-container-details-field-subtitle"
+      >{{offerName}}</p>
+      <mat-error
+          *ngIf="invalidStrings && invalidStrings.length > 0 && isInvalidField('offerName')"
+        >
+          {{ getInvalidErrorText('offerName') }}
+        </mat-error>
+    </div>
+    <div *ngIf="!isExtension()" class="details-component-container-details-field">
+      <p class="details-component-container-details-field-title">OFFER HEADER</p>
+      <p
+      [ngStyle]="{'border-bottom': invalidStrings && isInvalidField('offerHeader') ? '1px solid #f00' : null }"
+      class="details-component-container-details-field-subtitle">{{offerHeader}}</p>
+      <mat-error
+          *ngIf="invalidStrings && invalidStrings.length > 0 && isInvalidField('offerHeader')"
+        >
+          {{ getInvalidErrorText('offerHeader') }}
+        </mat-error>
+    </div>
+    <div *ngIf="!isExtension()" class="details-component-container-details-field">
+      <p class="details-component-container-details-field-title">OFFER BODY TEXT</p>
+      <p
+      [ngStyle]="{'border-bottom': invalidStrings && isInvalidField('offerBodyText') ? '1px solid #f00' : null }"
+      class="details-component-container-details-field-subtitle multi-line">{{offerBodyText}}</p>
+      <mat-error
+          *ngIf="invalidStrings && invalidStrings.length > 0 && isInvalidField('offerBodyText')"
+        >
+          {{ getInvalidErrorText('offerBodyText') }}
+        </mat-error>
+    </div>
+    <div *ngIf="!isExtension()" class="details-component-container-details-field">
+      <p class="details-component-container-details-field-title">OFFER BOLDED TEXT</p>
+      <p
+      [ngStyle]="{'border-bottom': invalidStrings && isInvalidField('offerBoldedText') ? '1px solid #f00' : null }"
+      class="details-component-container-details-field-subtitle">{{offerBoldedText ? getOfferBoldedText() : getOfferBoldedTextHint()}}</p>
+      <mat-error
+          *ngIf="invalidStrings && invalidStrings.length > 0 && isInvalidField('offerBoldedText')"
+        >
+          {{ getInvalidErrorText('offerBoldedText') }}
+        </mat-error>
+    </div>
+    <!--    <div class="details-component-container-details-field">-->
+    <!--      <p class="details-component-container-details-field-title">OFFER CTA</p>-->
+    <!--      <p class="details-component-container-details-field-subtitle">{{offerCTA}}</p>-->
+    <!--    </div>-->
+    <div class="details-component-container-details-field">
+      <p class="details-component-container-details-field-title">OFFER APPLIED BANNER TEXT</p>
+      <p
+      [ngStyle]="{'border-bottom': invalidStrings && isInvalidField('offerAppliedBannerText') ? '1px solid #f00' : null }"
+      class="details-component-container-details-field-subtitle">{{offerAppliedBannerText}}</p>
+      <mat-error
+          *ngIf="invalidStrings && invalidStrings.length > 0 && isInvalidField('offerAppliedBannerText')"
+        >
+          {{ getInvalidErrorText('offerAppliedBannerText') }}
+        </mat-error>
+    </div>
+    <div *ngIf="!isRetention() && !isExtension()" class="details-component-container-details-field">
+      <p class="details-component-container-details-field-title">OFFER BACKGROUND IMAGE</p>
+      <img alt="Offer Background Image URL" appImgFallback
+           class="details-component-container-details-field-image" src={{offerBgImageUrl}}/>
+      <a
+        [ngStyle]="{'border-bottom': invalidStrings && isInvalidField('offerBgImageUrl') ? '1px solid #f00' : null }"
+        class="details-component-container-details-field-subtitle"
+        href="{{offerBgImageUrl}}"
+        style="width: 450px;"
+        target="_blank"
+        >{{offerBgImageUrl}}</a>
+         <mat-error
+          *ngIf="invalidStrings && invalidStrings.length > 0 && isInvalidField('offerBgImageUrl')"
+        >
+          {{ getInvalidErrorText('offerBgImageUrl') }}
+        </mat-error>
+    </div>
+    <div *ngIf="!isExtension()" class="details-component-container-details-field">
+      <p class="details-component-container-details-field-title">LEGAL DISCLAIMER</p>
+      <p
+      [ngStyle]="{'border-bottom': invalidStrings && isInvalidField('legalDisclaimer') ? '1px solid #f00' : null }"
+      class="details-component-container-details-field-subtitle multi-line">{{legalDisclaimer}}</p>
+      <mat-error
+          *ngIf="invalidStrings && invalidStrings.length > 0 && isInvalidField('legalDisclaimer')"
+        >
+          {{ getInvalidErrorText('legalDisclaimer') }}
+        </mat-error>
+    </div>
+    <div *ngIf="isRetention()" class="details-component-container-details-field">
+      <p class="details-component-container-details-field-title">CLAIM OFFER TERMS</p>
+      <p class="details-component-container-details-field-subtitle multi-line">{{claimOfferTerms}}</p>
+    </div>
+    <div *ngIf="offer !== 'trial' && !isExtension()" class="details-component-container-details-field">
+      <p class="details-component-container-details-field-title">WELCOME EMAIL TEXT</p>
+      <p
+      [ngStyle]="{'border-bottom': invalidStrings && isInvalidField('welcomeEmailText') ? '1px solid #f00' : null }"
+      class="details-component-container-details-field-subtitle multi-line">{{welcomeEmailText}}</p>
+      <mat-error
+          *ngIf="invalidStrings && invalidStrings.length > 0 && isInvalidField('welcomeEmailText')"
+        >
+          {{ getInvalidErrorText('welcomeEmailText') }}
+        </mat-error>
+    </div>
+    <div class="details-component-container-details-field">
+      <p class="details-component-container-details-field-title">OFFER BUSINESS OWNER</p>
+      <p
+      [ngStyle]="{'border-bottom': invalidStrings && isInvalidField('offerBusinessOwner') ? '1px solid #f00' : null }"
+      class="details-component-container-details-field-subtitle">{{offerBusinessOwner}}</p>
+      <mat-error
+          *ngIf="invalidStrings && invalidStrings.length > 0 && isInvalidField('offerBusinessOwner')"
+        >
+          {{ getInvalidErrorText('offerBusinessOwner') }}
+        </mat-error>
+    </div>
+    <!-- samoc-312 Removed Unused Field
+    <div class="details-component-container-details-field">
+        <p class="details-component-container-details-field-title">OFFER VANITY URL</p>
+        <p class="details-component-container-details-field-subtitle">{{offerVanityUrl}}</p>
+    </div>
+    -->
+    <!-- samoc-466 Remove Publish Date Time
+      <div class="details-component-container-details-multifield">
+          <div class="details-component-container-details-field details-component-container-details-primary">
+              <p class="details-component-container-details-field-title subwidth">PUBLISH DATE</p>
+              <p class="details-component-container-details-field-subtitle subwidth">{{publishDate}}</p>
+          </div>
+          <div class="details-component-container-details-subfield">
+              <p class="details-component-container-details-field-title subwidth">PUBLISH TIME</p>
+              <p class="details-component-container-details-field-subtitle subwidth">{{publishTime}}</p>
+          </div>
+      </div>
+      -->
+    <div *ngIf="!isExtension()" class="details-component-container-details-multifield">
+      <div class="details-component-container-details-field details-component-container-details-primary">
+        <p class="details-component-container-details-field-title subwidth">END DATE</p>
+        <p
+        [ngStyle]="{'border-bottom': invalidStrings && isInvalidField('endDate') ? '1px solid #f00' : null }"
+        class="details-component-container-details-field-subtitle subwidth">{{endDate}}</p>
+        <mat-error
+          *ngIf="invalidStrings && invalidStrings.length > 0 && isInvalidField('endDate')"
+        >
+          {{ getInvalidErrorText('endDate') }}
+        </mat-error>
+      </div>
+      <div *ngIf="!isExtension()" class="details-component-container-details-subfield"
+           matTooltip="Expire time is always 11:59pm MST."
+           matTooltipClass="custom-tooltip-endtime"
+           matTooltipPosition="above">
+        <p class="details-component-container-details-field-title subwidth">END TIME</p>
+        <p *ngIf="endTime == 'No End Time'"
+           class="details-component-container-details-field-subtitle subwidth">{{endTime}}</p>
+        <p *ngIf="endTime != 'No End Time'"
+          [ngStyle]="{'border-bottom': invalidStrings && isInvalidField('endTime') ? '1px solid #f00' : null }"
+           class="details-component-container-details-field-subtitle subwidth">{{endTime}} ({{tzName}})</p>
+           <mat-error
+          *ngIf="invalidStrings && invalidStrings.length > 0 && isInvalidField('endTime')"
+        >
+          {{ getInvalidErrorText('endTime') }}
+        </mat-error>
+      </div>
+    </div>
+    <div class="details-component-container-details-field">
+      <p class="details-component-container-details-field-title">&nbsp;</p>
+    </div>
+  </div>
+</div>
